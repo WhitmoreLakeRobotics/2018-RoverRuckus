@@ -60,7 +60,8 @@ public class Teleop_test extends OpMode
 {
     Chassis RBTChassis = new Chassis();
     private static final String TAGTeleop = "8492-Teleop";
-
+    private double LeftMotorPower = 0;
+    private double RightMotorPower = 0;
     // Declare OpMode members.
 
 
@@ -117,16 +118,14 @@ public class Teleop_test extends OpMode
         // Setup a variable for each drive wheel to save power level for telemetry
 
 
-
-
         // Choose to drive using either Tank Mode, or POV Mode
         // Comment out the method that's not used.  The default below is POV.
 
         // POV Mode uses left stick to go forward, and right stick to turn.
         // - This uses basic math to combine motions and is easier to drive straight.
         RBTChassis.doTeleop(joystickMath(gamepad1.left_stick_y),joystickMath(gamepad1.right_stick_y));
-        RobotLog.aa(TAGTeleop, "gamepad1 " +gamepad1.left_stick_y);
-
+   //     RobotLog.aa(TAGTeleop, "gamepad1 " + RightMotorPower);
+   //     telemetry.addData("left stick y " + gamepad1.left_stick_y ,  "right stick y" + gamepad1.right_stick_y);
 
         // Tank Mode uses one stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.

@@ -141,11 +141,7 @@ public class Chassis extends OpMode
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
     @Override
-    public void loop(
-
-
-
-    ) {
+    public void loop() {
         // Setup a variable for each drive wheel to save power level for telemetry
 
 
@@ -182,14 +178,19 @@ public class Chassis extends OpMode
      */
     @Override
     public void stop() {
+        LDM1.setPower(0);
+        LDM2.setPower(0);
+        RDM1.setPower(0);
+        RDM2.setPower(0);
+        ChassisMode_Current = ChassisMode_Stop;
     }
 
 
 
 
     public void doTeleop(double LDMpower,double RDMpower) {
-
-        RobotLog.aa(TAGChassis, "doTeleop: " + runtime.seconds());
+        ChassisMode_Current = ChassisMode_Teleop;
+ //       RobotLog.aa(TAGChassis, "doTeleop: " +LDMpower );
 
     LDM1.setPower(LDMpower);
     RDM1.setPower(RDMpower);
