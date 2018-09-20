@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -67,6 +68,12 @@ public class Chassis extends OpMode
     public static final int ChassisMode_Idle = 3;
     public static final int ChassisMode_Teleop = 4;
 
+
+    public static final int ticsPerSecond = 1100;
+    public static final double wheelDistPreRev = 4 * 3.14159;
+    public static final double gearRatio = 80/80;
+    public static final double ticsPerInch = ticsPerSecond / wheelDistPreRev / gearRatio;
+
     //current mode of operation for Chassis
     private int ChassisMode_Current = ChassisMode_Stop;
 
@@ -77,6 +84,11 @@ public class Chassis extends OpMode
     private  DcMotor LDM2 = null;
     private  DcMotor RDM1 = null;
     private  DcMotor RDM2 = null;
+
+    private double TargetMotorPowerLeft = 0;
+    private double TargetMotorPowerRight = 0;
+    private int TargetHeadingDeg = 0;
+    private double TargetDistanceInches = 0;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -114,6 +126,25 @@ public class Chassis extends OpMode
         }
 
 
+        LDM1.setDirection(DcMotor.Direction.FORWARD);
+        LDM2.setDirection(DcMotor.Direction.FORWARD);
+        RDM1.setDirection(DcMotor.Direction.REVERSE);
+        RDM2.setDirection(DcMotor.Direction.REVERSE);
+
+        LDM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LDM2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RDM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RDM2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        LDM1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        LDM2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        RDM1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        RDM2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        LDM1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        LDM2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        RDM1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        RDM2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
@@ -129,6 +160,15 @@ public class Chassis extends OpMode
     LDM2.setMode (newMode);
     RDM2.setMode (newMode);
     }
+
+    public void setMotorMode_RUN_WITHOUT_ENCODER(){
+
+        setMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+    }
+
+
     /*
      * Code to run ONCE when the driver hits PLAY
      */
@@ -177,7 +217,7 @@ public class Chassis extends OpMode
      * Code to run ONCE after the driver hits STOP
      */
     @Override
-    public void stop() {
+   public void stop() {
         LDM1.setPower(0);
         LDM2.setPower(0);
         RDM1.setPower(0);
@@ -190,7 +230,7 @@ public class Chassis extends OpMode
 
     public void doTeleop(double LDMpower,double RDMpower) {
         ChassisMode_Current = ChassisMode_Teleop;
- //       RobotLog.aa(TAGChassis, "doTeleop: " +LDMpower );
+   RobotLog.aa(TAGChassis, "doTeleop: " + LDMpower );
 
     LDM1.setPower(LDMpower);
     RDM1.setPower(RDMpower);
@@ -199,4 +239,41 @@ public class Chassis extends OpMode
 
 
     }
+
+    private void doStop () {
+
+    TargetMotorPowerLeft = 0;
+    TargetMotorPowerRight = 0;
+    TargetDistanceInches = 0;
+
+    LDM1.setPower(TargetMotorPowerLeft);
+    LDM2.setPower(TargetMotorPowerLeft);
+    RDM1.setPower(TargetMotorPowerRight);
+    RDM2.setPower(TargetMotorPowerRight);
+
+   }
+   private void doDrive() {
+   double leftPower = TargetMotorPowerLeft ;
+   double rightPower = TargetMotorPowerRight ;
+
+   if ( leftPower < -1  ) {
+       leftPower = -1 ;
+   }
+       if ( rightPower < -1  ) {
+           rightPower = -1;
+       }
+
+       if ( leftPower > 1  ) {
+           leftPower = 1 ;
+       }
+       if ( rightPower > 1  ) {
+           rightPower = 1;
+       }
+
+       LDM1.setPower(leftPower);
+       LDM2.setPower(leftPower);
+       RDM1.setPower(rightPower);
+       RDM2.setPower(rightPower);
+
+   }
 }
