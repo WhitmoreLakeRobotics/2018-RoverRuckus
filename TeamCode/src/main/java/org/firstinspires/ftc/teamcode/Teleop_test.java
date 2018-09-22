@@ -30,15 +30,9 @@
 //package org.firstinspires.ftc.robotcontroller.external.samples;
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.RobotLog;
-
-import org.firstinspires.ftc.teamcode.Chassis;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -46,18 +40,17 @@ import org.firstinspires.ftc.teamcode.Chassis;
  * The names of OpModes appear on the menu of the FTC Driver Station.
  * When an selection is made from the menu, the corresponding OpMode
  * class is instantiated on the Robot Controller and executed.
- *
+ * <p>
  * This particular OpMode just executes a basic Tank Drive Teleop_test for a two wheeled robot
  * It includes all the skeletal structure that all iterative OpModes contain.
- *
+ * <p>
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Teleop_test", group="")
+@TeleOp(name = "Teleop_test", group = "")
 //@Disabled
-public class Teleop_test extends OpMode
-{
+public class Teleop_test extends OpMode {
     Chassis RBTChassis = new Chassis();
     private static final String TAGTeleop = "8492-Teleop";
     private double LeftMotorPower = 0;
@@ -75,16 +68,13 @@ public class Teleop_test extends OpMode
         RBTChassis.init();
 
 
-
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
 
 
-
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
-
 
 
         // Tell the driver that initialization is complete.
@@ -105,7 +95,7 @@ public class Teleop_test extends OpMode
      */
     @Override
     public void start() {
-        Runtime.getRuntime ();
+        Runtime.getRuntime();
         RBTChassis.start();
         RBTChassis.setMotorMode_RUN_WITHOUT_ENCODER();
     }
@@ -124,9 +114,9 @@ public class Teleop_test extends OpMode
 
         // POV Mode uses left stick to go forward, and right stick to turn.
         // - This uses basic math to combine motions and is easier to drive straight.
-        RBTChassis.doTeleop(joystickMath(gamepad1.left_stick_y),joystickMath(gamepad1.right_stick_y));
+        RBTChassis.doTeleop(joystickMath(gamepad1.left_stick_y), joystickMath(gamepad1.right_stick_y));
         RobotLog.aa(TAGTeleop, "gamepad1 " + RightMotorPower);
-       telemetry.addData("left stick y " + gamepad1.left_stick_y ,  "right stick y" + gamepad1.right_stick_y);
+        telemetry.addData("left stick y " + gamepad1.left_stick_y, "right stick y" + gamepad1.right_stick_y);
 
         // Tank Mode uses one stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.
@@ -134,7 +124,6 @@ public class Teleop_test extends OpMode
         // rightPower = -gamepad1.right_stick_y ;
 
         // Send calculated power to wheels
-
 
 
         // Show the elapsed game time and wheel power.
@@ -148,16 +137,17 @@ public class Teleop_test extends OpMode
     @Override
     public void stop() {
 
-    RBTChassis.stop();
+        RBTChassis.stop();
 
     }
-    public double joystickMath(double joyValue){
-     int sign = 1;
-     double retValue = 0;
-     if(joyValue < 0)  {
-     sign = -1;
-     }
-     return Math.abs(Math.pow(joyValue,2)) * sign;
+
+    public double joystickMath(double joyValue) {
+        int sign = 1;
+        double retValue = 0;
+        if (joyValue < 0) {
+            sign = -1;
+        }
+        return Math.abs(Math.pow(joyValue, 2)) * sign;
 
 
     }
