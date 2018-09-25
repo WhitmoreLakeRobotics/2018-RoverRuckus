@@ -85,7 +85,7 @@ public class Chassis extends OpMode {
     private int ChassisMode_Current = ChassisMode_Stop;
     private boolean cmdComplete = true;
     // naj set constant for Gyro KP for driving straight
-
+    public static final double chassis_KPGyroStraight = 0.035;
 
     // naj set constant for turning Tolerance in degrees
 
@@ -243,6 +243,8 @@ public class Chassis extends OpMode {
         }
 
 
+
+
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Motors", "left (%.2f), right (%.2f)");
@@ -299,11 +301,20 @@ public class Chassis extends OpMode {
 
 
     private void doDrive() {
-        // naj insert adjustments to drive straight using gyro
+        // insert adjustments to drive straight using gyro
+        RobotLog.aa(TAGChassis, "curr heading: " + gyroNormalize(getGyroHeading()));
+        RobotLog.aa(TAGChassis, "Target: " + TargetHeadingDeg);
 
-        double leftPower = TargetMotorPowerLeft;
-        double rightPower = TargetMotorPowerRight;
-        RobotLog.aa(TAGChassis, "doDrive: " + leftPower);
+        double delta = -deltaHeading(gyroNormalize(getGyroHeading()) , TargetHeadingDeg);
+        double leftPower = TargetMotorPowerLeft - (delta * chassis_KPGyroStraight);
+        double rightPower = TargetMotorPowerRight + (delta * chassis_KPGyroStraight);
+
+        RobotLog.aa(TAGChassis, "delta: " + delta);
+        RobotLog.aa(TAGChassis, "leftpower: " + leftPower + " right " + rightPower);
+
+       // double leftPower = TargetMotorPowerLeft;
+        //double rightPower = TargetMotorPowerRight;
+       // RobotLog.aa(TAGChassis, "doDrive: " + leftPower);
         if (leftPower < -1) {
             leftPower = -1;
         }
@@ -323,10 +334,13 @@ public class Chassis extends OpMode {
         RDM1.setPower(rightPower);
         RDM2.setPower(rightPower);
 
+       // RobotLog.aa(TAGChassis, "AFTER SETPOWER leftpower: " + leftPower + " right " + rightPower);
+
+
         //check if we've gone far enough, if so stop and mark task complete
         double inchesTraveled = Math.abs(getEncoderInches());
-        RobotLog.aa(TAGChassis, "targetinches: " + Math.abs(TargetDistanceInches - Chassis_DriveTolerInches));
-        RobotLog.aa(TAGChassis, "inchesTraveled: " + inchesTraveled);
+        //RobotLog.aa(TAGChassis, "targetinches: " + Math.abs(TargetDistanceInches - Chassis_DriveTolerInches));
+        //RobotLog.aa(TAGChassis, "inchesTraveled: " + inchesTraveled);
 
         if (inchesTraveled >= Math.abs(TargetDistanceInches - Chassis_DriveTolerInches)) {
             cmdComplete = true;
@@ -335,7 +349,25 @@ public class Chassis extends OpMode {
         }
 
     }  // doDrive()
+    public int deltaHeading(int currHeading, int targetHeading){
+        int returnValue = 0;
+        if (currHeading >= 0 && targetHeading >= 0 ) {
+            returnValue = targetHeading -currHeading;
+        }
+        else if (currHeading >= 0 && targetHeading <= 0 ) {
+            returnValue = targetHeading + currHeading;
+        }
 
+        else if (currHeading <= 0 && targetHeading >= 0 ) {
+            returnValue = -1 * (targetHeading + currHeading);
+        }
+
+        else if (currHeading <= 0 && targetHeading <= 0 ) {
+            returnValue = (targetHeading - currHeading);
+        }
+
+        return returnValue;
+    }
     // create method to return complete bolean
     public boolean getcmdComplete() {
 
@@ -343,13 +375,13 @@ public class Chassis extends OpMode {
     }
 
     // create command to be called from auton to drive straight
-    public void cmdDrive(double DrivePower, double targetDistanceInches) {
+    public void cmdDrive(double DrivePower, int  headingDeg , double targetDistanceInches) {
 
         cmdComplete = false;
         if (ChassisMode_Current != ChassisMode_Drive) {
             ChassisMode_Current = ChassisMode_Drive;
         }
-
+        TargetHeadingDeg = headingDeg;
         RobotLog.aa(TAGChassis, "cmdDrive: " + DrivePower);
         TargetMotorPowerLeft = DrivePower;
         TargetMotorPowerRight = DrivePower;

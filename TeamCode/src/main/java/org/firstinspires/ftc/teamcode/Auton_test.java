@@ -24,7 +24,7 @@ public class Auton_test extends OpMode {
     private double RightMotorPower = 0;
 
 
-    private double AUTO_DRIVEPower = .33;
+    private double AUTO_DRIVEPower = .3;
 
     // declare auton power variables
 
@@ -81,7 +81,7 @@ public class Auton_test extends OpMode {
             current = stage1_drive;
         }
         if (current == stage1_drive) {
-            RBTChassis.cmdDrive(AUTO_DRIVEPower, 48);
+            RBTChassis.cmdDrive(AUTO_DRIVEPower, 0,96);
             current = stage2_stop;  // error this was missing, so never stopped
         }
         if (current == stage2_stop) {
