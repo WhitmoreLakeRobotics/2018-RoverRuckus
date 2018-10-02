@@ -75,9 +75,9 @@ public class Chassis extends OpMode {
 
 
     public static final int ticsPerRev = 1100;
-    public static final double wheelDistPreRev = 4 * 3.14159;
+    public static final double wheelDistPerRev = 4 * 3.14159;
     public static final double gearRatio = 80 / 80;
-    public static final double ticsPerInch = ticsPerRev / wheelDistPreRev / gearRatio;
+    public static final double ticsPerInch = ticsPerRev / wheelDistPerRev / gearRatio;
 
     public static final double Chassis_DriveTolerInches = .25;
 
@@ -85,7 +85,7 @@ public class Chassis extends OpMode {
     private int ChassisMode_Current = ChassisMode_Stop;
     private boolean cmdComplete = true;
     // naj set constant for Gyro KP for driving straight
-    public static final double chassis_KPGyroStraight = 0.035;
+    public static final double chassis_KPGyroStraight = 0.02;
 
     // naj set constant for turning Tolerance in degrees
 
@@ -103,6 +103,8 @@ public class Chassis extends OpMode {
     private double TargetMotorPowerRight = 0;
     private int TargetHeadingDeg = 0;
     private double TargetDistanceInches = 0;
+    private double TargetMotorPowerHangMotor1 = 0;
+    private double TargetMotorPowerHangMotor2 = 0;
 
     // The IMU sensor object
     BNO055IMU imu;
@@ -131,6 +133,7 @@ public class Chassis extends OpMode {
         LDM1 = hardwareMap.dcMotor.get("LDM1");
         LDM2 = hardwareMap.dcMotor.get("LDM2");
         RDM2 = hardwareMap.dcMotor.get("RDM2");
+
 
         if (LDM1 == null) {
             telemetry.log().add("LDM1 is null...");
@@ -167,6 +170,7 @@ public class Chassis extends OpMode {
         RDM2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
 
+
         // Set up the parameters with which we will use our IMU. Note that integration
         // algorithm here just reports accelerations to the logcat log; it doesn't actually
         // provide positional information.
@@ -183,8 +187,16 @@ public class Chassis extends OpMode {
         // and named "imu".
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
+        telemetry.addData("Status", "Initialized");
+
+
 
     }
+
+
+
+
+
 
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
@@ -200,7 +212,7 @@ public class Chassis extends OpMode {
         RDM1.setMode(newMode);
         LDM2.setMode(newMode);
         RDM2.setMode(newMode);
-    }
+     }
 
     public void setMotorMode_RUN_WITHOUT_ENCODER() {
 
@@ -216,12 +228,16 @@ public class Chassis extends OpMode {
         LDM2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         RDM2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+
         LDM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         RDM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         LDM2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         RDM2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
 
+    }
+    public void DriveServoMotorReset(){
+
+    }
     /*
      * Code to run ONCE when the driver hits PLAY
      */
@@ -312,8 +328,7 @@ public class Chassis extends OpMode {
         RobotLog.aa(TAGChassis, "delta: " + delta);
         RobotLog.aa(TAGChassis, "leftpower: " + leftPower + " right " + rightPower);
 
-       // double leftPower = TargetMotorPowerLeft;
-        //double rightPower = TargetMotorPowerRight;
+
        // RobotLog.aa(TAGChassis, "doDrive: " + leftPower);
         if (leftPower < -1) {
             leftPower = -1;
