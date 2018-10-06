@@ -34,6 +34,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import java.lang.annotation.Target;
+
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
  * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
@@ -52,11 +54,15 @@ import com.qualcomm.robotcore.util.RobotLog;
 //@Disabled
 public class Teleop_test extends OpMode {
     Chassis RBTChassis = new Chassis();
+    Hanger RBTHanger = new Hanger();
     private static final String TAGTeleop = "8492-Teleop";
     private double LeftMotorPower = 0;
     private double RightMotorPower = 0;
     // Declare OpMode members.
-
+    boolean gamepad2_a_pressed = false;
+    boolean gamepad2_b_pressed = false;
+    boolean gamepad2_x_pressed = false;
+    boolean gamepad2_y_pressed = false;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -66,6 +72,8 @@ public class Teleop_test extends OpMode {
         telemetry.addData("Status", "Initialized");
         RBTChassis.hardwareMap = hardwareMap;
         RBTChassis.init();
+        RBTHanger.hardwareMap = hardwareMap;
+        RBTHanger.init();
 
 
         // Initialize the hardware variables. Note that the strings used here as parameters
@@ -106,6 +114,7 @@ public class Teleop_test extends OpMode {
     @Override
     public void loop() {
         RBTChassis.loop();
+
         // Setup a variable for each drive wheel to save power level for telemetry
 
 
@@ -117,6 +126,16 @@ public class Teleop_test extends OpMode {
         RBTChassis.doTeleop(joystickMath(gamepad1.left_stick_y), joystickMath(gamepad1.right_stick_y));
         RobotLog.aa(TAGTeleop, "gamepad1 " + RightMotorPower);
         telemetry.addData("left stick y " + gamepad1.left_stick_y, "right stick y" + gamepad1.right_stick_y);
+
+        if (gamepad2.a){
+            RBTChassis.hanger.cmd_MoveToTarget(0);
+   //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);
+        gamepad2_a_pressed = true;
+             gamepad2_b_pressed = false;
+            gamepad2_x_pressed = false;
+            gamepad2_y_pressed = false;
+        }
+
 
         // Tank Mode uses one stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.

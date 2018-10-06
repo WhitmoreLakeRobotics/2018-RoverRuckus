@@ -47,29 +47,43 @@ public class Hanger extends OpMode {
 
     //Encoder positions for the HANGER
     public static final int RESTMODE = 0;
+    /*
     public static final int EXTEND = 1;
     public static final int LATCHPOINT = 2;
     public static final int RETRACT = 3;
     public static final int HANGERMODE_EXTENDING = 4;
-    public static final int HANGERMODE_EXTENDED = 5;
-    public static final int HANGERMODE_RETRACTING = 6;
-    public static final int HANGERMODE_RETRACTED = 7;
-    public static final int HANGERMODE_LATCHPOINTING = 8;
-    public static final int HANGERMODE_LATCHPOINTED = 9;
+    */
+    public static final int HANGERMODE_EXTENDED = 5000;
+    public static final int HANGERPOWER_RETRACTING = 6;
+    public static final int HANGERMODE_RETRACTED = 0;
+    public static final int HANGERPOWER_LATCHPOINTING = 8;
+    public static final int HANGERMODE_LATCHPOINTED = 4000;
     public static final int HANGERRETRACTLIMIT = 0;
-    public static final int HANGERPOSITIONTOLERANCE = 0;
-    public static final int HANGEREXTENDLIMIT = 0;
-    public static final int ticsPerRev = 1100;
+    public static final int HANGERPOSITIONTOLERANCE = 200;
+    public static final int HANGEREXTENDLIMIT = 6000;
+
+    public static final double HANGERPOWER_EXTEND = 1;
+    public static final double HANGERPOWER_RETRACT = 0.5;
+    double  HANGERPOWER_current = 0;
+    boolean cmdComplete = false;
+    boolean underStickControl = false;
+
+
+
+/*    public static final int ticsPerRev = 1100;
     public static final double wheelDistPerRev = 4 * 3.14159;
     public static final double gearRatio = 80 / 80;
     public static final double ticsPerInch = ticsPerRev / wheelDistPerRev / gearRatio;
-
+*/
     // This is the current tick counts of the Hanger
     // This is the commanded tick counts of the Hanger
 
-    public int hangerPosition_CURRENT = 0;
+    int hangerPosition_CURRENT = HANGERRETRACTLIMIT;
+    int hangerPosition_cmd = HANGERRETRACTLIMIT;
 
     //set the HANGER powers... We will need different speeds for up and down.
+
+
     private double currentMotorpower = 0.5;
 
     double HANGERStickDeadBand = .2;
@@ -81,7 +95,7 @@ public class Hanger extends OpMode {
 
 
     // declare motors
-    private Servo servoLatch = null;
+
     private DcMotor HM1 = null;
     private DcMotor HM2 = null;
 
@@ -91,6 +105,7 @@ public class Hanger extends OpMode {
      */
     @Override
     public void init() {
+
         // telemetry.addData("Status", "Initialized");
 
         /* eg: Initialize the hardware variables. Note that the strings used here as parameters
@@ -120,7 +135,7 @@ public class Hanger extends OpMode {
         HM2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        servoLatch = hardwareMap.servo.get("servoLatch");
+
 
 
     }
@@ -143,22 +158,9 @@ public class Hanger extends OpMode {
 
     }
 
-    private void setMotorMode(DcMotor.RunMode newMode) {
 
 
-        HM1.setMode(newMode);
-        HM2.setMode(newMode);
-    }
-
-    public void setMotorMode_RUN_WITHOUT_ENCODER() {
-
-        setMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
-    }
-
-
-    /*
+     /*
      * Code to run ONCE when the driver hits PLAY
      */
     @Override
@@ -179,25 +181,23 @@ public class Hanger extends OpMode {
     }
 
     private void SetMotorPower(double newMotorPower) {
-        //Safety checks for the HANGER to prevent too low or too high
-
-        if (getHANGERPOS_Ticks() <= HANGERPOSITIONTOLERANCE + HANGERRETRACTLIMIT){
-            stop();
-        }
-
-
-        if (getHANGERPOS_Ticks() >= HANGERPOSITIONTOLERANCE - HANGEREXTENDLIMIT){
-            stop();
-        }
-
-        // make sure that we do not attempt to move less than BOTTOM
-        //if we are getting close to the bottom tolerance , slow down
+        //set the motors for the HANGER to the new power only after
+        // Safety checks to prevent too low or too high
+        hangerPosition_CURRENT = Math.abs(HM1.getCurrentPosition());
+        double newPower = newMotorPower;
+        // make sure that we do not attempt to move less than RETRACT limit
 
 
         //if were within bottom tolerance, stop
+         if (( hangerPosition_CURRENT <= HANGERPOSITIONTOLERANCE + HANGERRETRACTLIMIT) && (newPower < 0)){
+            newPower = 0;
+        }
 
+        // make sure that we do not attempt a move greater than EXTEND limit
 
-        // make sure that we do not attempt a move greater than MAX
+        if (( hangerPosition_CURRENT >= HANGERPOSITIONTOLERANCE - HANGEREXTENDLIMIT) && (newPower > 0)){
+            newPower = 0;;
+        }
 
 
         // make sure that we are not going below the bottom
@@ -212,19 +212,22 @@ public class Hanger extends OpMode {
 */
         //only set the power to the hardware when it is being changed.
 
+        if (newPower != HANGERPOWER_current ){
+            HANGERPOWER_current = newPower;
+        }
 
     }
 
     private void testInPosition() {
         // tests if we are in position and stop if we are;
-        //int curr_pos = HDM1.getCurrentPosition();
+
 
     }
 
 
     //driver is using stick control for Hanger
     public void cmdStickControl(double stickPos) {
-/*
+
         if (Math.abs(stickPos) < HANGERStickDeadBand) {
             if (underStickControl) {
                 HANGERPOWER_current = 0;
@@ -238,54 +241,64 @@ public class Hanger extends OpMode {
             double currPower = stickPos;
 
             //limit the power of the stick
-            if (stickPos > HANGERPOWER_UP) {
-                currPower = HANGERPOWER_UP;
+            if (stickPos > HANGERPOWER_EXTEND) {
+                currPower = HANGERPOWER_EXTEND;
             }
 
             //limit the power of the stick
-            if (stickPos < HANGERPOWER_DOWN) {
-                currPower = HANGERPOWER_DOWN;
+            if (stickPos < HANGERPOWER_RETRACT) {
+                currPower = HANGERPOWER_RETRACT;
             }
 
             HANGERPOWER_current = currPower;
         }
-        */
+
     }
-    // create command to return to calling class (teleop / Auton) if move complete or not
 
 
     // somebody pressed a button or ran Auton to send command to move to a given location.
     // create new process
+    public void cmd_MoveToTarget(int TargetTicks){
+    int PostionNew = TargetTicks;
+        //Do not move below BOTTOM
+    if (PostionNew <= HANGERPOSITIONTOLERANCE + HANGERRETRACTLIMIT){
+    PostionNew = HANGERRETRACTLIMIT;
 
 
-    //int curr_pos = HDM1.getCurrentPosition();
-
-
-    //Do not move below BOTTOM
-
-
-    //Do not move above MAX
+    }
+        //Do not move above MAX
+        if (PostionNew >= HANGERPOSITIONTOLERANCE + HANGEREXTENDLIMIT){
+            PostionNew = HANGEREXTENDLIMIT;
+        }
 
 
     //we are higher than we want to be and
     //not already at the bottom.
-
+    if ((PostionNew <= hangerPosition_CURRENT + HANGERPOSITIONTOLERANCE) && (HANGERRETRACTLIMIT < hangerPosition_CURRENT)){
+        HANGERPOWER_current = HANGERPOWER_RETRACT;
+        cmdComplete = false;
+        underStickControl = false;
+    }
 
     //We are lower than we want to be and not already at the top
-
-    //We need to go down to target
-
-
+        //not already at the bottom.
+        if ((PostionNew >= hangerPosition_CURRENT + HANGERPOSITIONTOLERANCE) && (HANGEREXTENDLIMIT > hangerPosition_CURRENT)) {
+            HANGERPOWER_current = HANGERPOWER_EXTEND;
+            cmdComplete = true;
+            underStickControl = true;
+            //We need to go down to target
+        }
+    }
 
         public double getHANGERPOS_Ticks() {
 
-            int totalitics = Math.abs(HM1.getCurrentPosition()) +
+        /*    int totalitics = Math.abs(HM1.getCurrentPosition()) +
                     Math.abs(HM2.getCurrentPosition()) ;
             double averagetics = totalitics / 2;
             double inches = averagetics / ticsPerInch;
+*/
 
-
-            return inches;
+            return hangerPosition_CURRENT;
         }
 
 

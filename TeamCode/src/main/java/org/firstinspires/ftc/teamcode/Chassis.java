@@ -74,7 +74,7 @@ public class Chassis extends OpMode {
     public static final int ChassisMode_Teleop = 4;
 
 
-    public static final int ticsPerRev = 1100;
+    public static final int ticsPerRev = 1120;
     public static final double wheelDistPerRev = 4 * 3.14159;
     public static final double gearRatio = 80 / 80;
     public static final double ticsPerInch = ticsPerRev / wheelDistPerRev / gearRatio;
@@ -98,6 +98,8 @@ public class Chassis extends OpMode {
     private DcMotor LDM2 = null;
     private DcMotor RDM1 = null;
     private DcMotor RDM2 = null;
+
+    public Hanger hanger = new Hanger();
 
     private double TargetMotorPowerLeft = 0;
     private double TargetMotorPowerRight = 0;
@@ -190,6 +192,11 @@ public class Chassis extends OpMode {
         telemetry.addData("Status", "Initialized");
 
 
+        // naj hardwaremap and initialize all other classes
+        hanger.hardwareMap = hardwareMap;
+        hanger.init();
+
+
 
     }
 
@@ -203,7 +210,7 @@ public class Chassis extends OpMode {
      */
     @Override
     public void init_loop() {
-
+        hanger.init_loop();
     }
 
     private void setMotorMode(DcMotor.RunMode newMode) {
@@ -229,7 +236,7 @@ public class Chassis extends OpMode {
         RDM2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
-        LDM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            LDM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         RDM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         LDM2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         RDM2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -244,6 +251,7 @@ public class Chassis extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+        hanger.start();
     }
 
     /*
@@ -252,7 +260,8 @@ public class Chassis extends OpMode {
     @Override
     public void loop() {
 
-
+    hanger.loop();
+    hanger.loop();
         //  check mode and do what what ever mode is current
         if (ChassisMode_Current == ChassisMode_Drive) {
             doDrive();
@@ -285,6 +294,7 @@ public class Chassis extends OpMode {
         RDM1.setPower(0);
         RDM2.setPower(0);
         ChassisMode_Current = ChassisMode_Stop;
+        hanger.stop();
     }
 
 
@@ -296,6 +306,7 @@ public class Chassis extends OpMode {
         RDM1.setPower(RDMpower);
         LDM2.setPower(LDMpower);
         RDM2.setPower(RDMpower);
+
 
 
     }
