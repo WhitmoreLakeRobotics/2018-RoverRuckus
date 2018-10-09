@@ -12,10 +12,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
-import com.vuforia.Device;
 
 
 //@TeleOp(name = "Hanger", group = "CHASSIS")  // @Autonomous(...) is the other common choice
@@ -59,15 +57,15 @@ public class Hanger extends OpMode {
     public static final int HANGERMODE_EXTENDED = 5000;
 
     public static final int HANGERPOWER_RETRACTING = 6;
-   // public static final int HANGERPOWER_LATCHPOINTING = 8;
-   // public static final int HANGERMODE_LATCHPOINTED = 4000;
+    // public static final int HANGERPOWER_LATCHPOINTING = 8;
+    // public static final int HANGERMODE_LATCHPOINTED = 4000;
     public static final int HANGERPOS_RETRACTED = 0;
     public static final int HANGERPOS_TOL = 200;
     public static final int HANGERPOS_EXNTENDED = 6000;
 
     public static final double HANGERPOWER_EXTEND = 1;
-    public static final double HANGERPOWER_RETRACT = - 0.5;
-    double  HANGERPOWER_current = 0;
+    public static final double HANGERPOWER_RETRACT = -0.5;
+    double HANGERPOWER_current = 0;
     boolean cmdComplete = false;
     boolean underStickControl = false;
 
@@ -124,7 +122,6 @@ public class Hanger extends OpMode {
         HM2.setDirection(DcMotor.Direction.REVERSE);
 
 
-
         HM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         HM2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -135,9 +132,6 @@ public class Hanger extends OpMode {
 
         HM1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         HM2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
-
 
 
     }
@@ -161,8 +155,7 @@ public class Hanger extends OpMode {
     }
 
 
-
-     /*
+    /*
      * Code to run ONCE when the driver hits PLAY
      */
     @Override
@@ -179,6 +172,12 @@ public class Hanger extends OpMode {
         // RobotLog.aa(TAGHanger, "Curr Postion: " + Math.abs(HDM1.getCurrentPosition()));
 
 //check if under stick control [must create process (public void ...) first]
+        if (!underStickControl) {
+            testInPosition();
+        }
+
+        SetMotorPower(HANGERPOWER_current);
+
 
     }
 
@@ -192,14 +191,15 @@ public class Hanger extends OpMode {
         RobotLog.aa(TAGHanger, "Curr Postion: " + Math.abs(HM1.getCurrentPosition()));
         RobotLog.aa(TAGHanger, "set pwr : " + newPower);
         //if were within bottom tolerance, stop
-         if (( hangerPosition_CURRENT <= HANGERPOS_TOL + HANGERPOS_RETRACTED) && (newPower < 0)){
+        if ((hangerPosition_CURRENT <=  HANGERPOS_RETRACTED + HANGERPOS_TOL ) && (newPower < 0)) {
             newPower = 0;
         }
 
         // make sure that we do not attempt a move greater than EXTEND limit
 
-        if (( hangerPosition_CURRENT >= HANGERPOS_TOL - HANGERPOS_EXNTENDED) && (newPower > 0)){
-            newPower = 0;;
+        if ((hangerPosition_CURRENT >=  HANGERPOS_EXNTENDED - HANGERPOS_TOL ) && (newPower > 0)) {
+            newPower = 0;
+            ;
         }
 
 
@@ -215,7 +215,7 @@ public class Hanger extends OpMode {
 */
         //only set the power to the hardware when it is being changed.
 
-        if (newPower != HANGERPOWER_current ){
+        if (newPower != HANGERPOWER_current) {
             HANGERPOWER_current = newPower;
         }
         HM1.setPower(HANGERPOWER_current);
@@ -262,40 +262,49 @@ public class Hanger extends OpMode {
 
     // somebody pressed a button or ran Auton to send command to move to a given location.
     // create new process
-    public void cmd_MoveToTarget(int TargetTicks){
-    int PostionNew = TargetTicks;
+    public void cmd_MoveToTarget(int TargetTicks) {
+        int PostionNew = TargetTicks;
         //Do not move below BOTTOM
         RobotLog.aa(TAGHanger, "move to target: " + TargetTicks);
-    if (PostionNew <= HANGERPOS_TOL + HANGERPOS_RETRACTED){
-    PostionNew = HANGERPOS_RETRACTED;
+        if (PostionNew <= HANGERPOS_TOL + HANGERPOS_RETRACTED) {
+            PostionNew = HANGERPOS_RETRACTED;
 
 
-    }
+        }
         //Do not move above MAX
-        if (PostionNew >= HANGERPOS_TOL + HANGERPOS_EXNTENDED){
+        if (PostionNew >= HANGERPOS_TOL + HANGERPOS_EXNTENDED) {
             PostionNew = HANGERPOS_EXNTENDED;
         }
 
 
-    //we are higher than we want to be and
-    //not already at the bottom.
-    if ((PostionNew <= hangerPosition_CURRENT + HANGERPOS_TOL) && (HANGERPOS_RETRACTED < hangerPosition_CURRENT)){
-        HANGERPOWER_current = HANGERPOWER_RETRACT;
-        cmdComplete = false;
-        underStickControl = false;
-    }
+        //we are higher than we want to be and
+        //not already at the bottom.
+        if ((PostionNew <= hangerPosition_CURRENT + HANGERPOS_TOL) && (HANGERPOS_RETRACTED < hangerPosition_CURRENT)) {
+            HANGERPOWER_current = HANGERPOWER_RETRACT;
+            cmdComplete = false;
+            underStickControl = false;
+        }
 
-    //We are lower than we want to be and not already at the top
+        //We are lower than we want to be and not already at the top
         //not already at the bottom.
         if ((PostionNew >= hangerPosition_CURRENT + HANGERPOS_TOL) && (HANGERPOS_EXNTENDED > hangerPosition_CURRENT)) {
             HANGERPOWER_current = HANGERPOWER_EXTEND;
             cmdComplete = true;
             underStickControl = true;
+
             //We need to go down to target
         }
-    }
+        RobotLog.aa(TAGHanger, "MTT end Target: " + TargetTicks + " cur: " + hangerPosition_CURRENT + " Tol: " + HANGERPOS_TOL + "Ext: " + HANGERPOS_EXNTENDED);
 
-        public double getHANGERPOS_Ticks() {
+
+
+    }  // cmd_MoveToTarget
+
+
+
+
+
+    public double getHANGERPOS_Ticks() {
 
         /*    int totalitics = Math.abs(HM1.getCurrentPosition()) +
                     Math.abs(HM2.getCurrentPosition()) ;
@@ -303,8 +312,8 @@ public class Hanger extends OpMode {
             double inches = averagetics / ticsPerInch;
 */
 
-            return hangerPosition_CURRENT;
-        }
+        return hangerPosition_CURRENT;
+    }
 
 
     /*
