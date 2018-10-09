@@ -95,6 +95,8 @@ public class Teleop_test extends OpMode {
     @Override
     public void init_loop() {
         RBTChassis.init_loop();
+        RBTHanger.init_loop();
+
 
     }
 
@@ -106,6 +108,7 @@ public class Teleop_test extends OpMode {
         Runtime.getRuntime();
         RBTChassis.start();
         RBTChassis.setMotorMode_RUN_WITHOUT_ENCODER();
+        RBTHanger.start();
     }
 
     /*
@@ -114,6 +117,7 @@ public class Teleop_test extends OpMode {
     @Override
     public void loop() {
         RBTChassis.loop();
+        RBTHanger.loop();
 
         // Setup a variable for each drive wheel to save power level for telemetry
 
@@ -128,14 +132,23 @@ public class Teleop_test extends OpMode {
         telemetry.addData("left stick y " + gamepad1.left_stick_y, "right stick y" + gamepad1.right_stick_y);
 
         if (gamepad2.a){
-            RBTChassis.hanger.cmd_MoveToTarget(0);
+            RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
    //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);
-        gamepad2_a_pressed = true;
-             gamepad2_b_pressed = false;
+            RobotLog.aa(TAGTeleop, "gamepad2 a pressed ");
+            gamepad2_a_pressed = true;
+            gamepad2_b_pressed = false;
             gamepad2_x_pressed = false;
             gamepad2_y_pressed = false;
         }
-
+        if (gamepad2.b){
+            RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERMODE_EXTENDED);
+            //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);
+            RobotLog.aa(TAGTeleop, "gamepad2 b pressed ");
+            gamepad2_a_pressed = false;
+            gamepad2_b_pressed = true;
+            gamepad2_x_pressed = false;
+            gamepad2_y_pressed = false;
+        }
 
         // Tank Mode uses one stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.

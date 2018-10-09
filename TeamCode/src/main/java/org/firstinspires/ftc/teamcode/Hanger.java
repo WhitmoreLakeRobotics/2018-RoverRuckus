@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
 import com.vuforia.Device;
 
 
@@ -51,19 +52,21 @@ public class Hanger extends OpMode {
     public static final int EXTEND = 1;
     public static final int LATCHPOINT = 2;
     public static final int RETRACT = 3;
-    public static final int HANGERMODE_EXTENDING = 4;
+ ;
     */
-    public static final int HANGERMODE_EXTENDED = 5000;
-    public static final int HANGERPOWER_RETRACTING = 6;
     public static final int HANGERMODE_RETRACTED = 0;
-    public static final int HANGERPOWER_LATCHPOINTING = 8;
-    public static final int HANGERMODE_LATCHPOINTED = 4000;
-    public static final int HANGERRETRACTLIMIT = 0;
-    public static final int HANGERPOSITIONTOLERANCE = 200;
-    public static final int HANGEREXTENDLIMIT = 6000;
+    public static final int HANGERMODE_EXTENDING = 4;
+    public static final int HANGERMODE_EXTENDED = 5000;
+
+    public static final int HANGERPOWER_RETRACTING = 6;
+   // public static final int HANGERPOWER_LATCHPOINTING = 8;
+   // public static final int HANGERMODE_LATCHPOINTED = 4000;
+    public static final int HANGERPOS_RETRACTED = 0;
+    public static final int HANGERPOS_TOL = 200;
+    public static final int HANGERPOS_EXNTENDED = 6000;
 
     public static final double HANGERPOWER_EXTEND = 1;
-    public static final double HANGERPOWER_RETRACT = 0.5;
+    public static final double HANGERPOWER_RETRACT = - 0.5;
     double  HANGERPOWER_current = 0;
     boolean cmdComplete = false;
     boolean underStickControl = false;
@@ -78,8 +81,8 @@ public class Hanger extends OpMode {
     // This is the current tick counts of the Hanger
     // This is the commanded tick counts of the Hanger
 
-    int hangerPosition_CURRENT = HANGERRETRACTLIMIT;
-    int hangerPosition_cmd = HANGERRETRACTLIMIT;
+    int hangerPosition_CURRENT = HANGERPOS_RETRACTED;
+    int hangerPosition_cmd = HANGERPOS_RETRACTED;
 
     //set the HANGER powers... We will need different speeds for up and down.
 
@@ -118,17 +121,16 @@ public class Hanger extends OpMode {
         HM2 = hardwareMap.dcMotor.get("HM2");
 
         HM1.setDirection(DcMotor.Direction.FORWARD);
-        HM2.setDirection(DcMotor.Direction.FORWARD);
-        HM1.setDirection(DcMotor.Direction.REVERSE);
         HM2.setDirection(DcMotor.Direction.REVERSE);
+
 
 
         HM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         HM2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
-        HM1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        HM2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        HM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        HM2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         HM1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -187,15 +189,16 @@ public class Hanger extends OpMode {
         double newPower = newMotorPower;
         // make sure that we do not attempt to move less than RETRACT limit
 
-
+        RobotLog.aa(TAGHanger, "Curr Postion: " + Math.abs(HM1.getCurrentPosition()));
+        RobotLog.aa(TAGHanger, "set pwr : " + newPower);
         //if were within bottom tolerance, stop
-         if (( hangerPosition_CURRENT <= HANGERPOSITIONTOLERANCE + HANGERRETRACTLIMIT) && (newPower < 0)){
+         if (( hangerPosition_CURRENT <= HANGERPOS_TOL + HANGERPOS_RETRACTED) && (newPower < 0)){
             newPower = 0;
         }
 
         // make sure that we do not attempt a move greater than EXTEND limit
 
-        if (( hangerPosition_CURRENT >= HANGERPOSITIONTOLERANCE - HANGEREXTENDLIMIT) && (newPower > 0)){
+        if (( hangerPosition_CURRENT >= HANGERPOS_TOL - HANGERPOS_EXNTENDED) && (newPower > 0)){
             newPower = 0;;
         }
 
@@ -215,7 +218,8 @@ public class Hanger extends OpMode {
         if (newPower != HANGERPOWER_current ){
             HANGERPOWER_current = newPower;
         }
-
+        HM1.setPower(HANGERPOWER_current);
+        HM2.setPower(HANGERPOWER_current);
     }
 
     private void testInPosition() {
@@ -261,20 +265,21 @@ public class Hanger extends OpMode {
     public void cmd_MoveToTarget(int TargetTicks){
     int PostionNew = TargetTicks;
         //Do not move below BOTTOM
-    if (PostionNew <= HANGERPOSITIONTOLERANCE + HANGERRETRACTLIMIT){
-    PostionNew = HANGERRETRACTLIMIT;
+        RobotLog.aa(TAGHanger, "move to target: " + TargetTicks);
+    if (PostionNew <= HANGERPOS_TOL + HANGERPOS_RETRACTED){
+    PostionNew = HANGERPOS_RETRACTED;
 
 
     }
         //Do not move above MAX
-        if (PostionNew >= HANGERPOSITIONTOLERANCE + HANGEREXTENDLIMIT){
-            PostionNew = HANGEREXTENDLIMIT;
+        if (PostionNew >= HANGERPOS_TOL + HANGERPOS_EXNTENDED){
+            PostionNew = HANGERPOS_EXNTENDED;
         }
 
 
     //we are higher than we want to be and
     //not already at the bottom.
-    if ((PostionNew <= hangerPosition_CURRENT + HANGERPOSITIONTOLERANCE) && (HANGERRETRACTLIMIT < hangerPosition_CURRENT)){
+    if ((PostionNew <= hangerPosition_CURRENT + HANGERPOS_TOL) && (HANGERPOS_RETRACTED < hangerPosition_CURRENT)){
         HANGERPOWER_current = HANGERPOWER_RETRACT;
         cmdComplete = false;
         underStickControl = false;
@@ -282,7 +287,7 @@ public class Hanger extends OpMode {
 
     //We are lower than we want to be and not already at the top
         //not already at the bottom.
-        if ((PostionNew >= hangerPosition_CURRENT + HANGERPOSITIONTOLERANCE) && (HANGEREXTENDLIMIT > hangerPosition_CURRENT)) {
+        if ((PostionNew >= hangerPosition_CURRENT + HANGERPOS_TOL) && (HANGERPOS_EXNTENDED > hangerPosition_CURRENT)) {
             HANGERPOWER_current = HANGERPOWER_EXTEND;
             cmdComplete = true;
             underStickControl = true;

@@ -105,8 +105,8 @@ public class Chassis extends OpMode {
     private double TargetMotorPowerRight = 0;
     private int TargetHeadingDeg = 0;
     private double TargetDistanceInches = 0;
-    private double TargetMotorPowerHangMotor1 = 0;
-    private double TargetMotorPowerHangMotor2 = 0;
+
+
 
     // The IMU sensor object
     BNO055IMU imu;
