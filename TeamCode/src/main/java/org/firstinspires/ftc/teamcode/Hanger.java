@@ -61,7 +61,7 @@ public class Hanger extends OpMode {
     // public static final int HANGERMODE_LATCHPOINTED = 4000;
     public static final int HANGERPOS_RETRACTED = 0;
     public static final int HANGERPOS_TOL = 200;
-    public static final int HANGERPOS_EXNTENDED = 6000;
+    public static final int HANGERPOS_EXNTENDED = 1000;
 
     public static final double HANGERPOWER_EXTEND = 1;
     public static final double HANGERPOWER_RETRACT = -0.5;
@@ -204,15 +204,15 @@ public class Hanger extends OpMode {
 
 
         // make sure that we are not going below the bottom
-       /* if ((HANGERPOS_BOTTOM + HANGERPOS_TOL > HANGERPOS_current) && (HANGERPOWER_current < 0)) {
+        if ((HANGERPOS_RETRACTED + HANGERPOS_TOL > hangerPosition_CURRENT) && (HANGERPOWER_current < 0)) {
             newPower = 0;
         }
 
         // make sure that we are not going above the top
-        if ((HANGERPOS_MAX - HANGERPOS_TOL < HANGERPOS_current) && (HANGERPOWER_current > 0)) {
+        if ((HANGERPOS_EXNTENDED - HANGERPOS_TOL < hangerPosition_CURRENT) && (HANGERPOWER_current > 0)) {
             newPower = 0;
         }
-*/
+
         //only set the power to the hardware when it is being changed.
 
         if (newPower != HANGERPOWER_current) {
@@ -224,7 +224,6 @@ public class Hanger extends OpMode {
 
     private void testInPosition() {
         // tests if we are in position and stop if we are;
-
 
     }
 

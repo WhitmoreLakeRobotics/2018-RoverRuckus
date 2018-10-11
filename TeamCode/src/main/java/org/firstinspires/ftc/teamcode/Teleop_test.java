@@ -131,6 +131,9 @@ public class Teleop_test extends OpMode {
         RobotLog.aa(TAGTeleop, "gamepad1 " + RightMotorPower);
         telemetry.addData("left stick y " + gamepad1.left_stick_y, "right stick y" + gamepad1.right_stick_y);
 
+        RBTChassis.hanger.cmdStickControl(joystickMath(gamepad2.right_stick_y));
+
+
         if (gamepad2.a){
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
    //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);
