@@ -12,6 +12,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -60,11 +61,11 @@ public class Hanger extends OpMode {
     // public static final int HANGERPOWER_LATCHPOINTING = 8;
     // public static final int HANGERMODE_LATCHPOINTED = 4000;
     public static final int HANGERPOS_RETRACTED = 0;
-    public static final int HANGERPOS_TOL = 200;
-    public static final int HANGERPOS_EXNTENDED = 1000;
+    public static final int HANGERPOS_TOL = 5;
+    public static final int HANGERPOS_EXNTENDED = 397;  //measured on robot on Oct 11, 2018
 
-    public static final double HANGERPOWER_EXTEND = 1;
-    public static final double HANGERPOWER_RETRACT = -0.5;
+    public static final double HANGERPOWER_EXTEND = .85;
+    public static final double HANGERPOWER_RETRACT = -1;
     double HANGERPOWER_current = 0;
     boolean cmdComplete = false;
     boolean underStickControl = false;
@@ -118,8 +119,9 @@ public class Hanger extends OpMode {
         HM1 = hardwareMap.dcMotor.get("HM1");
         HM2 = hardwareMap.dcMotor.get("HM2");
 
-        HM1.setDirection(DcMotor.Direction.FORWARD);
-        HM2.setDirection(DcMotor.Direction.REVERSE);
+
+        HM1.setDirection(DcMotor.Direction.REVERSE);
+        HM2.setDirection(DcMotor.Direction.FORWARD);
 
 
         HM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -168,8 +170,9 @@ public class Hanger extends OpMode {
      */
     @Override
     public void loop() {
-        //telemetry.addData("Status", "Running: " + runtime.toString());
-        // RobotLog.aa(TAGHanger, "Curr Postion: " + Math.abs(HDM1.getCurrentPosition()));
+
+        telemetry.addData("HangerPos " + hangerPosition_CURRENT, "");
+        RobotLog.aa(TAGHanger, "HangerPos: " + hangerPosition_CURRENT);
 
 //check if under stick control [must create process (public void ...) first]
         if (!underStickControl) {
@@ -203,15 +206,6 @@ public class Hanger extends OpMode {
         }
 
 
-        // make sure that we are not going below the bottom
-        if ((HANGERPOS_RETRACTED + HANGERPOS_TOL > hangerPosition_CURRENT) && (HANGERPOWER_current < 0)) {
-            newPower = 0;
-        }
-
-        // make sure that we are not going above the top
-        if ((HANGERPOS_EXNTENDED - HANGERPOS_TOL < hangerPosition_CURRENT) && (HANGERPOWER_current > 0)) {
-            newPower = 0;
-        }
 
         //only set the power to the hardware when it is being changed.
 
@@ -244,12 +238,12 @@ public class Hanger extends OpMode {
             double currPower = stickPos;
 
             //limit the power of the stick
-            if (stickPos > HANGERPOWER_EXTEND) {
+            if (stickPos < (HANGERPOWER_EXTEND)) {
                 currPower = HANGERPOWER_EXTEND;
             }
 
             //limit the power of the stick
-            if (stickPos < HANGERPOWER_RETRACT) {
+            if (stickPos > (HANGERPOWER_RETRACT)) {
                 currPower = HANGERPOWER_RETRACT;
             }
 
@@ -300,19 +294,11 @@ public class Hanger extends OpMode {
     }  // cmd_MoveToTarget
 
 
-
-
-
-    public double getHANGERPOS_Ticks() {
-
-        /*    int totalitics = Math.abs(HM1.getCurrentPosition()) +
-                    Math.abs(HM2.getCurrentPosition()) ;
-            double averagetics = totalitics / 2;
-            double inches = averagetics / ticsPerInch;
-*/
-
+    public int getHangerPos(){
         return hangerPosition_CURRENT;
     }
+
+
 
 
     /*

@@ -54,7 +54,7 @@ import java.lang.annotation.Target;
 //@Disabled
 public class Teleop_test extends OpMode {
     Chassis RBTChassis = new Chassis();
-    Hanger RBTHanger = new Hanger();
+
     private static final String TAGTeleop = "8492-Teleop";
     private double LeftMotorPower = 0;
     private double RightMotorPower = 0;
@@ -72,8 +72,6 @@ public class Teleop_test extends OpMode {
         telemetry.addData("Status", "Initialized");
         RBTChassis.hardwareMap = hardwareMap;
         RBTChassis.init();
-        RBTHanger.hardwareMap = hardwareMap;
-        RBTHanger.init();
 
 
         // Initialize the hardware variables. Note that the strings used here as parameters
@@ -95,7 +93,7 @@ public class Teleop_test extends OpMode {
     @Override
     public void init_loop() {
         RBTChassis.init_loop();
-        RBTHanger.init_loop();
+
 
 
     }
@@ -108,7 +106,7 @@ public class Teleop_test extends OpMode {
         Runtime.getRuntime();
         RBTChassis.start();
         RBTChassis.setMotorMode_RUN_WITHOUT_ENCODER();
-        RBTHanger.start();
+
     }
 
     /*
@@ -117,7 +115,7 @@ public class Teleop_test extends OpMode {
     @Override
     public void loop() {
         RBTChassis.loop();
-        RBTHanger.loop();
+
 
         // Setup a variable for each drive wheel to save power level for telemetry
 
@@ -129,7 +127,7 @@ public class Teleop_test extends OpMode {
         // - This uses basic math to combine motions and is easier to drive straight.
         RBTChassis.doTeleop(joystickMath(gamepad1.left_stick_y), joystickMath(gamepad1.right_stick_y));
         RobotLog.aa(TAGTeleop, "gamepad1 " + RightMotorPower);
-        telemetry.addData("left stick y " + gamepad1.left_stick_y, "right stick y" + gamepad1.right_stick_y);
+        telemetry.addData("HangerPos", RBTChassis.hanger.getHangerPos());
 
         RBTChassis.hanger.cmdStickControl(joystickMath(gamepad2.right_stick_y));
 
