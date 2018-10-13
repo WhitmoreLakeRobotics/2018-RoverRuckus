@@ -142,7 +142,7 @@ public class Teleop_test extends OpMode {
             gamepad2_y_pressed = false;
         }
         if (gamepad2.b){
-            RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERMODE_EXTENDED);
+            RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
             //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);
             RobotLog.aa(TAGTeleop, "gamepad2 b pressed ");
             gamepad2_a_pressed = false;

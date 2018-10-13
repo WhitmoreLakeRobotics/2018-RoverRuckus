@@ -47,19 +47,6 @@ public class Hanger extends OpMode {
 
     //Encoder positions for the HANGER
     public static final int RESTMODE = 0;
-    /*
-    public static final int EXTEND = 1;
-    public static final int LATCHPOINT = 2;
-    public static final int RETRACT = 3;
- ;
-    */
-    public static final int HANGERMODE_RETRACTED = 0;
-    public static final int HANGERMODE_EXTENDING = 4;
-    public static final int HANGERMODE_EXTENDED = 5000;
-
-    public static final int HANGERPOWER_RETRACTING = 6;
-    // public static final int HANGERPOWER_LATCHPOINTING = 8;
-    // public static final int HANGERMODE_LATCHPOINTED = 4000;
     public static final int HANGERPOS_RETRACTED = 0;
     public static final int HANGERPOS_TOL = 5;
     public static final int HANGERPOS_EXNTENDED = 397;  //measured on robot on Oct 11, 2018
@@ -134,6 +121,7 @@ public class Hanger extends OpMode {
 
         HM1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         HM2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        RobotLog.aa(TAGHanger, "HangerPos: " + hangerPosition_CURRENT);
 
 
     }
@@ -282,8 +270,8 @@ public class Hanger extends OpMode {
         //not already at the bottom.
         if ((PostionNew >= hangerPosition_CURRENT + HANGERPOS_TOL) && (HANGERPOS_EXNTENDED > hangerPosition_CURRENT)) {
             HANGERPOWER_current = HANGERPOWER_EXTEND;
-            cmdComplete = true;
-            underStickControl = true;
+            cmdComplete = false;
+            underStickControl = false;
 
             //We need to go down to target
         }

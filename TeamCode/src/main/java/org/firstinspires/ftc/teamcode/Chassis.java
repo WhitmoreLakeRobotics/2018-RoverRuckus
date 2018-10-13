@@ -33,6 +33,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -151,10 +152,10 @@ public class Chassis extends OpMode {
         }
 
 
-        LDM1.setDirection(DcMotor.Direction.FORWARD);
-        LDM2.setDirection(DcMotor.Direction.FORWARD);
-        RDM1.setDirection(DcMotor.Direction.REVERSE);
-        RDM2.setDirection(DcMotor.Direction.REVERSE);
+        LDM1.setDirection(DcMotor.Direction.REVERSE);
+        LDM2.setDirection(DcMotor.Direction.REVERSE);
+        RDM1.setDirection(DcMotor.Direction.FORWARD);
+        RDM2.setDirection(DcMotor.Direction.FORWARD);
 
         LDM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         LDM2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
