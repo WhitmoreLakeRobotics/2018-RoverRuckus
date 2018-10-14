@@ -70,7 +70,9 @@ public class Teleop_test extends OpMode {
     @Override
     public void init() {
         telemetry.addData("Status", "Initialized");
+
         RBTChassis.hardwareMap = hardwareMap;
+        RBTChassis.telemetry = telemetry;
         RBTChassis.init();
 
 
@@ -83,8 +85,7 @@ public class Teleop_test extends OpMode {
         // Reverse the motor that runs backwards when connected directly to the battery
 
 
-        // Tell the driver that initialization is complete.
-        telemetry.addData("Status", "Initialized");
+
     }
 
     /*
@@ -128,8 +129,10 @@ public class Teleop_test extends OpMode {
         RBTChassis.doTeleop(joystickMath(gamepad1.left_stick_y), joystickMath(gamepad1.right_stick_y));
         RobotLog.aa(TAGTeleop, "gamepad1 " + RightMotorPower);
         telemetry.addData("HangerPos", RBTChassis.hanger.getHangerPos());
+        telemetry.addData("IntakeArmPos", RBTChassis.intakeArm.getPOS_Ticks());
 
         RBTChassis.hanger.cmdStickControl(joystickMath(gamepad2.right_stick_y));
+        RBTChassis.intakeArm.cmd_StickControl(joystickMath(-gamepad2.left_stick_y));
 
 
         if (gamepad2.a){
@@ -149,6 +152,27 @@ public class Teleop_test extends OpMode {
             gamepad2_b_pressed = true;
             gamepad2_x_pressed = false;
             gamepad2_y_pressed = false;
+        }
+
+
+        if (gamepad2.x){
+            RBTChassis.intakeArm.cmd_moveToPickupPos();
+            //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);
+            RobotLog.aa(TAGTeleop, "gamepad2 x pressed ");
+            gamepad2_a_pressed = false;
+            gamepad2_b_pressed = false;
+            gamepad2_x_pressed = true;
+            gamepad2_y_pressed = false;
+        }
+
+        if (gamepad2.y){
+            RBTChassis.intakeArm.cmd_moveToDumpPos();
+            //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);
+            RobotLog.aa(TAGTeleop, "gamepad2 y pressed ");
+            gamepad2_a_pressed = false;
+            gamepad2_b_pressed = false;
+            gamepad2_x_pressed = false;
+            gamepad2_y_pressed = true;
         }
 
         // Tank Mode uses one stick to control each wheel.

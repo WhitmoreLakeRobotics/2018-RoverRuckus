@@ -101,6 +101,7 @@ public class Chassis extends OpMode {
     private DcMotor RDM2 = null;
 
     public Hanger hanger = new Hanger();
+    public IntakeArm intakeArm = new IntakeArm();
 
     private double TargetMotorPowerLeft = 0;
     private double TargetMotorPowerRight = 0;
@@ -190,13 +191,17 @@ public class Chassis extends OpMode {
         // and named "imu".
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Chassis", "Initialized");
 
 
         // naj hardwaremap and initialize all other classes
         hanger.hardwareMap = hardwareMap;
+        hanger.telemetry = telemetry;
         hanger.init();
 
+        intakeArm.hardwareMap =hardwareMap;
+        intakeArm.telemetry = telemetry;
+        intakeArm.init();
 
 
     }
@@ -212,6 +217,7 @@ public class Chassis extends OpMode {
     @Override
     public void init_loop() {
         hanger.init_loop();
+        intakeArm.init_loop();
     }
 
     private void setMotorMode(DcMotor.RunMode newMode) {
@@ -253,6 +259,7 @@ public class Chassis extends OpMode {
     public void start() {
         runtime.reset();
         hanger.start();
+        intakeArm.start();
     }
 
     /*
@@ -261,8 +268,9 @@ public class Chassis extends OpMode {
     @Override
     public void loop() {
 
+    intakeArm.loop();
     hanger.loop();
-    hanger.loop();
+
         //  check mode and do what what ever mode is current
         if (ChassisMode_Current == ChassisMode_Drive) {
             doDrive();
@@ -296,6 +304,7 @@ public class Chassis extends OpMode {
         RDM2.setPower(0);
         ChassisMode_Current = ChassisMode_Stop;
         hanger.stop();
+        intakeArm.stop();
     }
 
 

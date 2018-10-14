@@ -7,6 +7,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sun.tools.javac.code.Attribute;
 
@@ -47,12 +48,12 @@ public class IntakeArm extends OpMode {
     }
 
     //Encoder positions for the IntakeArm
-    public static final int IntakePos_Tol = 200;
+    public static final int IntakePos_Tol = 70;
     public static final int IntakePos_Pickup = 0;
-    public static final int IntakePos_Dump = 4000;
+    public static final int IntakePos_Dump = 3670;
     public static final int IntakePos_Carry = Math.round(IntakePos_Dump /2);
 
-    public static final double IntakePowerDown = -.5;
+    public static final double IntakePowerDown = -.35;
     public static final double IntakePowerUp = 0.75;
     double IntakePowerCurrent = 0;
     double IntakePowerDesired = 0;
@@ -67,7 +68,7 @@ public class IntakeArm extends OpMode {
 
 
 
-    double IntakeStickDeadBand = .2;
+    double IntakeStickDeadBand = 1;
 
 
     private DcMotor AM1 = null;
@@ -88,7 +89,7 @@ public class IntakeArm extends OpMode {
 
 
         AM1 = hardwareMap.dcMotor.get("AM1");
-        AM1.setDirection(DcMotor.Direction.FORWARD);
+        AM1.setDirection(DcMotor.Direction.REVERSE);
         AM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         AM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         AM1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -122,21 +123,21 @@ public class IntakeArm extends OpMode {
      */
     @Override
     public void loop() {
-        //telemetry.addData("Status", "Running: " + runtime.toString());
+        telemetry.addData("IntakeArmPower", IntakePowerDesired);
 
         //check if under stick control [must create process (public void ...) first]
-        IntakeArmSafetyChecks();
+        //IntakeArmSafetyChecks();
         SetMotorPower(IntakePowerDesired);
 
     }
 
     private void IntakeArmSafetyChecks(){
 
-        if (inPosition_Tol(IntakePos_Pickup)){
+        if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired < 0){
             IntakePowerDesired = 0;
             current_Destination = IntakeDestinations.IntakeDestinations_Pickup;
         }
-        else if (inPosition_Tol(IntakePos_Pickup)) {
+        else if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired > 0) {
             IntakePowerDesired = 0;
             current_Destination = IntakeDestinations.IntakeDestinations_Dump;
         }
@@ -171,7 +172,15 @@ public class IntakeArm extends OpMode {
 
 
             case IntakeDestinations_StickControl:
-                retValue = false;
+                if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired < 0) {
+                    retValue = true;
+                }
+                else if (inPosition_Tol(IntakePos_Dump) && IntakePowerDesired > 0) {
+                    retValue = true;
+                }
+                else {
+                    retValue = false;
+                }
                 break;
             case IntakeDestinations_Unknown:
                 retValue = true;
@@ -207,7 +216,7 @@ public class IntakeArm extends OpMode {
     //driver is using stick control for Hanger
     public void cmd_StickControl(double stickPos) {
 
-        if (Math.abs(stickPos) < IntakeStickDeadBand) {
+        if (Math.abs(stickPos) < Math.abs(IntakeStickDeadBand)) {
             if (current_Destination ==  IntakeDestinations.IntakeDestinations_StickControl) {
                 IntakePowerDesired = 0;
                 current_Destination = IntakeDestinations.IntakeDestinations_Unknown;
