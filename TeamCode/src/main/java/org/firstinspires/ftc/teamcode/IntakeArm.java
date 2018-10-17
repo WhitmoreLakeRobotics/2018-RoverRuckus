@@ -8,6 +8,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sun.tools.javac.code.Attribute;
 
@@ -55,6 +57,7 @@ public class IntakeArm extends OpMode {
 
     public static final double IntakePowerDown = -.35;
     public static final double IntakePowerUp = 0.75;
+    public static final double IntakePowerInit = -0.20;
     double IntakePowerCurrent = 0;
     double IntakePowerDesired = 0;
     boolean cmdComplete = false;
@@ -72,6 +75,8 @@ public class IntakeArm extends OpMode {
 
 
     private DcMotor AM1 = null;
+    private DigitalChannel ArmTCH = null;
+
 
 
     /*
@@ -86,8 +91,10 @@ public class IntakeArm extends OpMode {
          * to 'get' must correspond to the names assigned during the robot configuration
          * step (using the FTC Robot Controller app on the phone).
          */
+        // get a reference to our digitalTouch object.
 
-
+        ArmTCH = hardwareMap.get(DigitalChannel.class,"ArmTCH");
+        ArmTCH.setMode(DigitalChannel.Mode.INPUT);
         AM1 = hardwareMap.dcMotor.get("AM1");
         AM1.setDirection(DcMotor.Direction.REVERSE);
         AM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -115,7 +122,7 @@ public class IntakeArm extends OpMode {
      */
     @Override
     public void start() {
-
+        //initArmTCH();
     }
 
     /*
@@ -131,6 +138,19 @@ public class IntakeArm extends OpMode {
 
     }
 
+    private void initArmTCH (){
+        ElapsedTime runtime = new ElapsedTime();
+        runtime.reset();
+        runtime.startTime();
+
+        AM1.setPower(IntakePowerInit);
+        while (ArmTCH.getState() == false) {
+            if (runtime.milliseconds() > 2000) {
+                break;
+            }
+        }
+        SetMotorPower(0.0);
+    }
     private void IntakeArmSafetyChecks(){
 
         if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired < 0){
