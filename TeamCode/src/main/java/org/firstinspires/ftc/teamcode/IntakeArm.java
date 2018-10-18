@@ -22,25 +22,6 @@ public class IntakeArm extends OpMode {
     private static final String TAGIntakeArm = "8492-IntakeArm";
 
 
-    /*
-     cmd_MoveToTarget takes the new position in tick counts.
-
-        It figures out if we need to move up with positive power or Down with negative power
-        It then sets the new HANGERPOS_CmdPos and New HANGERPOWER_current
-        It sets a boolean that we are underStickControl to false
-        It does NOT set the motor Power... That will happen in the next loop if we are allowed
-        to set the next power
-        The buttons are used to very quickly move the HANGER to a given position with minimal
-        overshoot or undershoot.
-
-      cmdStickControl takes a double from the joystick position
-         It simply sets the new power if it is legal value... AKA it limits
-         the power to the valid powers that must be between HANGERPOWER_UP and HANGERPOWER_DOWN
-         Stick control allows the driver to adjust and drive by eye
-
-
-     */
-
     public static enum IntakeDestinations{
         IntakeDestinations_Pickup,
         IntakeDestinations_Carry,
@@ -122,7 +103,7 @@ public class IntakeArm extends OpMode {
      */
     @Override
     public void start() {
-        //initArmTCH();
+        initArmTCH();
     }
 
     /*
@@ -141,22 +122,26 @@ public class IntakeArm extends OpMode {
     private void initArmTCH (){
         ElapsedTime runtime = new ElapsedTime();
         runtime.reset();
-        runtime.startTime();
+        //runtime.startTime();
 
         AM1.setPower(IntakePowerInit);
-        while (ArmTCH.getState() == true) {
-            //if (runtime.milliseconds() > 2000) {
-            //    break;
-            //}
+        while (ArmTCH.getState()) {
+            if (runtime.milliseconds() > 2000) {
+                break;
+            }
         }
-        SetMotorPower(0.0);
+        AM1.setPower(0);
     }
+
+
     private void IntakeArmSafetyChecks(){
 
-        if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired < 0){
+        // test if we are down.
+        if ((inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired < 0) || ArmTCH.getState()) {
             IntakePowerDesired = 0;
             current_Destination = IntakeDestinations.IntakeDestinations_Pickup;
         }
+
         else if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired > 0) {
             IntakePowerDesired = 0;
             current_Destination = IntakeDestinations.IntakeDestinations_Dump;
@@ -180,6 +165,9 @@ public class IntakeArm extends OpMode {
         switch (desiredDestination) {
             case IntakeDestinations_Pickup:
                 retValue = inPosition_Tol(IntakePos_Pickup);
+                if (! ArmTCH.getState()) {
+                    retValue = true;
+                }
                 break;
 
             case IntakeDestinations_Carry:
@@ -193,6 +181,10 @@ public class IntakeArm extends OpMode {
 
             case IntakeDestinations_StickControl:
                 if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired < 0) {
+                    retValue = true;
+
+                }
+                else if (! ArmTCH.getState()) {
                     retValue = true;
                 }
                 else if (inPosition_Tol(IntakePos_Dump) && IntakePowerDesired > 0) {

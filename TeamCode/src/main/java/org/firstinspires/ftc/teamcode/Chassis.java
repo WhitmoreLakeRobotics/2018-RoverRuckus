@@ -221,6 +221,7 @@ public class Chassis extends OpMode {
     public void init_loop() {
         hanger.init_loop();
         intakeArm.init_loop();
+        dumpBox.init_loop();
     }
 
     private void setMotorMode(DcMotor.RunMode newMode) {
@@ -246,7 +247,7 @@ public class Chassis extends OpMode {
         RDM2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
-            LDM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        LDM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         RDM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         LDM2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         RDM2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -263,6 +264,7 @@ public class Chassis extends OpMode {
         runtime.reset();
         hanger.start();
         intakeArm.start();
+        dumpBox.start();
     }
 
     /*
@@ -273,6 +275,7 @@ public class Chassis extends OpMode {
 
     intakeArm.loop();
     hanger.loop();
+    dumpBox.loop();
 
         //  check mode and do what what ever mode is current
         if (ChassisMode_Current == ChassisMode_Drive) {
@@ -308,6 +311,7 @@ public class Chassis extends OpMode {
         ChassisMode_Current = ChassisMode_Stop;
         hanger.stop();
         intakeArm.stop();
+        dumpBox.stop();
     }
 
 
@@ -384,10 +388,11 @@ public class Chassis extends OpMode {
         if (inchesTraveled >= Math.abs(TargetDistanceInches - Chassis_DriveTolerInches)) {
             cmdComplete = true;
             doStop();
-
         }
 
-    }  // doDrive()
+    }    // doDrive()
+
+
     public int deltaHeading(int currHeading, int targetHeading){
         int returnValue = 0;
         if (currHeading >= 0 && targetHeading >= 0 ) {

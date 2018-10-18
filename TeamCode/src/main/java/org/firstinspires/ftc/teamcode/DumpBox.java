@@ -77,6 +77,8 @@ public class DumpBox extends OpMode {
     public void start() {
         boxMode_Current = BoxModes.BoxModes_Stop;
         boxMode_Desired = BoxModes.BoxModes_Stop;
+        SVRL.setPower(SVRL_STOP);
+        SVRR.setPower(SVRR_STOP);
     }
 
     /*
