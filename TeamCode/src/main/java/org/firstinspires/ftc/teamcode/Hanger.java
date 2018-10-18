@@ -182,17 +182,16 @@ public class Hanger extends OpMode {
         RobotLog.aa(TAGHanger, "Curr Postion: " + Math.abs(HM1.getCurrentPosition()));
         RobotLog.aa(TAGHanger, "set pwr : " + newPower);
         //if were within bottom tolerance, stop
-        if ((hangerPosition_CURRENT <=  HANGERPOS_RETRACTED + HANGERPOS_TOL ) && (newPower < 0)) {
+        if ((hangerPosition_CURRENT <= HANGERPOS_RETRACTED + HANGERPOS_TOL) && (newPower < 0)) {
             newPower = 0;
         }
 
         // make sure that we do not attempt a move greater than EXTEND limit
 
-        if ((hangerPosition_CURRENT >=  HANGERPOS_EXNTENDED - HANGERPOS_TOL ) && (newPower > 0)) {
+        if ((hangerPosition_CURRENT >= HANGERPOS_EXNTENDED - HANGERPOS_TOL) && (newPower > 0)) {
             newPower = 0;
             ;
         }
-
 
 
         //only set the power to the hardware when it is being changed.
@@ -278,15 +277,12 @@ public class Hanger extends OpMode {
         RobotLog.aa(TAGHanger, "MTT end Target: " + TargetTicks + " cur: " + hangerPosition_CURRENT + " Tol: " + HANGERPOS_TOL + "Ext: " + HANGERPOS_EXNTENDED);
 
 
-
     }  // cmd_MoveToTarget
 
 
-    public int getHangerPos(){
+    public int getHangerPos() {
         return hangerPosition_CURRENT;
     }
-
-
 
 
     /*

@@ -22,12 +22,11 @@ public class DumpBox extends OpMode {
     private CRServo SVRR = null;
     private CRServo SVRL = null;
 
-    public static enum BoxModes{
+    public static enum BoxModes {
         BoxModes_In,
         BoxModes_Stop,
         BoxModes_Out,
     }
-
 
 
     private final double SVRR_IN = 1;
@@ -37,7 +36,6 @@ public class DumpBox extends OpMode {
     private final double SVRL_IN = -1;
     private final double SVRL_OUT = 1;
     private final double SVRL_STOP = SVRR_STOP;
-
 
 
     private BoxModes boxMode_Current = BoxModes.BoxModes_Stop;
@@ -57,7 +55,7 @@ public class DumpBox extends OpMode {
          * to 'get' must correspond to the names assigned during the robot configuration
          * step (using the FTC Robot Controller app on the phone).
          */
-   }
+    }
 
 
     /*
@@ -67,7 +65,6 @@ public class DumpBox extends OpMode {
     public void init_loop() {
 
     }
-
 
 
     /*
@@ -115,17 +112,17 @@ public class DumpBox extends OpMode {
         }
     }
 
-    public void cmd_ServosIn(){
+    public void cmd_ServosIn() {
         boxMode_Desired = BoxModes.BoxModes_In;
 
     }
 
-    public void cmd_ServosOut(){
+    public void cmd_ServosOut() {
         boxMode_Desired = BoxModes.BoxModes_Out;
 
     }
 
-    public void cmd_ServosOff(){
+    public void cmd_ServosOff() {
         boxMode_Desired = BoxModes.BoxModes_Stop;
 
     }

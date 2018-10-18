@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-/* Hanger controls all actions the intake arm
+/* controls all actions the intake arm
 
  */
 
@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sun.tools.javac.code.Attribute;
 
 
-//@TeleOp(name = "Hanger", group = "CHASSIS")  // @Autonomous(...) is the other common choice
+//@TeleOp(name = "IntakeArm", group = "CHASSIS")  // @Autonomous(...) is the other common choice
 
 public class IntakeArm extends OpMode {
     /* Declare OpMode members. */
@@ -22,7 +22,7 @@ public class IntakeArm extends OpMode {
     private static final String TAGIntakeArm = "8492-IntakeArm";
 
 
-    public static enum IntakeDestinations{
+    public static enum IntakeDestinations {
         IntakeDestinations_Pickup,
         IntakeDestinations_Carry,
         IntakeDestinations_Dump,
@@ -34,7 +34,7 @@ public class IntakeArm extends OpMode {
     public static final int IntakePos_Tol = 70;
     public static final int IntakePos_Pickup = 0;
     public static final int IntakePos_Dump = 3670;
-    public static final int IntakePos_Carry = Math.round(IntakePos_Dump /2);
+    public static final int IntakePos_Carry = Math.round(IntakePos_Dump / 2);
 
     public static final double IntakePowerDown = -.35;
     public static final double IntakePowerUp = 0.75;
@@ -44,12 +44,10 @@ public class IntakeArm extends OpMode {
     boolean cmdComplete = false;
 
 
-
     int IntakePosCurrent = IntakePos_Pickup;
     private IntakeDestinations current_Destination = IntakeDestinations.IntakeDestinations_Pickup;
 
     //set the powers... We will need different speeds for up and down.
-
 
 
     double IntakeStickDeadBand = 1;
@@ -57,7 +55,6 @@ public class IntakeArm extends OpMode {
 
     private DcMotor AM1 = null;
     private DigitalChannel ArmTCH = null;
-
 
 
     /*
@@ -74,7 +71,7 @@ public class IntakeArm extends OpMode {
          */
         // get a reference to our digitalTouch object.
 
-        ArmTCH = hardwareMap.get(DigitalChannel.class,"ArmTCH");
+        ArmTCH = hardwareMap.get(DigitalChannel.class, "ArmTCH");
         ArmTCH.setMode(DigitalChannel.Mode.INPUT);
         AM1 = hardwareMap.dcMotor.get("AM1");
         AM1.setDirection(DcMotor.Direction.REVERSE);
@@ -95,7 +92,6 @@ public class IntakeArm extends OpMode {
     public void init_loop() {
 
     }
-
 
 
     /*
@@ -119,7 +115,7 @@ public class IntakeArm extends OpMode {
 
     }
 
-    private void initArmTCH (){
+    private void initArmTCH() {
         ElapsedTime runtime = new ElapsedTime();
         runtime.reset();
         //runtime.startTime();
@@ -134,38 +130,36 @@ public class IntakeArm extends OpMode {
     }
 
 
-    private void IntakeArmSafetyChecks(){
+    private void IntakeArmSafetyChecks() {
 
         // test if we are down.
-        if ((inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired < 0) || ArmTCH.getState()) {
+        if ((inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired < 0) || ArmTCH.getState() == false) {
             IntakePowerDesired = 0;
             current_Destination = IntakeDestinations.IntakeDestinations_Pickup;
-        }
-
-        else if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired > 0) {
+        } else if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired > 0) {
             IntakePowerDesired = 0;
             current_Destination = IntakeDestinations.IntakeDestinations_Dump;
         }
     }
 
 
-    private boolean inPosition_Tol (int PositionTicks){
+    private boolean inPosition_Tol(int PositionTicks) {
         // Tests if current position is within positional tolerance
         boolean retValue = false;
-        if (Math.abs(IntakePosCurrent - PositionTicks) < Math.abs(IntakePos_Tol)){
+        if (Math.abs(IntakePosCurrent - PositionTicks) < Math.abs(IntakePos_Tol)) {
             retValue = true;
         }
         return retValue;
     }
 
-    public boolean atDestination (IntakeDestinations desiredDestination){
+    public boolean atDestination(IntakeDestinations desiredDestination) {
         // Tests if we are at desired named destination
         boolean retValue = false;
 
         switch (desiredDestination) {
             case IntakeDestinations_Pickup:
                 retValue = inPosition_Tol(IntakePos_Pickup);
-                if (! ArmTCH.getState()) {
+                if (!ArmTCH.getState()) {
                     retValue = true;
                 }
                 break;
@@ -183,14 +177,11 @@ public class IntakeArm extends OpMode {
                 if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired < 0) {
                     retValue = true;
 
-                }
-                else if (! ArmTCH.getState()) {
+                } else if (!ArmTCH.getState()) {
                     retValue = true;
-                }
-                else if (inPosition_Tol(IntakePos_Dump) && IntakePowerDesired > 0) {
+                } else if (inPosition_Tol(IntakePos_Dump) && IntakePowerDesired > 0) {
                     retValue = true;
-                }
-                else {
+                } else {
                     retValue = false;
                 }
                 break;
@@ -202,7 +193,7 @@ public class IntakeArm extends OpMode {
                 break;
 
         }
-
+        cmdComplete = retValue;
         return retValue;
     }
 
@@ -213,23 +204,23 @@ public class IntakeArm extends OpMode {
 
         double newPower = newMotorPower;
 
-        if (atDestination(current_Destination)){
+        if (atDestination(current_Destination)) {
             newPower = 0;
         }
 
         //only set the power to the hardware when it is being changed.
-        if (newPower != IntakePowerCurrent ){
+        if (newPower != IntakePowerCurrent) {
             IntakePowerCurrent = newPower;
             IntakePowerDesired = newPower;
             AM1.setPower(IntakePowerCurrent);
         }
     }
 
-    //driver is using stick control for Hanger
+    //driver is using stick control for Intake Arm
     public void cmd_StickControl(double stickPos) {
 
         if (Math.abs(stickPos) < Math.abs(IntakeStickDeadBand)) {
-            if (current_Destination ==  IntakeDestinations.IntakeDestinations_StickControl) {
+            if (current_Destination == IntakeDestinations.IntakeDestinations_StickControl) {
                 IntakePowerDesired = 0;
                 current_Destination = IntakeDestinations.IntakeDestinations_Unknown;
             }
@@ -253,39 +244,35 @@ public class IntakeArm extends OpMode {
         }
     }
 
-    public void cmd_moveToPickupPos(){
+    public void cmd_moveToPickupPos() {
 
         current_Destination = IntakeDestinations.IntakeDestinations_Pickup;
         if (atDestination(current_Destination)) {
             IntakePowerDesired = 0;
-        }
-        else{
+        } else {
             IntakePowerDesired = IntakePowerDown;
         }
 
     }
 
-    public void cmd_moveToDumpPos(){
+    public void cmd_moveToDumpPos() {
         current_Destination = IntakeDestinations.IntakeDestinations_Dump;
         if (atDestination(current_Destination)) {
             IntakePowerDesired = 0;
-        }
-        else {
+        } else {
             IntakePowerDesired = IntakePowerUp;
         }
 
     }
 
-    public void cmd_moveToCarryPos(){
+    public void cmd_moveToCarryPos() {
         current_Destination = IntakeDestinations.IntakeDestinations_Carry;
         if (atDestination(current_Destination)) {
             //we are at carry Pos   Stop Now
             IntakePowerDesired = 0;
-        }
-        else if(IntakePosCurrent > IntakePos_Carry){
+        } else if (IntakePosCurrent > IntakePos_Carry) {
             IntakePowerDesired = IntakePowerDown;
-        }
-        else if (IntakePosCurrent < IntakePos_Carry){
+        } else if (IntakePosCurrent < IntakePos_Carry) {
             IntakePowerDesired = IntakePowerUp;
         }
 

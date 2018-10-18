@@ -81,7 +81,7 @@ public class Auton_test extends OpMode {
             current = stage1_drive;
         }
         if (current == stage1_drive) {
-            RBTChassis.cmdDrive(AUTO_DRIVEPower, 0,96);
+            RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 96);
             current = stage2_stop;  // error this was missing, so never stopped
         }
         if (current == stage2_stop) {

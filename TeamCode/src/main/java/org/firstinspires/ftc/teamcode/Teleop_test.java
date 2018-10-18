@@ -67,7 +67,7 @@ public class Teleop_test extends OpMode {
      */
     @Override
     public void init() {
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("TeleOp", "Initialized");
 
         RBTChassis.hardwareMap = hardwareMap;
         RBTChassis.telemetry = telemetry;

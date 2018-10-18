@@ -110,7 +110,6 @@ public class Chassis extends OpMode {
     private double TargetDistanceInches = 0;
 
 
-
     // The IMU sensor object
     BNO055IMU imu;
     // State used for updating telemetry
@@ -175,7 +174,6 @@ public class Chassis extends OpMode {
         RDM2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
 
-
         // Set up the parameters with which we will use our IMU. Note that integration
         // algorithm here just reports accelerations to the logcat log; it doesn't actually
         // provide positional information.
@@ -200,7 +198,7 @@ public class Chassis extends OpMode {
         hanger.telemetry = telemetry;
         hanger.init();
 
-        intakeArm.hardwareMap =hardwareMap;
+        intakeArm.hardwareMap = hardwareMap;
         intakeArm.telemetry = telemetry;
         intakeArm.init();
 
@@ -208,10 +206,6 @@ public class Chassis extends OpMode {
         dumpBox.telemetry = telemetry;
         dumpBox.init();
     }
-
-
-
-
 
 
     /*
@@ -230,7 +224,7 @@ public class Chassis extends OpMode {
         RDM1.setMode(newMode);
         LDM2.setMode(newMode);
         RDM2.setMode(newMode);
-     }
+    }
 
     public void setMotorMode_RUN_WITHOUT_ENCODER() {
 
@@ -253,9 +247,11 @@ public class Chassis extends OpMode {
         RDM2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
-    public void DriveServoMotorReset(){
+
+    public void DriveServoMotorReset() {
 
     }
+
     /*
      * Code to run ONCE when the driver hits PLAY
      */
@@ -273,16 +269,14 @@ public class Chassis extends OpMode {
     @Override
     public void loop() {
 
-    intakeArm.loop();
-    hanger.loop();
-    dumpBox.loop();
+        intakeArm.loop();
+        hanger.loop();
+        dumpBox.loop();
 
         //  check mode and do what what ever mode is current
         if (ChassisMode_Current == ChassisMode_Drive) {
             doDrive();
         }
-
-
 
 
         // Show the elapsed game time and wheel power.
@@ -325,7 +319,6 @@ public class Chassis extends OpMode {
         RDM2.setPower(RDMpower);
 
 
-
     }
 
     private void doStop() {
@@ -349,7 +342,7 @@ public class Chassis extends OpMode {
         RobotLog.aa(TAGChassis, "curr heading: " + gyroNormalize(getGyroHeading()));
         RobotLog.aa(TAGChassis, "Target: " + TargetHeadingDeg);
 
-        double delta = -deltaHeading(gyroNormalize(getGyroHeading()) , TargetHeadingDeg);
+        double delta = -deltaHeading(gyroNormalize(getGyroHeading()), TargetHeadingDeg);
         double leftPower = TargetMotorPowerLeft - (delta * chassis_KPGyroStraight);
         double rightPower = TargetMotorPowerRight + (delta * chassis_KPGyroStraight);
 
@@ -357,7 +350,7 @@ public class Chassis extends OpMode {
         RobotLog.aa(TAGChassis, "leftpower: " + leftPower + " right " + rightPower);
 
 
-       // RobotLog.aa(TAGChassis, "doDrive: " + leftPower);
+        // RobotLog.aa(TAGChassis, "doDrive: " + leftPower);
         if (leftPower < -1) {
             leftPower = -1;
         }
@@ -377,7 +370,7 @@ public class Chassis extends OpMode {
         RDM1.setPower(rightPower);
         RDM2.setPower(rightPower);
 
-       // RobotLog.aa(TAGChassis, "AFTER SETPOWER leftpower: " + leftPower + " right " + rightPower);
+        // RobotLog.aa(TAGChassis, "AFTER SETPOWER leftpower: " + leftPower + " right " + rightPower);
 
 
         //check if we've gone far enough, if so stop and mark task complete
@@ -393,25 +386,21 @@ public class Chassis extends OpMode {
     }    // doDrive()
 
 
-    public int deltaHeading(int currHeading, int targetHeading){
+    public int deltaHeading(int currHeading, int targetHeading) {
         int returnValue = 0;
-        if (currHeading >= 0 && targetHeading >= 0 ) {
-            returnValue = targetHeading -currHeading;
-        }
-        else if (currHeading >= 0 && targetHeading <= 0 ) {
+        if (currHeading >= 0 && targetHeading >= 0) {
+            returnValue = targetHeading - currHeading;
+        } else if (currHeading >= 0 && targetHeading <= 0) {
             returnValue = targetHeading + currHeading;
-        }
-
-        else if (currHeading <= 0 && targetHeading >= 0 ) {
+        } else if (currHeading <= 0 && targetHeading >= 0) {
             returnValue = -1 * (targetHeading + currHeading);
-        }
-
-        else if (currHeading <= 0 && targetHeading <= 0 ) {
+        } else if (currHeading <= 0 && targetHeading <= 0) {
             returnValue = (targetHeading - currHeading);
         }
 
         return returnValue;
     }
+
     // create method to return complete bolean
     public boolean getcmdComplete() {
 
@@ -419,7 +408,7 @@ public class Chassis extends OpMode {
     }
 
     // create command to be called from auton to drive straight
-    public void cmdDrive(double DrivePower, int  headingDeg , double targetDistanceInches) {
+    public void cmdDrive(double DrivePower, int headingDeg, double targetDistanceInches) {
 
         cmdComplete = false;
         if (ChassisMode_Current != ChassisMode_Drive) {
