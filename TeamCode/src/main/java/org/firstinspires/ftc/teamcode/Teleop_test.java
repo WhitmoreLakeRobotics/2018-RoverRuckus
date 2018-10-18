@@ -34,8 +34,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import java.lang.annotation.Target;
-
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
  * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
@@ -85,7 +83,6 @@ public class Teleop_test extends OpMode {
         // Reverse the motor that runs backwards when connected directly to the battery
 
 
-
     }
 
     /*
@@ -94,7 +91,6 @@ public class Teleop_test extends OpMode {
     @Override
     public void init_loop() {
         RBTChassis.init_loop();
-
 
 
     }
@@ -135,16 +131,16 @@ public class Teleop_test extends OpMode {
         RBTChassis.intakeArm.cmd_StickControl(joystickMath(-gamepad2.left_stick_y));
 
 
-        if (gamepad2.a){
+        if (gamepad2.a) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
-   //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);
+            //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);
             RobotLog.aa(TAGTeleop, "gamepad2 a pressed ");
             gamepad2_a_pressed = true;
             gamepad2_b_pressed = false;
             gamepad2_x_pressed = false;
             gamepad2_y_pressed = false;
         }
-        if (gamepad2.b){
+        if (gamepad2.b) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
             //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);
             RobotLog.aa(TAGTeleop, "gamepad2 b pressed ");
@@ -155,7 +151,7 @@ public class Teleop_test extends OpMode {
         }
 
 
-        if (gamepad2.x){
+        if (gamepad2.x) {
             RBTChassis.intakeArm.cmd_moveToPickupPos();
             //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);
             RobotLog.aa(TAGTeleop, "gamepad2 x pressed ");
@@ -165,7 +161,7 @@ public class Teleop_test extends OpMode {
             gamepad2_y_pressed = false;
         }
 
-        if (gamepad2.y){
+        if (gamepad2.y) {
             RBTChassis.intakeArm.cmd_moveToDumpPos();
             //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);
             RobotLog.aa(TAGTeleop, "gamepad2 y pressed ");
@@ -174,8 +170,23 @@ public class Teleop_test extends OpMode {
             gamepad2_x_pressed = false;
             gamepad2_y_pressed = true;
         }
+        if (gamepad1.a) {
+            RobotLog.aa(TAGTeleop, "gamepad1 a pressed ");
+            RBTChassis.dumpBox.cmd_ServosIn();
+        }
 
-        // Tank Mode uses one stick to control each wheel.
+        if (gamepad1.b) {
+            RobotLog.aa(TAGTeleop, "gamepad1 b pressed ");
+            RBTChassis.dumpBox.cmd_ServosOff();
+        }
+
+        if (gamepad1.y) {
+            RobotLog.aa(TAGTeleop, "gamepad1 y pressed ");
+            RBTChassis.dumpBox.cmd_ServosOut();
+        }
+
+        // Tank Mode uses one
+        // stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.
         // leftPower  = -gamepad1.left_stick_y ;
         // rightPower = -gamepad1.right_stick_y ;

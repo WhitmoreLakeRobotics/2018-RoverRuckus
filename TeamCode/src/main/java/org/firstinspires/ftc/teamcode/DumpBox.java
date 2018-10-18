@@ -6,6 +6,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -18,8 +19,8 @@ public class DumpBox extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private static final String TAGDumpBox = "8492-DumpBox";
 
-    private Servo SVRR = null;
-    private Servo SVRL = null;
+    private CRServo SVRR = null;
+    private CRServo SVRL = null;
 
     public static enum BoxModes{
         BoxModes_In,
@@ -29,18 +30,18 @@ public class DumpBox extends OpMode {
 
 
 
-    private final double SVRR_IN = 1.0;
-    private final double SVRR_OUT = 0.0;
-    private final double SVRR_STOP = .5;
+    private final double SVRR_IN = 1;
+    private final double SVRR_OUT = -1;
+    private final double SVRR_STOP = 0;
 
-    private final double SVRL_IN = 0.0;
-    private final double SVRL_OUT = 1.0;
+    private final double SVRL_IN = -1;
+    private final double SVRL_OUT = 1;
     private final double SVRL_STOP = SVRR_STOP;
 
 
 
-    private BoxModes boxMode_Current;
-    private BoxModes boxMode_Desired;
+    private BoxModes boxMode_Current = BoxModes.BoxModes_Stop;
+    private BoxModes boxMode_Desired = BoxModes.BoxModes_Stop;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -49,7 +50,9 @@ public class DumpBox extends OpMode {
     public void init() {
 
         telemetry.addData("DumpBox", "Initialized");
-
+        //ServoExtender = hardwareMap.crservo.get("Servo_Extender");
+        SVRR = hardwareMap.crservo.get("dmpSvrr");
+        SVRL = hardwareMap.crservo.get("dmpSvrl");
         /* eg: Initialize the hardware variables. Note that the strings used here as parameters
          * to 'get' must correspond to the names assigned during the robot configuration
          * step (using the FTC Robot Controller app on the phone).
@@ -72,7 +75,8 @@ public class DumpBox extends OpMode {
      */
     @Override
     public void start() {
-
+        boxMode_Current = BoxModes.BoxModes_Stop;
+        boxMode_Desired = BoxModes.BoxModes_Stop;
     }
 
     /*
@@ -80,7 +84,7 @@ public class DumpBox extends OpMode {
      */
     @Override
     public void loop() {
-        telemetry.addData("ServoStatus", boxMode_Current);
+        telemetry.addData("DumpBox", "In");
 
 
         if (boxMode_Current != boxMode_Desired) {
@@ -89,18 +93,21 @@ public class DumpBox extends OpMode {
 
             switch (boxMode_Current) {
                 case BoxModes_In:
-                    SVRL.setPosition(SVRL_IN);
-                    SVRR.setPosition(SVRR_IN);
+                    telemetry.addData("DumpBox", "In");
+                    SVRL.setPower(SVRL_IN);
+                    SVRR.setPower(SVRR_IN);
                     break;
 
                 case BoxModes_Stop:
-                    SVRL.setPosition(SVRL_STOP);
-                    SVRR.setPosition(SVRR_STOP);
+                    telemetry.addData("DumpBox", "Stop");
+                    SVRL.setPower(SVRL_STOP);
+                    SVRR.setPower(SVRR_STOP);
                     break;
 
                 case BoxModes_Out:
-                    SVRL.setPosition(SVRL_OUT);
-                    SVRR.setPosition(SVRR_OUT);
+                    telemetry.addData("DumpBox", "Out");
+                    SVRL.setPower(SVRL_OUT);
+                    SVRR.setPower(SVRR_OUT);
                     break;
             }
         }
@@ -132,8 +139,8 @@ public class DumpBox extends OpMode {
      */
     @Override
     public void stop() {
-        SVRL.setPosition(SVRL_STOP);
-        SVRR.setPosition(SVRR_STOP);
+        SVRL.setPower(SVRL_STOP);
+        SVRR.setPower(SVRR_STOP);
 
     }
 }

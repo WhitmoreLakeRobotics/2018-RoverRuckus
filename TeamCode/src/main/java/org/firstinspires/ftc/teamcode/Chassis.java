@@ -102,6 +102,7 @@ public class Chassis extends OpMode {
 
     public Hanger hanger = new Hanger();
     public IntakeArm intakeArm = new IntakeArm();
+    public DumpBox dumpBox = new DumpBox();
 
     private double TargetMotorPowerLeft = 0;
     private double TargetMotorPowerRight = 0;
@@ -203,7 +204,9 @@ public class Chassis extends OpMode {
         intakeArm.telemetry = telemetry;
         intakeArm.init();
 
-
+        dumpBox.hardwareMap = hardwareMap;
+        dumpBox.telemetry = telemetry;
+        dumpBox.init();
     }
 
 

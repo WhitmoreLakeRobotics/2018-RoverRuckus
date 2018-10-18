@@ -144,10 +144,10 @@ public class IntakeArm extends OpMode {
         runtime.startTime();
 
         AM1.setPower(IntakePowerInit);
-        while (ArmTCH.getState() == false) {
-            if (runtime.milliseconds() > 2000) {
-                break;
-            }
+        while (ArmTCH.getState() == true) {
+            //if (runtime.milliseconds() > 2000) {
+            //    break;
+            //}
         }
         SetMotorPower(0.0);
     }
