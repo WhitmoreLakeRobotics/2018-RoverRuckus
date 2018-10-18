@@ -7,11 +7,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.sun.tools.javac.code.Attribute;
 
 
 //@TeleOp(name = "IntakeArm", group = "CHASSIS")  // @Autonomous(...) is the other common choice
@@ -45,7 +42,7 @@ public class IntakeArm extends OpMode {
 
 
     int IntakePosCurrent = IntakePos_Pickup;
-    private IntakeDestinations current_Destination = IntakeDestinations.IntakeDestinations_Pickup;
+    private IntakeDestinations desiredDestination = IntakeDestinations.IntakeDestinations_Pickup;
 
     //set the powers... We will need different speeds for up and down.
 
@@ -110,7 +107,7 @@ public class IntakeArm extends OpMode {
         telemetry.addData("IntakeArmPower", IntakePowerDesired);
 
         //check if under stick control [must create process (public void ...) first]
-        //IntakeArmSafetyChecks();
+        // IntakeArmSafetyChecks();
         SetMotorPower(IntakePowerDesired);
 
     }
@@ -133,12 +130,17 @@ public class IntakeArm extends OpMode {
     private void IntakeArmSafetyChecks() {
 
         // test if we are down.
-        if ((inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired < 0) || ArmTCH.getState() == false) {
+        if ((inPosition_Tol(IntakePos_Pickup) && (IntakePowerDesired < 0)) ||
+                (!ArmTCH.getState() && (IntakePowerDesired < 0))) {
+
             IntakePowerDesired = 0;
-            current_Destination = IntakeDestinations.IntakeDestinations_Pickup;
+            desiredDestination = IntakeDestinations.IntakeDestinations_Pickup;
+
         } else if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired > 0) {
+
             IntakePowerDesired = 0;
-            current_Destination = IntakeDestinations.IntakeDestinations_Dump;
+            desiredDestination = IntakeDestinations.IntakeDestinations_Dump;
+
         }
     }
 
@@ -159,7 +161,13 @@ public class IntakeArm extends OpMode {
         switch (desiredDestination) {
             case IntakeDestinations_Pickup:
                 retValue = inPosition_Tol(IntakePos_Pickup);
+                // we are on the switch we are in Pickup pos
                 if (!ArmTCH.getState()) {
+                    retValue = true;
+                }
+                // We are below pickup... likely only by a few ticks but call it in position
+                // and cause a stop to happen
+                if (IntakePosCurrent < IntakePos_Pickup) {
                     retValue = true;
                 }
                 break;
@@ -170,17 +178,31 @@ public class IntakeArm extends OpMode {
 
             case IntakeDestinations_Dump:
                 retValue = inPosition_Tol(IntakePos_Dump);
+
+                if (IntakePosCurrent > IntakePos_Dump) {
+                    retValue = true;
+                }
                 break;
 
 
             case IntakeDestinations_StickControl:
+                // Stick control only stops at Pickup and Dump positions.
+
                 if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired < 0) {
                     retValue = true;
 
                 } else if (!ArmTCH.getState()) {
                     retValue = true;
+
+                } else if ((IntakePosCurrent < IntakePos_Pickup) && (IntakePowerDesired < 0)) {
+                    retValue = true;
+
                 } else if (inPosition_Tol(IntakePos_Dump) && IntakePowerDesired > 0) {
                     retValue = true;
+
+                } else if ((IntakePosCurrent > IntakePos_Dump) && (IntakePowerDesired > 0)) {
+                    retValue = true;
+
                 } else {
                     retValue = false;
                 }
@@ -204,7 +226,7 @@ public class IntakeArm extends OpMode {
 
         double newPower = newMotorPower;
 
-        if (atDestination(current_Destination)) {
+        if (atDestination(desiredDestination)) {
             newPower = 0;
         }
 
@@ -220,13 +242,13 @@ public class IntakeArm extends OpMode {
     public void cmd_StickControl(double stickPos) {
 
         if (Math.abs(stickPos) < Math.abs(IntakeStickDeadBand)) {
-            if (current_Destination == IntakeDestinations.IntakeDestinations_StickControl) {
+            if (desiredDestination == IntakeDestinations.IntakeDestinations_StickControl) {
                 IntakePowerDesired = 0;
-                current_Destination = IntakeDestinations.IntakeDestinations_Unknown;
+                desiredDestination = IntakeDestinations.IntakeDestinations_Unknown;
             }
             return;
         } else {
-            current_Destination = IntakeDestinations.IntakeDestinations_StickControl;
+            desiredDestination = IntakeDestinations.IntakeDestinations_StickControl;
 
             double currPower = stickPos;
 
@@ -246,8 +268,8 @@ public class IntakeArm extends OpMode {
 
     public void cmd_moveToPickupPos() {
 
-        current_Destination = IntakeDestinations.IntakeDestinations_Pickup;
-        if (atDestination(current_Destination)) {
+        desiredDestination = IntakeDestinations.IntakeDestinations_Pickup;
+        if (atDestination(desiredDestination)) {
             IntakePowerDesired = 0;
         } else {
             IntakePowerDesired = IntakePowerDown;
@@ -256,8 +278,8 @@ public class IntakeArm extends OpMode {
     }
 
     public void cmd_moveToDumpPos() {
-        current_Destination = IntakeDestinations.IntakeDestinations_Dump;
-        if (atDestination(current_Destination)) {
+        desiredDestination = IntakeDestinations.IntakeDestinations_Dump;
+        if (atDestination(desiredDestination)) {
             IntakePowerDesired = 0;
         } else {
             IntakePowerDesired = IntakePowerUp;
@@ -266,8 +288,8 @@ public class IntakeArm extends OpMode {
     }
 
     public void cmd_moveToCarryPos() {
-        current_Destination = IntakeDestinations.IntakeDestinations_Carry;
-        if (atDestination(current_Destination)) {
+        desiredDestination = IntakeDestinations.IntakeDestinations_Carry;
+        if (atDestination(desiredDestination)) {
             //we are at carry Pos   Stop Now
             IntakePowerDesired = 0;
         } else if (IntakePosCurrent > IntakePos_Carry) {
