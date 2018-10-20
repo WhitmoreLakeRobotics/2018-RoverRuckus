@@ -48,9 +48,9 @@ import com.qualcomm.robotcore.util.RobotLog;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name = "Teleop_test", group = "")
+@TeleOp(name = "Teleop", group = "")
 //@Disabled
-public class Teleop_test extends OpMode {
+public class Teleop extends OpMode {
     Chassis RBTChassis = new Chassis();
 
     private static final String TAGTeleop = "8492-Teleop";
@@ -122,7 +122,7 @@ public class Teleop_test extends OpMode {
 
         // POV Mode uses left stick to go forward, and right stick to turn.
         // - This uses basic math to combine motions and is easier to drive straight.
-        RBTChassis.doTeleop(joystickMath(gamepad1.left_stick_y), joystickMath(gamepad1.right_stick_y));
+        RBTChassis.doTeleop(joystickMath(-gamepad1.left_stick_y), joystickMath(-gamepad1.right_stick_y));
         RobotLog.aa(TAGTeleop, "gamepad1 " + RightMotorPower);
         telemetry.addData("HangerPos", RBTChassis.hanger.getHangerPos());
         telemetry.addData("IntakeArmPos", RBTChassis.intakeArm.getPOS_Ticks());
@@ -140,6 +140,8 @@ public class Teleop_test extends OpMode {
             gamepad2_x_pressed = false;
             gamepad2_y_pressed = false;
         }
+
+
         if (gamepad2.b) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
             //     Chassis.hanger.cmd_MoveToTarget(Chassis.hanger.RESTMODE);

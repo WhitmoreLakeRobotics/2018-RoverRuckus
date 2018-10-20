@@ -31,7 +31,7 @@ public class IntakeArm extends OpMode {
     public static final int IntakePos_Tol = 70;
     public static final int IntakePos_Pickup = 0;
     public static final int IntakePos_Dump = 3670;
-    public static final int IntakePos_Carry = Math.round(IntakePos_Dump / 2);
+    public static final int IntakePos_Carry = Math.round(IntakePos_Dump / 4);
 
     public static final double IntakePowerDown = -.35;
     public static final double IntakePowerUp = 0.75;
@@ -130,13 +130,13 @@ public class IntakeArm extends OpMode {
     private void IntakeArmSafetyChecks() {
 
         // test if we are down.
-        if ((inPosition_Tol(IntakePos_Pickup) && (IntakePowerDesired < 0)) ||
+        if ((inPosition_Tol(IntakePos_Pickup, IntakePosCurrent, IntakePos_Tol) && (IntakePowerDesired < 0)) ||
                 (!ArmTCH.getState() && (IntakePowerDesired < 0))) {
 
             IntakePowerDesired = 0;
             desiredDestination = IntakeDestinations.IntakeDestinations_Pickup;
 
-        } else if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired > 0) {
+        } else if (inPosition_Tol(IntakePos_Pickup, IntakePosCurrent, IntakePos_Tol) && IntakePowerDesired > 0) {
 
             IntakePowerDesired = 0;
             desiredDestination = IntakeDestinations.IntakeDestinations_Dump;
@@ -145,10 +145,10 @@ public class IntakeArm extends OpMode {
     }
 
 
-    private boolean inPosition_Tol(int PositionTicks) {
+    private boolean inPosition_Tol(int dest, int currPos, int tol) {
         // Tests if current position is within positional tolerance
         boolean retValue = false;
-        if (Math.abs(IntakePosCurrent - PositionTicks) < Math.abs(IntakePos_Tol)) {
+        if (Math.abs(dest - currPos) < Math.abs(tol)) {
             retValue = true;
         }
         return retValue;
@@ -160,7 +160,7 @@ public class IntakeArm extends OpMode {
 
         switch (desiredDestination) {
             case IntakeDestinations_Pickup:
-                retValue = inPosition_Tol(IntakePos_Pickup);
+                retValue = inPosition_Tol(IntakePos_Pickup, IntakePosCurrent, IntakePos_Tol);
                 // we are on the switch we are in Pickup pos
                 if (!ArmTCH.getState()) {
                     retValue = true;
@@ -173,11 +173,11 @@ public class IntakeArm extends OpMode {
                 break;
 
             case IntakeDestinations_Carry:
-                retValue = inPosition_Tol(IntakePos_Carry);
+                retValue = inPosition_Tol(IntakePos_Carry, IntakePosCurrent, IntakePos_Tol * 2);
                 break;
 
             case IntakeDestinations_Dump:
-                retValue = inPosition_Tol(IntakePos_Dump);
+                retValue = inPosition_Tol(IntakePos_Dump, IntakePosCurrent, IntakePos_Tol);
 
                 if (IntakePosCurrent > IntakePos_Dump) {
                     retValue = true;
@@ -188,7 +188,7 @@ public class IntakeArm extends OpMode {
             case IntakeDestinations_StickControl:
                 // Stick control only stops at Pickup and Dump positions.
 
-                if (inPosition_Tol(IntakePos_Pickup) && IntakePowerDesired < 0) {
+                if (inPosition_Tol(IntakePos_Pickup, IntakePosCurrent, IntakePos_Tol) && IntakePowerDesired < 0) {
                     retValue = true;
 
                 } else if (!ArmTCH.getState()) {
@@ -197,7 +197,7 @@ public class IntakeArm extends OpMode {
                 } else if ((IntakePosCurrent < IntakePos_Pickup) && (IntakePowerDesired < 0)) {
                     retValue = true;
 
-                } else if (inPosition_Tol(IntakePos_Dump) && IntakePowerDesired > 0) {
+                } else if (inPosition_Tol(IntakePos_Dump, IntakePosCurrent, IntakePos_Tol) && IntakePowerDesired > 0) {
                     retValue = true;
 
                 } else if ((IntakePosCurrent > IntakePos_Dump) && (IntakePowerDesired > 0)) {

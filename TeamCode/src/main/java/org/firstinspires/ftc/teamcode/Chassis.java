@@ -153,10 +153,10 @@ public class Chassis extends OpMode {
         }
 
 
-        LDM1.setDirection(DcMotor.Direction.REVERSE);
-        LDM2.setDirection(DcMotor.Direction.REVERSE);
-        RDM1.setDirection(DcMotor.Direction.FORWARD);
-        RDM2.setDirection(DcMotor.Direction.FORWARD);
+        LDM1.setDirection(DcMotor.Direction.FORWARD);
+        LDM2.setDirection(DcMotor.Direction.FORWARD);
+        RDM1.setDirection(DcMotor.Direction.REVERSE);
+        RDM2.setDirection(DcMotor.Direction.REVERSE);
 
         LDM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         LDM2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

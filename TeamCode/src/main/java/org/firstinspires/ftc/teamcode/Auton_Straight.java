@@ -5,17 +5,18 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "Auton_test", group = "Auton")  // @Autonomous(...) is the other common choice
+@Autonomous(name = "Auton_Straight ", group = "Auton")  // @Autonomous(...) is the other common choice
 
-public class Auton_test extends OpMode {
+public class Auton_Straight extends OpMode {
 
 
     //declare and initialize stages
     private static final int stage0_preStart = 0;
-    private static final int stage1_drive = 1;
-    private static final int stage2_stop = 2;
+    private static final int stage05_liftIntakAarm = 5;
+    private static final int stage10_drive = 10;
+    private static final int stage20_stop = 20;
 
-    int current = stage0_preStart;
+    private int currentStage = stage0_preStart;
 
     // create instance of Chassis
     Chassis RBTChassis = new Chassis();
@@ -24,7 +25,7 @@ public class Auton_test extends OpMode {
     private double RightMotorPower = 0;
 
 
-    private double AUTO_DRIVEPower = .3;
+    private double AUTO_DRIVEPower = .5;
 
     // declare auton power variables
 
@@ -37,9 +38,11 @@ public class Auton_test extends OpMode {
      */
     @Override
     public void init() {
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Auton_Straight", "Initialized");
         RBTChassis.hardwareMap = hardwareMap;
+        RBTChassis.telemetry = telemetry;
         RBTChassis.init();
+
 
         // initialize chassis with hardware map
     }
@@ -72,25 +75,30 @@ public class Auton_test extends OpMode {
     @Override
     public void loop() {
 
-        // telemetry.addData("Stage", CurrentStage);
-        // initialize chassis
+        telemetry.addData("Auto_Straight Stage", currentStage);
         RBTChassis.loop();
 
 // check stage and do what's appropriate
-        if (current == stage0_preStart) {
-            current = stage1_drive;
+        if (currentStage == stage0_preStart) {
+            currentStage = stage05_liftIntakAarm;
         }
-        if (current == stage1_drive) {
-            RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 96);
-            current = stage2_stop;  // error this was missing, so never stopped
+        if (currentStage == stage05_liftIntakAarm){
+            currentStage = stage10_drive;
+            RBTChassis.intakeArm.cmd_moveToCarryPos();
         }
-        if (current == stage2_stop) {
-
+        if (currentStage == stage10_drive) {
+            RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 60);
+            currentStage = stage20_stop;  // error this was missing, so never stopped
+        }
+        if (currentStage == stage20_stop) {
+            if (RBTChassis.getcmdComplete()){
+                stop();
+            }
         }
 
         // if (CurrentStage == stage_150Done) {
         //      if (robotChassis.getcmdComplete()) {
-        if (runtime.seconds() > 25) {
+        if (runtime.seconds() > 29) {
             stop();
         }
 

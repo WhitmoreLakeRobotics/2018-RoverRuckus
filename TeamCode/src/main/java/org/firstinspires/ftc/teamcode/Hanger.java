@@ -51,7 +51,7 @@ public class Hanger extends OpMode {
     public static final int HANGERPOS_TOL = 5;
     public static final int HANGERPOS_EXNTENDED = 397;  //measured on robot on Oct 11, 2018
 
-    public static final double HANGERPOWER_EXTEND = .85;
+    public static final double HANGERPOWER_EXTEND = 1;
     public static final double HANGERPOWER_RETRACT = -1;
     double HANGERPOWER_current = 0;
     boolean cmdComplete = false;
