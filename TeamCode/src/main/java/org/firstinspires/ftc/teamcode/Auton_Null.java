@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
         @Override
         public void init() {
             telemetry.addData("Auton_Null", "Initialized");
+            RBTChassis.setParentMode(Chassis.PARENTMODE.PARENT_MODE_AUTO);
             RBTChassis.hardwareMap = hardwareMap;
             RBTChassis.telemetry = telemetry;
             RBTChassis.init();
