@@ -48,8 +48,8 @@ public class Hanger extends OpMode {
     //Encoder positions for the HANGER
     public static final int RESTMODE = 0;
     public static final int HANGERPOS_RETRACTED = 0;
-    public static final int HANGERPOS_TOL = 5;
-    public static final int HANGERPOS_EXNTENDED = 397;  //measured on robot on Oct 11, 2018
+    public static final int HANGERPOS_TOL = 40;
+    public static final int HANGERPOS_EXNTENDED = 1032;  //measured on robot on Oct 11, 2018
 
     public static final double HANGERPOWER_EXTEND = 1;
     public static final double HANGERPOWER_RETRACT = -1;
@@ -278,7 +278,10 @@ public class Hanger extends OpMode {
 
 
     }  // cmd_MoveToTarget
+        public boolean isExtended(){
+        return (hangerPosition_CURRENT > (HANGERPOS_EXNTENDED - HANGERPOS_TOL));
 
+        }
 
     public int getHangerPos() {
         return hangerPosition_CURRENT;

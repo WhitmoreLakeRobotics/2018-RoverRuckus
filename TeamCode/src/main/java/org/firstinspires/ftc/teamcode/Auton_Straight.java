@@ -5,13 +5,15 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "Auton_Straight ", group = "Auton")  // @Autonomous(...) is the other common choice
+@Autonomous(name = "Auton_Straight ", group = "Auton")
+// @Autonomous(...) is the other common choice
 
 public class Auton_Straight extends OpMode {
 
 
     //declare and initialize stages
     private static final int stage0_preStart = 0;
+    private static final int stage2_extened = 2;
     private static final int stage05_liftIntakAarm = 5;
     private static final int stage10_drive = 10;
     private static final int stage20_stop = 20;
@@ -80,18 +82,25 @@ public class Auton_Straight extends OpMode {
 
 // check stage and do what's appropriate
         if (currentStage == stage0_preStart) {
+            currentStage = stage2_extened;
+        }
+        if (currentStage == stage2_extened) {
+            RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
             currentStage = stage05_liftIntakAarm;
         }
-        if (currentStage == stage05_liftIntakAarm){
+        if (currentStage == stage05_liftIntakAarm) {
             currentStage = stage10_drive;
             RBTChassis.intakeArm.cmd_moveToCarryPos();
         }
         if (currentStage == stage10_drive) {
-            RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 60);
-            currentStage = stage20_stop;  // error this was missing, so never stopped
+            if (RBTChassis.hanger.isExtended()) {
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 50);
+                currentStage = stage20_stop;  // error this was missing, so never stopped
+            }
         }
         if (currentStage == stage20_stop) {
-            if (RBTChassis.getcmdComplete()){
+            RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
+            if (RBTChassis.getcmdComplete()) {
                 stop();
             }
         }
