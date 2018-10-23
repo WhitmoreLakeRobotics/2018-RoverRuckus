@@ -75,7 +75,7 @@ public class Hanger extends OpMode {
 
     //set the HANGER powers... We will need different speeds for up and down.
 
-
+    private double initMotorPower = 0;
     private double currentMotorpower = 0.5;
 
     double HANGERStickDeadBand = .2;
@@ -141,9 +141,30 @@ public class Hanger extends OpMode {
      */
     @Override
     public void init_loop() {
-
+        // initPowerHang();
     }
 
+    private void initPowerHang() {
+        // If the robot needs help to hang this will give a little bit of motor power to help
+        // hold the robot in the 18 inch cube.
+
+        double newMotorPower = 0;
+        if (HangTCH.getState()) {
+            newMotorPower = initMotorPower + (HANGERPOWER_RETRACT * .01);
+        }
+        else {
+            // initMotorPower = initMotorPower + (HANGERPOWER_EXTEND * .01);
+            newMotorPower = 0;
+        }
+
+        if ( newMotorPower != initMotorPower) {
+            telemetry.addData("initHangerPower" , newMotorPower);
+            initMotorPower = newMotorPower;
+            HM1.setPower(0);
+            HM2.setPower(0);
+        }
+
+    }
 
     private void initHangerTCH() {
         ElapsedTime runtime = new ElapsedTime();
@@ -168,7 +189,8 @@ public class Hanger extends OpMode {
     @Override
     public void start() {
         // this is always called by chassis
-
+        HM1.setPower(0);
+        HM2.setPower(0);
     }
 
     public void autoStart(){
