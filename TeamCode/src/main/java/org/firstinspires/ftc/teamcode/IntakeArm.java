@@ -40,6 +40,8 @@ public class IntakeArm extends OpMode {
     double IntakePowerDesired = 0;
     boolean cmdComplete = false;
 
+    private Hanger hanger = null;
+
 
     int IntakePosCurrent = IntakePos_Pickup;
     private IntakeDestinations desiredDestination = IntakeDestinations.IntakeDestinations_Pickup;
@@ -72,8 +74,6 @@ public class IntakeArm extends OpMode {
         ArmTCH.setMode(DigitalChannel.Mode.INPUT);
         AM1 = hardwareMap.dcMotor.get("AM1");
         AM1.setDirection(DcMotor.Direction.REVERSE);
-        AM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        AM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         AM1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
@@ -96,7 +96,19 @@ public class IntakeArm extends OpMode {
      */
     @Override
     public void start() {
+
+    }
+
+
+    public void autoStart(){
         initArmTCH();
+        AM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        AM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+    }
+
+    public void teleStart() {
+
     }
 
     /*
@@ -230,6 +242,10 @@ public class IntakeArm extends OpMode {
             newPower = 0;
         }
 
+        if (! hanger.isRetracted () ) {
+            newPower = 0;
+        }
+
         //only set the power to the hardware when it is being changed.
         if (newPower != IntakePowerCurrent) {
             IntakePowerCurrent = newPower;
@@ -257,10 +273,17 @@ public class IntakeArm extends OpMode {
                 currPower = IntakePowerUp;
             }
 
+            //Make sure the hanger is Down  AKA no going up unless the hanger is down
+            if (! hanger.isRetracted()) {
+                currPower = 0;
+            }
+
             //limit the power of the stick
             if (currPower < IntakePowerDown) {
                 currPower = IntakePowerDown;
             }
+
+
 
             IntakePowerDesired = currPower;
         }
@@ -298,6 +321,10 @@ public class IntakeArm extends OpMode {
             IntakePowerDesired = IntakePowerUp;
         }
 
+    }
+
+    public void setHanger(Hanger hangR){
+        hanger = hangR;
     }
 
     public int getPOS_Ticks() {

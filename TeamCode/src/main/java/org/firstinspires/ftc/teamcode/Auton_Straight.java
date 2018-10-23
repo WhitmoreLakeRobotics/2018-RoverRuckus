@@ -13,10 +13,10 @@ public class Auton_Straight extends OpMode {
 
     //declare and initialize stages
     private static final int stage0_preStart = 0;
-    private static final int stage2_extened = 2;
-    private static final int stage05_liftIntakAarm = 5;
-    private static final int stage10_drive = 10;
-    private static final int stage20_stop = 20;
+    private static final int stage10_extened = 10;
+    private static final int stage20_liftIntakeAarm = 20;
+    private static final int stage30_drive = 30;
+    private static final int stage99_stop = 99;
 
     private int currentStage = stage0_preStart;
 
@@ -41,6 +41,7 @@ public class Auton_Straight extends OpMode {
     @Override
     public void init() {
         telemetry.addData("Auton_Straight", "Initialized");
+        RBTChassis.setParentMode(Chassis.PARENTMODE.PARENT_MODE_AUTO);
         RBTChassis.hardwareMap = hardwareMap;
         RBTChassis.telemetry = telemetry;
         RBTChassis.init();
@@ -82,37 +83,41 @@ public class Auton_Straight extends OpMode {
 
 // check stage and do what's appropriate
         if (currentStage == stage0_preStart) {
-            currentStage = stage2_extened;
+            currentStage = stage10_extened;
         }
-        if (currentStage == stage2_extened) {
+
+
+        if (currentStage == stage10_extened) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
-            currentStage = stage05_liftIntakAarm;
+            currentStage = stage20_liftIntakeAarm;
         }
-        if (currentStage == stage05_liftIntakAarm) {
-            currentStage = stage10_drive;
+
+
+        if (currentStage == stage20_liftIntakeAarm) {
+            currentStage = stage30_drive;
             RBTChassis.intakeArm.cmd_moveToCarryPos();
         }
-        if (currentStage == stage10_drive) {
+
+
+        if (currentStage == stage30_drive) {
             if (RBTChassis.hanger.isExtended()) {
                 RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 50);
-                currentStage = stage20_stop;  // error this was missing, so never stopped
+                currentStage = stage99_stop;  // error this was missing, so never stopped
             }
         }
-        if (currentStage == stage20_stop) {
+
+
+        if (currentStage == stage99_stop) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
             if (RBTChassis.getcmdComplete()) {
                 stop();
             }
         }
 
-        // if (CurrentStage == stage_150Done) {
-        //      if (robotChassis.getcmdComplete()) {
         if (runtime.seconds() > 29) {
             stop();
         }
 
-        //}
-        //}
     }  //  loop
 
     /*
@@ -120,7 +125,6 @@ public class Auton_Straight extends OpMode {
      */
     @Override
     public void stop() {
-        //   robotChassis.stop();
         RBTChassis.stop();
     }
 

@@ -33,7 +33,6 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -68,6 +67,12 @@ public class Chassis extends OpMode {
     private static final String TAGChassis = "8492-Chassis";
 
 
+    public static enum PARENTMODE {
+        PARENT_MODE_AUTO,
+        PARENT_MODE_TELE
+    }
+
+
     public static final int ChassisMode_Stop = 0;
     public static final int ChassisMode_Drive = 1;
     public static final int ChassisMode_Turn = 2;
@@ -92,7 +97,7 @@ public class Chassis extends OpMode {
 
 
     private int cmdStartTime_mS = 0;
-
+    private PARENTMODE parentMode_Current = null;
     //LDM=leftDriveMotor
     //RDM=rightDriveMotor
     private DcMotor LDM1 = null;
@@ -168,11 +173,10 @@ public class Chassis extends OpMode {
         RDM1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         RDM2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        LDM1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        LDM2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        RDM1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        RDM2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
+        LDM1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LDM2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        RDM1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        RDM2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Set up the parameters with which we will use our IMU. Note that integration
         // algorithm here just reports accelerations to the logcat log; it doesn't actually
@@ -196,10 +200,12 @@ public class Chassis extends OpMode {
         // naj hardwaremap and initialize all other classes
         hanger.hardwareMap = hardwareMap;
         hanger.telemetry = telemetry;
+        hanger.setIntakeArm(intakeArm);
         hanger.init();
 
         intakeArm.hardwareMap = hardwareMap;
         intakeArm.telemetry = telemetry;
+        intakeArm.setHanger(hanger);
         intakeArm.init();
 
         dumpBox.hardwareMap = hardwareMap;
@@ -216,6 +222,10 @@ public class Chassis extends OpMode {
         hanger.init_loop();
         intakeArm.init_loop();
         dumpBox.init_loop();
+    }
+
+    public void setParentMode(PARENTMODE pm){
+        parentMode_Current = pm;
     }
 
     private void setMotorMode(DcMotor.RunMode newMode) {
@@ -258,6 +268,18 @@ public class Chassis extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+
+        switch (parentMode_Current) {
+            case PARENT_MODE_AUTO:
+                intakeArm.autoStart();
+                hanger.autoStart();
+                break;
+
+            case PARENT_MODE_TELE:
+                intakeArm.teleStart();
+                hanger.teleStart();
+                break;
+        }
         hanger.start();
         intakeArm.start();
         dumpBox.start();

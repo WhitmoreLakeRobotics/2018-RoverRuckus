@@ -13,6 +13,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -58,6 +59,8 @@ public class Hanger extends OpMode {
     boolean underStickControl = false;
 
 
+    private IntakeArm intakeArm = null;
+
 
 /*    public static final int ticsPerRev = 1100;
     public static final double wheelDistPerRev = 4 * 3.14159;
@@ -87,6 +90,7 @@ public class Hanger extends OpMode {
 
     private DcMotor HM1 = null;
     private DcMotor HM2 = null;
+    private DigitalChannel HangTCH = null;
 
 
     /*
@@ -111,17 +115,13 @@ public class Hanger extends OpMode {
         HM2.setDirection(DcMotor.Direction.FORWARD);
 
 
-        HM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        HM2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-
-        HM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        HM2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
         HM1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         HM2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RobotLog.aa(TAGHanger, "HangerPos: " + hangerPosition_CURRENT);
+
+        HangTCH = hardwareMap.get(DigitalChannel.class, "HangTCH");
+        HangTCH.setMode(DigitalChannel.Mode.INPUT);
+
 
 
     }
@@ -145,13 +145,47 @@ public class Hanger extends OpMode {
     }
 
 
+    private void initHangerTCH() {
+        ElapsedTime runtime = new ElapsedTime();
+        runtime.reset();
+        //runtime.startTime();
+
+        HM1.setPower(HANGERPOWER_RETRACT);
+        HM2.setPower(HANGERPOWER_RETRACT);
+        while (HangTCH.getState()) {
+            if (runtime.milliseconds() > 2000) {
+                break;
+            }
+        }
+        HM1.setPower(HANGERPOWER_RETRACT);
+        HM2.setPower(HANGERPOWER_RETRACT);
+
+    }
+
     /*
      * Code to run ONCE when the driver hits PLAY
      */
     @Override
     public void start() {
+        // this is always called by chassis
 
     }
+
+    public void autoStart(){
+        // This is only called by chassis when running Auto OpModes
+        initHangerTCH();
+        HM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        HM2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        HM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        HM2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+
+    public void teleStart() {
+        // This is only called by chassis when running Tele OpModes
+
+    }
+
 
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
@@ -172,6 +206,10 @@ public class Hanger extends OpMode {
 
     }
 
+    public void setIntakeArm (IntakeArm iArm){
+        intakeArm = iArm;
+    }
+
     private void SetMotorPower(double newMotorPower) {
         //set the motors for the HANGER to the new power only after
         // Safety checks to prevent too low or too high
@@ -190,7 +228,12 @@ public class Hanger extends OpMode {
 
         if ((hangerPosition_CURRENT >= HANGERPOS_EXNTENDED - HANGERPOS_TOL) && (newPower > 0)) {
             newPower = 0;
-            ;
+
+        }
+
+        //Interlock the intake arm and the hanger...
+        if ((intakeArm.IntakePosCurrent > (IntakeArm.IntakePos_Dump *.75)) && newMotorPower > 0) {
+            newPower = 0;
         }
 
 
@@ -198,9 +241,9 @@ public class Hanger extends OpMode {
 
         if (newPower != HANGERPOWER_current) {
             HANGERPOWER_current = newPower;
+            HM1.setPower(HANGERPOWER_current);
+            HM2.setPower(HANGERPOWER_current);
         }
-        HM1.setPower(HANGERPOWER_current);
-        HM2.setPower(HANGERPOWER_current);
     }
 
     private void testInPosition() {
@@ -278,10 +321,21 @@ public class Hanger extends OpMode {
 
 
     }  // cmd_MoveToTarget
-        public boolean isExtended(){
-        return (hangerPosition_CURRENT > (HANGERPOS_EXNTENDED - HANGERPOS_TOL));
 
-        }
+    public boolean isExtended(){
+        return ((hangerPosition_CURRENT > (HANGERPOS_EXNTENDED - HANGERPOS_TOL)) &&
+                HangTCH.getState());
+
+    }
+
+    public boolean isRetracted(){
+        // Need to add the switch to this method
+        return ((hangerPosition_CURRENT < (HANGERPOS_RETRACTED + HANGERPOS_TOL)) ||
+                (! HangTCH.getState()));
+
+    }
+
+
 
     public int getHangerPos() {
         return hangerPosition_CURRENT;

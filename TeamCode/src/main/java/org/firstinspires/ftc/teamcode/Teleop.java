@@ -68,7 +68,7 @@ public class Teleop extends OpMode {
     @Override
     public void init() {
         telemetry.addData("TeleOp", "Initialized");
-
+        RBTChassis.setParentMode(Chassis.PARENTMODE.PARENT_MODE_TELE);
         RBTChassis.hardwareMap = hardwareMap;
         RBTChassis.telemetry = telemetry;
         RBTChassis.init();
