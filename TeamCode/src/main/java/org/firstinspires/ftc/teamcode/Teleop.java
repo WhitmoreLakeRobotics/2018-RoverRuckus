@@ -51,16 +51,15 @@ import com.qualcomm.robotcore.util.RobotLog;
 @TeleOp(name = "Teleop", group = "")
 //@Disabled
 public class Teleop extends OpMode {
-    Chassis RBTChassis = new Chassis();
-
     private static final String TAGTeleop = "8492-Teleop";
-    private double LeftMotorPower = 0;
-    private double RightMotorPower = 0;
+    Chassis RBTChassis = new Chassis();
     // Declare OpMode members.
     boolean gamepad2_a_pressed = false;
     boolean gamepad2_b_pressed = false;
     boolean gamepad2_x_pressed = false;
     boolean gamepad2_y_pressed = false;
+    private double LeftMotorPower = 0;
+    private double RightMotorPower = 0;
 
     /*
      * Code to run ONCE when the driver hits INIT

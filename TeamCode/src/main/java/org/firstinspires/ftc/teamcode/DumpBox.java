@@ -7,37 +7,23 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 //@TeleOp(name = "Hanger", group = "CHASSIS")  // @Autonomous(...) is the other common choice
 
 public class DumpBox extends OpMode {
-    /* Declare OpMode members. */
-    private ElapsedTime runtime = new ElapsedTime();
     private static final String TAGDumpBox = "8492-DumpBox";
-
-    private CRServo SVRR = null;
-    private CRServo SVRL = null;
-
-    public static enum BoxModes {
-        BoxModes_In,
-        BoxModes_Stop,
-        BoxModes_Out,
-    }
-
-
     private final double SVRR_IN = 1;
     private final double SVRR_OUT = -1;
     private final double SVRR_STOP = 0;
-
     private final double SVRL_IN = -1;
     private final double SVRL_OUT = 1;
     private final double SVRL_STOP = SVRR_STOP;
-
-
+    /* Declare OpMode members. */
+    private ElapsedTime runtime = new ElapsedTime();
+    private CRServo SVRR = null;
+    private CRServo SVRL = null;
     private BoxModes boxMode_Current = BoxModes.BoxModes_Stop;
     private BoxModes boxMode_Desired = BoxModes.BoxModes_Stop;
 
@@ -57,7 +43,6 @@ public class DumpBox extends OpMode {
          */
     }
 
-
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
@@ -65,7 +50,6 @@ public class DumpBox extends OpMode {
     public void init_loop() {
 
     }
-
 
     /*
      * Code to run ONCE when the driver hits PLAY
@@ -132,7 +116,6 @@ public class DumpBox extends OpMode {
         return boxMode_Current;
     }
 
-
     /*
      * Code to run ONCE after the driver hits STOP
      */
@@ -141,5 +124,12 @@ public class DumpBox extends OpMode {
         SVRL.setPower(SVRL_STOP);
         SVRR.setPower(SVRR_STOP);
 
+    }
+
+
+    public static enum BoxModes {
+        BoxModes_In,
+        BoxModes_Stop,
+        BoxModes_Out,
     }
 }

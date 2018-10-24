@@ -61,41 +61,33 @@ import java.util.Locale;
 //@TeleOp(name="Basic: Iterative OpMode", group="Iterative Opmode")
 //@Disabled
 public class Chassis extends OpMode {
-    // Declare OpMode members.
-    private ElapsedTime runtime = new ElapsedTime();
-
-    private static final String TAGChassis = "8492-Chassis";
-
-
-    public static enum PARENTMODE {
-        PARENT_MODE_AUTO,
-        PARENT_MODE_TELE
-    }
-
-
     public static final int ChassisMode_Stop = 0;
     public static final int ChassisMode_Drive = 1;
     public static final int ChassisMode_Turn = 2;
     public static final int ChassisMode_Idle = 3;
     public static final int ChassisMode_Teleop = 4;
-
-
     public static final int ticsPerRev = 1120;
     public static final double wheelDistPerRev = 4 * 3.14159;
     public static final double gearRatio = 80 / 80;
     public static final double ticsPerInch = ticsPerRev / wheelDistPerRev / gearRatio;
-
     public static final double Chassis_DriveTolerInches = .25;
+    // naj set constant for Gyro KP for driving straight
+    public static final double chassis_KPGyroStraight = 0.02;
+    private static final String TAGChassis = "8492-Chassis";
+    public Hanger hanger = new Hanger();
+    public IntakeArm intakeArm = new IntakeArm();
+    public DumpBox dumpBox = new DumpBox();
+    // The IMU sensor object
+    BNO055IMU imu;
 
+    // naj set constant for turning Tolerance in degrees
+    // State used for updating telemetry
+    Orientation angles;
+    // Declare OpMode members.
+    private ElapsedTime runtime = new ElapsedTime();
     //current mode of operation for Chassis
     private int ChassisMode_Current = ChassisMode_Stop;
     private boolean cmdComplete = true;
-    // naj set constant for Gyro KP for driving straight
-    public static final double chassis_KPGyroStraight = 0.02;
-
-    // naj set constant for turning Tolerance in degrees
-
-
     private int cmdStartTime_mS = 0;
     private PARENTMODE parentMode_Current = null;
     //LDM=leftDriveMotor
@@ -104,22 +96,10 @@ public class Chassis extends OpMode {
     private DcMotor LDM2 = null;
     private DcMotor RDM1 = null;
     private DcMotor RDM2 = null;
-
-    public Hanger hanger = new Hanger();
-    public IntakeArm intakeArm = new IntakeArm();
-    public DumpBox dumpBox = new DumpBox();
-
     private double TargetMotorPowerLeft = 0;
     private double TargetMotorPowerRight = 0;
     private int TargetHeadingDeg = 0;
     private double TargetDistanceInches = 0;
-
-
-    // The IMU sensor object
-    BNO055IMU imu;
-    // State used for updating telemetry
-    Orientation angles;
-
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -213,7 +193,6 @@ public class Chassis extends OpMode {
         dumpBox.init();
     }
 
-
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
@@ -224,7 +203,7 @@ public class Chassis extends OpMode {
         dumpBox.init_loop();
     }
 
-    public void setParentMode(PARENTMODE pm){
+    public void setParentMode(PARENTMODE pm) {
         parentMode_Current = pm;
     }
 
@@ -330,7 +309,6 @@ public class Chassis extends OpMode {
         dumpBox.stop();
     }
 
-
     public void doTeleop(double LDMpower, double RDMpower) {
         ChassisMode_Current = ChassisMode_Teleop;
         RobotLog.aa(TAGChassis, "doTeleop: " + LDMpower);
@@ -357,7 +335,6 @@ public class Chassis extends OpMode {
         ChassisMode_Current = ChassisMode_Idle;
 
     }
-
 
     private void doDrive() {
         // insert adjustments to drive straight using gyro
@@ -407,7 +384,6 @@ public class Chassis extends OpMode {
 
     }    // doDrive()
 
-
     public int deltaHeading(int currHeading, int targetHeading) {
         int returnValue = 0;
         if (currHeading >= 0 && targetHeading >= 0) {
@@ -445,8 +421,6 @@ public class Chassis extends OpMode {
         doDrive();
     }
 
-    // create command to be called from auton to reset encoders at end of auton
-
     public double getEncoderInches() {
         // create method to get inches driven in auton
         // read the values from the encoders
@@ -470,8 +444,7 @@ public class Chassis extends OpMode {
 
     }
 
-    // naj create method for adjusting power to strighten out if w've drifted off course
-
+    // create command to be called from auton to reset encoders at end of auton
 
     public int getGyroHeading() {
         //Read the gyro and return its reading in degrees
@@ -485,6 +458,8 @@ public class Chassis extends OpMode {
         //return formatAngle(angles.angleUnit, angles.firstAngle);
         return -1 * (int) (angles.firstAngle);
     }
+
+    // naj create method for adjusting power to strighten out if w've drifted off course
 
     public int gyroNormalize(int heading) {
         // takes the full turns out of heading
@@ -550,7 +525,6 @@ public class Chassis extends OpMode {
         return (retValue);
     }  // end gyroInTol()
 
-
     void composeTelemetry() {
 
         // At the beginning of each telemetry update, grab a bunch of data
@@ -600,16 +574,21 @@ public class Chassis extends OpMode {
                 });
     }
 
-    //----------------------------------------------------------------------------------------------
-    // Formatting
-    //----------------------------------------------------------------------------------------------
-
     String formatAngle(AngleUnit angleUnit, double angle) {
         return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
     }
 
+    //----------------------------------------------------------------------------------------------
+    // Formatting
+    //----------------------------------------------------------------------------------------------
+
     String formatDegrees(double degrees) {
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
+    }
+
+    public static enum PARENTMODE {
+        PARENT_MODE_AUTO,
+        PARENT_MODE_TELE
     }
 
 }

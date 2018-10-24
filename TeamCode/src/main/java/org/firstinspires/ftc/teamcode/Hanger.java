@@ -12,7 +12,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -21,9 +20,9 @@ import com.qualcomm.robotcore.util.RobotLog;
 //@TeleOp(name = "Hanger", group = "CHASSIS")  // @Autonomous(...) is the other common choice
 
 public class Hanger extends OpMode {
-    /* Declare OpMode members. */
-    private ElapsedTime runtime = new ElapsedTime();
-    private static final String TAGHanger = "8492-Hanger";
+    //Encoder positions for the HANGER
+    public static final int RESTMODE = 0;
+    public static final int HANGERPOS_RETRACTED = 0;
 
 
     /*
@@ -44,41 +43,33 @@ public class Hanger extends OpMode {
 
 
      */
-
-
-    //Encoder positions for the HANGER
-    public static final int RESTMODE = 0;
-    public static final int HANGERPOS_RETRACTED = 0;
     public static final int HANGERPOS_TOL = 40;
     public static final int HANGERPOS_EXNTENDED = 1032;  //measured on robot on Oct 11, 2018
-
     public static final double HANGERPOWER_EXTEND = 1;
     public static final double HANGERPOWER_RETRACT = -1;
+    private static final String TAGHanger = "8492-Hanger";
     double HANGERPOWER_current = 0;
     boolean cmdComplete = false;
     boolean underStickControl = false;
-
-
-    private IntakeArm intakeArm = null;
-
-
-/*    public static final int ticsPerRev = 1100;
-    public static final double wheelDistPerRev = 4 * 3.14159;
-    public static final double gearRatio = 80 / 80;
-    public static final double ticsPerInch = ticsPerRev / wheelDistPerRev / gearRatio;
-*/
-    // This is the current tick counts of the Hanger
-    // This is the commanded tick counts of the Hanger
-
     int hangerPosition_CURRENT = HANGERPOS_RETRACTED;
     int hangerPosition_cmd = HANGERPOS_RETRACTED;
 
-    //set the HANGER powers... We will need different speeds for up and down.
 
+    /*    public static final int ticsPerRev = 1100;
+        public static final double wheelDistPerRev = 4 * 3.14159;
+        public static final double gearRatio = 80 / 80;
+        public static final double ticsPerInch = ticsPerRev / wheelDistPerRev / gearRatio;
+    */
+    // This is the current tick counts of the Hanger
+    // This is the commanded tick counts of the Hanger
+    double HANGERStickDeadBand = .2;
+    /* Declare OpMode members. */
+    private ElapsedTime runtime = new ElapsedTime();
+
+    //set the HANGER powers... We will need different speeds for up and down.
+    private IntakeArm intakeArm = null;
     private double initMotorPower = 0;
     private double currentMotorpower = 0.5;
-
-    double HANGERStickDeadBand = .2;
 
 // Boolean to check if movement complete
 
@@ -87,7 +78,6 @@ public class Hanger extends OpMode {
 
 
     // declare motors
-
     private DcMotor HM1 = null;
     private DcMotor HM2 = null;
     private DigitalChannel HangTCH = null;
@@ -123,7 +113,6 @@ public class Hanger extends OpMode {
         HangTCH.setMode(DigitalChannel.Mode.INPUT);
 
 
-
     }
 
     public void HangMotorEncoderReset() {
@@ -151,14 +140,13 @@ public class Hanger extends OpMode {
         double newMotorPower = 0;
         if (HangTCH.getState()) {
             newMotorPower = initMotorPower + (HANGERPOWER_RETRACT * .01);
-        }
-        else {
+        } else {
             // initMotorPower = initMotorPower + (HANGERPOWER_EXTEND * .01);
             newMotorPower = 0;
         }
 
-        if ( newMotorPower != initMotorPower) {
-            telemetry.addData("initHangerPower" , newMotorPower);
+        if (newMotorPower != initMotorPower) {
+            telemetry.addData("initHangerPower", newMotorPower);
             initMotorPower = newMotorPower;
             HM1.setPower(0);
             HM2.setPower(0);
@@ -178,8 +166,8 @@ public class Hanger extends OpMode {
                 break;
             }
         }
-        HM1.setPower(HANGERPOWER_RETRACT);
-        HM2.setPower(HANGERPOWER_RETRACT);
+        HM1.setPower(0);
+        HM2.setPower(0);
 
     }
 
@@ -193,7 +181,7 @@ public class Hanger extends OpMode {
         HM2.setPower(0);
     }
 
-    public void autoStart(){
+    public void autoStart() {
         // This is only called by chassis when running Auto OpModes
         initHangerTCH();
         HM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -228,39 +216,42 @@ public class Hanger extends OpMode {
 
     }
 
-    public void setIntakeArm (IntakeArm iArm){
+    public void setIntakeArm(IntakeArm iArm) {
         intakeArm = iArm;
     }
 
     private void SetMotorPower(double newMotorPower) {
         //set the motors for the HANGER to the new power only after
         // Safety checks to prevent too low or too high
-        hangerPosition_CURRENT = Math.abs(HM1.getCurrentPosition());
+        hangerPosition_CURRENT = HM2.getCurrentPosition();
         double newPower = newMotorPower;
         // make sure that we do not attempt to move less than RETRACT limit
 
-        RobotLog.aa(TAGHanger, "Curr Postion: " + Math.abs(HM1.getCurrentPosition()));
+        RobotLog.aa(TAGHanger, "Curr Position: " + hangerPosition_CURRENT);
         RobotLog.aa(TAGHanger, "set pwr : " + newPower);
+
         //if were within bottom tolerance, stop
         if ((hangerPosition_CURRENT <= HANGERPOS_RETRACTED + HANGERPOS_TOL) && (newPower < 0)) {
             newPower = 0;
         }
 
-        // make sure that we do not attempt a move greater than EXTEND limit
+        // if on the switch and we are trying to retract set newPower to stop value
+        if (!HangTCH.getState() && (newPower < 0)) {
+            newPower = 0;
+        }
 
+        // make sure that we do not attempt a move greater than EXTEND limit
         if ((hangerPosition_CURRENT >= HANGERPOS_EXNTENDED - HANGERPOS_TOL) && (newPower > 0)) {
             newPower = 0;
 
         }
 
         //Interlock the intake arm and the hanger...
-        if ((intakeArm.IntakePosCurrent > (IntakeArm.IntakePos_Dump *.75)) && newMotorPower > 0) {
+        if ((intakeArm.IntakePosCurrent > (IntakeArm.IntakePos_Dump * .75)) && newMotorPower > 0) {
             newPower = 0;
         }
 
-
         //only set the power to the hardware when it is being changed.
-
         if (newPower != HANGERPOWER_current) {
             HANGERPOWER_current = newPower;
             HM1.setPower(HANGERPOWER_current);
@@ -290,12 +281,12 @@ public class Hanger extends OpMode {
             double currPower = stickPos;
 
             //limit the power of the stick
-            if (stickPos < (HANGERPOWER_EXTEND)) {
+            if (stickPos > HANGERPOWER_EXTEND) {
                 currPower = HANGERPOWER_EXTEND;
             }
 
             //limit the power of the stick
-            if (stickPos > (HANGERPOWER_RETRACT)) {
+            if (stickPos < HANGERPOWER_RETRACT) {
                 currPower = HANGERPOWER_RETRACT;
             }
 
@@ -344,19 +335,18 @@ public class Hanger extends OpMode {
 
     }  // cmd_MoveToTarget
 
-    public boolean isExtended(){
+    public boolean isExtended() {
         return ((hangerPosition_CURRENT > (HANGERPOS_EXNTENDED - HANGERPOS_TOL)) &&
                 HangTCH.getState());
 
     }
 
-    public boolean isRetracted(){
+    public boolean isRetracted() {
         // Need to add the switch to this method
         return ((hangerPosition_CURRENT < (HANGERPOS_RETRACTED + HANGERPOS_TOL)) ||
-                (! HangTCH.getState()));
+                (!HangTCH.getState()));
 
     }
-
 
 
     public int getHangerPos() {

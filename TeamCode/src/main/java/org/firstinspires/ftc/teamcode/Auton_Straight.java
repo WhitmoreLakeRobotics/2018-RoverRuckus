@@ -17,12 +17,10 @@ public class Auton_Straight extends OpMode {
     private static final int stage20_liftIntakeAarm = 20;
     private static final int stage30_drive = 30;
     private static final int stage99_stop = 99;
-
-    private int currentStage = stage0_preStart;
-
+    private static final String TAGTeleop = "8492-Autonmous";
     // create instance of Chassis
     Chassis RBTChassis = new Chassis();
-    private static final String TAGTeleop = "8492-Autonmous";
+    private int currentStage = stage0_preStart;
     private double LeftMotorPower = 0;
     private double RightMotorPower = 0;
 

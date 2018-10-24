@@ -14,47 +14,28 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 //@TeleOp(name = "IntakeArm", group = "CHASSIS")  // @Autonomous(...) is the other common choice
 
 public class IntakeArm extends OpMode {
-    /* Declare OpMode members. */
-    private ElapsedTime runtime = new ElapsedTime();
-    private static final String TAGIntakeArm = "8492-IntakeArm";
-
-
-    public static enum IntakeDestinations {
-        IntakeDestinations_Pickup,
-        IntakeDestinations_Carry,
-        IntakeDestinations_Dump,
-        IntakeDestinations_StickControl,
-        IntakeDestinations_Unknown
-    }
-
     //Encoder positions for the IntakeArm
     public static final int IntakePos_Tol = 70;
     public static final int IntakePos_Pickup = 0;
     public static final int IntakePos_Dump = 3670;
     public static final int IntakePos_Carry = Math.round(IntakePos_Dump / 4);
-
     public static final double IntakePowerDown = -.35;
     public static final double IntakePowerUp = 0.75;
     public static final double IntakePowerInit = -0.20;
+    private static final String TAGIntakeArm = "8492-IntakeArm";
     double IntakePowerCurrent = 0;
     double IntakePowerDesired = 0;
     boolean cmdComplete = false;
-
-    private Hanger hanger = null;
-
-
     int IntakePosCurrent = IntakePos_Pickup;
+    double IntakeStickDeadBand = 1;
+    /* Declare OpMode members. */
+    private ElapsedTime runtime = new ElapsedTime();
+    private Hanger hanger = null;
     private IntakeDestinations desiredDestination = IntakeDestinations.IntakeDestinations_Pickup;
 
     //set the powers... We will need different speeds for up and down.
-
-
-    double IntakeStickDeadBand = 1;
-
-
     private DcMotor AM1 = null;
     private DigitalChannel ArmTCH = null;
-
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -90,7 +71,6 @@ public class IntakeArm extends OpMode {
 
     }
 
-
     /*
      * Code to run ONCE when the driver hits PLAY
      */
@@ -99,8 +79,7 @@ public class IntakeArm extends OpMode {
 
     }
 
-
-    public void autoStart(){
+    public void autoStart() {
         initArmTCH();
         AM1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         AM1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -138,7 +117,6 @@ public class IntakeArm extends OpMode {
         AM1.setPower(0);
     }
 
-
     private void IntakeArmSafetyChecks() {
 
         // test if we are down.
@@ -155,7 +133,6 @@ public class IntakeArm extends OpMode {
 
         }
     }
-
 
     private boolean inPosition_Tol(int dest, int currPos, int tol) {
         // Tests if current position is within positional tolerance
@@ -242,7 +219,7 @@ public class IntakeArm extends OpMode {
             newPower = 0;
         }
 
-        if (! hanger.isRetracted () ) {
+        if (!hanger.isRetracted()) {
             newPower = 0;
         }
 
@@ -274,7 +251,7 @@ public class IntakeArm extends OpMode {
             }
 
             //Make sure the hanger is Down  AKA no going up unless the hanger is down
-            if (! hanger.isRetracted()) {
+            if (!hanger.isRetracted()) {
                 currPower = 0;
             }
 
@@ -282,7 +259,6 @@ public class IntakeArm extends OpMode {
             if (currPower < IntakePowerDown) {
                 currPower = IntakePowerDown;
             }
-
 
 
             IntakePowerDesired = currPower;
@@ -323,14 +299,13 @@ public class IntakeArm extends OpMode {
 
     }
 
-    public void setHanger(Hanger hangR){
+    public void setHanger(Hanger hangR) {
         hanger = hangR;
     }
 
     public int getPOS_Ticks() {
         return IntakePosCurrent;
     }
-
 
     /*
      * Code to run ONCE after the driver hits STOP
@@ -339,5 +314,14 @@ public class IntakeArm extends OpMode {
     public void stop() {
         SetMotorPower(0.0);
 
+    }
+
+
+    public static enum IntakeDestinations {
+        IntakeDestinations_Pickup,
+        IntakeDestinations_Carry,
+        IntakeDestinations_Dump,
+        IntakeDestinations_StickControl,
+        IntakeDestinations_Unknown
     }
 }
