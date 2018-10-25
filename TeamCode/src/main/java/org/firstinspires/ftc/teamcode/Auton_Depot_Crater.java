@@ -22,18 +22,16 @@ public class Auton_Depot_Crater extends OpMode {
     private static final int stage70_drive2Side = 70;
     private static final int stage80_turn2Crater = 80;
     private static final int stage85_drive2Crater = 85;
+    private static final int stage90_turnFinal = 90;
     private static final int stage99_stop = 99;
     private static final String TAGTeleop = "8492-Autonmous";
     // create instance of Chassis
     Chassis RBTChassis = new Chassis();
     private int currentStage = stage0_preStart;
-    private double LeftMotorPower = 0;
-    private double RightMotorPower = 0;
-
-
-    private double AUTO_DRIVEPower = .5;
 
     // declare auton power variables
+    private double AUTO_DRIVEPower = .5;
+    private double AUTO_TURNPower = .5;
 
 
     /* Declare OpMode members. */
@@ -115,6 +113,7 @@ public class Auton_Depot_Crater extends OpMode {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
             RBTChassis.intakeArm.cmd_moveToPickupPos();
             if (RBTChassis.getcmdComplete()) {
+                RBTChassis.intakeArm.cmd_moveToCarryPos();
                 RBTChassis.dumpBox.cmd_ServosOut();
                 currentStage = stage50_backup;
             }
@@ -125,7 +124,7 @@ public class Auton_Depot_Crater extends OpMode {
         }
         if (currentStage == stage60_turn90) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.cmdTurn(0.5, -0.5, 90);
+                RBTChassis.cmdTurn(AUTO_TURNPower, -AUTO_TURNPower, 90);
                 currentStage = stage70_drive2Side;
             }
         }
@@ -137,7 +136,7 @@ public class Auton_Depot_Crater extends OpMode {
         }
         if (currentStage == stage80_turn2Crater){
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.cmdTurn(-AUTO_DRIVEPower, AUTO_DRIVEPower, 45);
+                RBTChassis.cmdTurn(-AUTO_TURNPower, AUTO_TURNPower, 45);
                 currentStage = stage85_drive2Crater;
             }
         }
@@ -149,8 +148,17 @@ public class Auton_Depot_Crater extends OpMode {
                 currentStage = stage99_stop;
             }
         }
+
+        if (currentStage == stage90_turnFinal){
+            if (RBTChassis.getcmdComplete()) {
+                RBTChassis.dumpBox.cmd_ServosIn();
+                RBTChassis.cmdTurn(AUTO_TURNPower, -AUTO_TURNPower, 180);
+                currentStage = stage99_stop;
+            }
+        }
+
         if (currentStage == stage99_stop) {
-            if (runtime.seconds() > 20) {
+            if (runtime.seconds() > 25) {
                 RBTChassis.dumpBox.cmd_ServosOff();
             }
         }

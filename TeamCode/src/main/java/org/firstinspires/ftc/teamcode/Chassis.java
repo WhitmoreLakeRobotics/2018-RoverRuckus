@@ -1,30 +1,5 @@
-/* Copyright (c) 2017 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/*
+ * Created by mg15 on 9/20/18.
  */
 
 package org.firstinspires.ftc.teamcode;
@@ -44,19 +19,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.util.Locale;
 
-/**
- * This file contains an example of an iterative (Non-Linear) "OpMode".
- * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
- * The names of OpModes appear on the menu of the FTC Driver Station.
- * When an selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
- * <p>
- * This particular OpMode just executes a basic Tank Drive Teleop_test for a two wheeled robot
- * It includes all the skeletal structure that all iterative OpModes contain.
- * <p>
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
 
 //@TeleOp(name="Basic: Iterative OpMode", group="Iterative Opmode")
 //@Disabled
@@ -94,8 +56,6 @@ public class Chassis extends OpMode {
     private boolean cmdComplete = true;
     private int cmdStartTime_mS = 0;
     private PARENTMODE parentMode_Current = null;
-    //LDM=leftDriveMotor
-    //RDM=rightDriveMotor
     private DcMotor LDM1 = null;
     private DcMotor LDM2 = null;
     private DcMotor RDM1 = null;
@@ -223,7 +183,6 @@ public class Chassis extends OpMode {
 
         setMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
     }
 
     public void DriveMotorEncoderReset() {
@@ -278,11 +237,19 @@ public class Chassis extends OpMode {
         hanger.loop();
         dumpBox.loop();
 
+        if (ChassisMode_Current == ChassisMode_Stop) {
+            doStop();
+        }
+
         //  check mode and do what what ever mode is current
         if (ChassisMode_Current == ChassisMode_Drive) {
             doDrive();
         }
 
+
+        if (ChassisMode_Current == ChassisMode_Turn) {
+            doTurn();
+        }
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -298,20 +265,6 @@ public class Chassis extends OpMode {
 
     }
 
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
-    @Override
-    public void stop() {
-        LDM1.setPower(0);
-        LDM2.setPower(0);
-        RDM1.setPower(0);
-        RDM2.setPower(0);
-        ChassisMode_Current = ChassisMode_Stop;
-        hanger.stop();
-        intakeArm.stop();
-        dumpBox.stop();
-    }
 
     public void doTeleop(double LDMpower, double RDMpower) {
         ChassisMode_Current = ChassisMode_Teleop;
@@ -339,6 +292,7 @@ public class Chassis extends OpMode {
         ChassisMode_Current = ChassisMode_Idle;
 
     }
+
 
     private void doDrive() {
         // insert adjustments to drive straight using gyro
@@ -388,6 +342,25 @@ public class Chassis extends OpMode {
 
     }    // doDrive()
 
+
+    private void doTurn() {
+        /*
+         *   executes the logic of a single scan of turning the robot to a new heading
+         */
+
+        int currHeading = gyroNormalize(getGyroHeading());
+        RobotLog.aa(TAGChassis, "Turn currHeading: " + currHeading + " target: " + TargetHeadingDeg);
+        RobotLog.aa(TAGChassis, "Runtime: " + runtime.seconds());
+
+        if (gyroInTol(currHeading, TargetHeadingDeg, chassis_GyroHeadingTol)) {
+            RobotLog.aa(TAGChassis, "Complete currHeading: " + currHeading);
+            //We are there stop
+            cmdComplete = true;
+            ChassisMode_Current = ChassisMode_Stop;
+            doStop();
+        }
+    }
+
     public int deltaHeading(int currHeading, int targetHeading) {
         int returnValue = 0;
         if (currHeading >= 0 && targetHeading >= 0) {
@@ -425,60 +398,22 @@ public class Chassis extends OpMode {
         doDrive();
     }
 
-    private void DoTurn() {
-        /*
-         *   executes the logic of a single scan of turning the robot to a new heading
-         */
-
-        int currHeading = gyroNormalize(getGyroHeading());
-        RobotLog.aa(TAGChassis, "Turn currHeading: " + currHeading + " target: " + TargetHeadingDeg);
-        RobotLog.aa(TAGChassis, "Runtime: " + runtime.seconds());
-
-        if (gyroInTol(currHeading, TargetHeadingDeg, chassis_GyroHeadingTol)) {
-            RobotLog.aa(TAGChassis, "Complete currHeading: " + currHeading);
-            //We are there stop
-            cmdComplete = true;
-            ChassisMode_Current = ChassisMode_Stop;
-            Dostop();
-        }
-    }
     public void cmdTurn(double LSpeed, double RSpeed, int headingDeg) {
         //can only be called one time per movement of the chassis
         ChassisMode_Current = ChassisMode_Turn;
         TargetHeadingDeg = headingDeg;
         RobotLog.aa(TAGChassis, "cmdTurn target: " + TargetHeadingDeg);
 
-// /        DriveMotorEncoderReset();
         LDM1.setPower(LSpeed);
         LDM2.setPower(LSpeed);
         RDM1.setPower(RSpeed);
         RDM2.setPower(RSpeed);
         cmdComplete = false;
         runtime.reset();
-        DoTurn();
+        doTurn();
     }
 
-    private void Dostop() {
-        /*
-         * executes the logic needed to stop the chassis
-         */
 
-        //set start speeds to zero
-        TargetMotorPowerLeft = 0;
-        TargetMotorPowerRight = 0;
-        TargetDistanceInches = 0;
-        //stop the motors
-        LDM1.setPower(TargetMotorPowerLeft);
-        LDM2.setPower(TargetMotorPowerLeft);
-        RDM1.setPower(TargetMotorPowerRight);
-        RDM2.setPower(TargetMotorPowerRight);
-
-        //goto chassis idle mode
-        ChassisMode_Current = ChassisMode_Idle;
-        DriveMotorEncoderReset();
-        RobotLog.aa(TAGChassis, "STOP  leftpower: " + TargetMotorPowerLeft + " rightpower: " + TargetMotorPowerRight);
-
-    }
 
     public double getEncoderInches() {
         // create method to get inches driven in auton
@@ -518,7 +453,20 @@ public class Chassis extends OpMode {
         return -1 * (int) (angles.firstAngle);
     }
 
-    // naj create method for adjusting power to strighten out if w've drifted off course
+    /*
+     * Code to run ONCE after the driver hits STOP
+     */
+    @Override
+    public void stop() {
+        LDM1.setPower(0);
+        LDM2.setPower(0);
+        RDM1.setPower(0);
+        RDM2.setPower(0);
+        ChassisMode_Current = ChassisMode_Stop;
+        hanger.stop();
+        intakeArm.stop();
+        dumpBox.stop();
+    }
 
     public int gyroNormalize(int heading) {
         // takes the full turns out of heading
