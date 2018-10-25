@@ -231,7 +231,7 @@ public class Hanger extends OpMode {
         RobotLog.aa(TAGHanger, "set pwr : " + newPower);
 
         //if were within bottom tolerance, stop
-        if ((hangerPosition_CURRENT <= HANGERPOS_RETRACTED + HANGERPOS_TOL) && (newPower < 0)) {
+        if ((hangerPosition_CURRENT <= (HANGERPOS_RETRACTED + HANGERPOS_TOL)) && (newPower < 0)) {
             newPower = 0;
         }
 
@@ -241,7 +241,7 @@ public class Hanger extends OpMode {
         }
 
         // make sure that we do not attempt a move greater than EXTEND limit
-        if ((hangerPosition_CURRENT >= HANGERPOS_EXNTENDED - HANGERPOS_TOL) && (newPower > 0)) {
+        if ((hangerPosition_CURRENT >= (HANGERPOS_EXNTENDED - HANGERPOS_TOL)) && (newPower > 0)) {
             newPower = 0;
 
         }
@@ -254,9 +254,10 @@ public class Hanger extends OpMode {
         //only set the power to the hardware when it is being changed.
         if (newPower != HANGERPOWER_current) {
             HANGERPOWER_current = newPower;
-            HM1.setPower(HANGERPOWER_current);
-            HM2.setPower(HANGERPOWER_current);
+
         }
+        HM1.setPower(HANGERPOWER_current);
+        HM2.setPower(HANGERPOWER_current);
     }
 
     private void testInPosition() {

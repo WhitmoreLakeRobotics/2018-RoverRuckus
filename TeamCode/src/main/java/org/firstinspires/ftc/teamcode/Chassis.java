@@ -61,6 +61,10 @@ import java.util.Locale;
 //@TeleOp(name="Basic: Iterative OpMode", group="Iterative Opmode")
 //@Disabled
 public class Chassis extends OpMode {
+
+    //for truning this is the tolerance of trun in degrees
+    public static final int chassis_GyroHeadingTol = 2;
+
     public static final int ChassisMode_Stop = 0;
     public static final int ChassisMode_Drive = 1;
     public static final int ChassisMode_Turn = 2;
@@ -419,6 +423,61 @@ public class Chassis extends OpMode {
         TargetDistanceInches = targetDistanceInches;
         DriveMotorEncoderReset();
         doDrive();
+    }
+
+    private void DoTurn() {
+        /*
+         *   executes the logic of a single scan of turning the robot to a new heading
+         */
+
+        int currHeading = gyroNormalize(getGyroHeading());
+        RobotLog.aa(TAGChassis, "Turn currHeading: " + currHeading + " target: " + TargetHeadingDeg);
+        RobotLog.aa(TAGChassis, "Runtime: " + runtime.seconds());
+
+        if (gyroInTol(currHeading, TargetHeadingDeg, chassis_GyroHeadingTol)) {
+            RobotLog.aa(TAGChassis, "Complete currHeading: " + currHeading);
+            //We are there stop
+            cmdComplete = true;
+            ChassisMode_Current = ChassisMode_Stop;
+            Dostop();
+        }
+    }
+    public void cmdTurn(double LSpeed, double RSpeed, int headingDeg) {
+        //can only be called one time per movement of the chassis
+        ChassisMode_Current = ChassisMode_Turn;
+        TargetHeadingDeg = headingDeg;
+        RobotLog.aa(TAGChassis, "cmdTurn target: " + TargetHeadingDeg);
+
+// /        DriveMotorEncoderReset();
+        LDM1.setPower(LSpeed);
+        LDM2.setPower(LSpeed);
+        RDM1.setPower(RSpeed);
+        RDM2.setPower(RSpeed);
+        cmdComplete = false;
+        runtime.reset();
+        DoTurn();
+    }
+
+    private void Dostop() {
+        /*
+         * executes the logic needed to stop the chassis
+         */
+
+        //set start speeds to zero
+        TargetMotorPowerLeft = 0;
+        TargetMotorPowerRight = 0;
+        TargetDistanceInches = 0;
+        //stop the motors
+        LDM1.setPower(TargetMotorPowerLeft);
+        LDM2.setPower(TargetMotorPowerLeft);
+        RDM1.setPower(TargetMotorPowerRight);
+        RDM2.setPower(TargetMotorPowerRight);
+
+        //goto chassis idle mode
+        ChassisMode_Current = ChassisMode_Idle;
+        DriveMotorEncoderReset();
+        RobotLog.aa(TAGChassis, "STOP  leftpower: " + TargetMotorPowerLeft + " rightpower: " + TargetMotorPowerRight);
+
     }
 
     public double getEncoderInches() {

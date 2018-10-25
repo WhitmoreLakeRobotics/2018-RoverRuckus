@@ -5,10 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "Auton_Straight ", group = "Auton")
+@Autonomous(name = "Auton_Depot_Crater ", group = "Auton")
 // @Autonomous(...) is the other common choice
 
-public class Auton_Straight extends OpMode {
+public class Auton_Depot_Crater extends OpMode {
 
 
     //declare and initialize stages
@@ -17,6 +17,11 @@ public class Auton_Straight extends OpMode {
     private static final int stage20_liftIntakeAarm = 20;
     private static final int stage30_drive = 30;
     private static final int stage40_empty = 40;
+    private static final int stage50_backup = 50;
+    private static final int stage60_turn90 = 60;
+    private static final int stage70_drive2Side = 70;
+    private static final int stage80_turn2Crater = 80;
+    private static final int stage85_drive2Crater = 85;
     private static final int stage99_stop = 99;
     private static final String TAGTeleop = "8492-Autonmous";
     // create instance of Chassis
@@ -39,7 +44,7 @@ public class Auton_Straight extends OpMode {
      */
     @Override
     public void init() {
-        telemetry.addData("Auton_Straight", "Initialized");
+        telemetry.addData("Auton_Depot_Crater", "Initialized");
         RBTChassis.setParentMode(Chassis.PARENTMODE.PARENT_MODE_AUTO);
         RBTChassis.hardwareMap = hardwareMap;
         RBTChassis.telemetry = telemetry;
@@ -77,7 +82,7 @@ public class Auton_Straight extends OpMode {
     @Override
     public void loop() {
 
-        telemetry.addData("Auto_Straight Stage", currentStage);
+        telemetry.addData("Auton_Depot_Cater", currentStage);
         RBTChassis.loop();
 
 // check stage and do what's appropriate
@@ -108,13 +113,44 @@ public class Auton_Straight extends OpMode {
 
         if (currentStage == stage40_empty) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
+            RBTChassis.intakeArm.cmd_moveToPickupPos();
             if (RBTChassis.getcmdComplete()) {
                 RBTChassis.dumpBox.cmd_ServosOut();
+                currentStage = stage50_backup;
+            }
+        }
+        if (currentStage == stage50_backup) {
+            RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, -30);
+            currentStage = stage60_turn90;
+        }
+        if (currentStage == stage60_turn90) {
+            if (RBTChassis.getcmdComplete()) {
+                RBTChassis.cmdTurn(0.5, -0.5, 90);
+                currentStage = stage70_drive2Side;
+            }
+        }
+        if (currentStage == stage70_drive2Side) {
+            if (RBTChassis.getcmdComplete()) {
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, 90, -36);
+                currentStage = stage80_turn2Crater;
+            }
+        }
+        if (currentStage == stage80_turn2Crater){
+            if (RBTChassis.getcmdComplete()) {
+                RBTChassis.cmdTurn(-AUTO_DRIVEPower, AUTO_DRIVEPower, 45);
+                currentStage = stage85_drive2Crater;
             }
         }
 
+
+        if (currentStage == stage85_drive2Crater){
+            if (RBTChassis.getcmdComplete()) {
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, 45, -48);
+                currentStage = stage99_stop;
+            }
+        }
         if (currentStage == stage99_stop) {
-            if (runtime.seconds() > 15) {
+            if (runtime.seconds() > 20) {
                 RBTChassis.dumpBox.cmd_ServosOff();
             }
         }
