@@ -61,6 +61,9 @@ public class Teleop extends OpMode {
     private double LeftMotorPower = 0;
     private double RightMotorPower = 0;
 
+    private double powerNormal = .8;
+    private double powerMax = 1;
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -70,6 +73,7 @@ public class Teleop extends OpMode {
         RBTChassis.setParentMode(Chassis.PARENTMODE.PARENT_MODE_TELE);
         RBTChassis.hardwareMap = hardwareMap;
         RBTChassis.telemetry = telemetry;
+        RBTChassis.setMaxPower(powerNormal);
         RBTChassis.init();
 
 
@@ -186,6 +190,14 @@ public class Teleop extends OpMode {
             RBTChassis.dumpBox.cmd_ServosOut();
         }
 
+
+        if (gamepad1.left_bumper) {
+            RBTChassis.setMaxPower(powerMax);
+        }
+
+        if (gamepad1.right_bumper){
+            RBTChassis.setMaxPower(powerNormal);
+        }
         // Tank Mode uses one
         // stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.

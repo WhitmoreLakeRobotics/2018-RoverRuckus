@@ -65,6 +65,8 @@ public class Chassis extends OpMode {
     private int TargetHeadingDeg = 0;
     private double TargetDistanceInches = 0;
 
+
+    private double maxPower = 0;
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -270,10 +272,30 @@ public class Chassis extends OpMode {
         ChassisMode_Current = ChassisMode_Teleop;
         RobotLog.aa(TAGChassis, "doTeleop: " + LDMpower);
 
-        LDM1.setPower(LDMpower);
-        RDM1.setPower(RDMpower);
-        LDM2.setPower(LDMpower);
-        RDM2.setPower(RDMpower);
+        double lPower = LDMpower;
+        double rPower = RDMpower;
+
+        if (lPower < -maxPower) {
+               lPower = -maxPower;
+        }
+
+        if (lPower >  maxPower) {
+            lPower = maxPower;
+        }
+
+        if (rPower < -maxPower) {
+            rPower = -maxPower;
+        }
+
+        if (rPower >  maxPower) {
+            rPower = maxPower;
+        }
+
+
+        LDM1.setPower(lPower);
+        RDM1.setPower(rPower);
+        LDM2.setPower(lPower);
+        RDM2.setPower(rPower);
 
 
     }
@@ -467,6 +489,14 @@ public class Chassis extends OpMode {
         intakeArm.stop();
         dumpBox.stop();
     }
+    public void setMaxPower(double newMax){
+
+        maxPower = newMax;
+
+    }
+
+
+
 
     public int gyroNormalize(int heading) {
         // takes the full turns out of heading

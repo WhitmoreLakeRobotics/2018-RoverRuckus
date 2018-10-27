@@ -103,8 +103,8 @@ public class Auton_Depot_Crater extends OpMode {
 
         if (currentStage == stage30_drive) {
             if (RBTChassis.hanger.isExtended()) {
-                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 50);
-                currentStage = stage99_stop;  // error this was missing, so never stopped
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 42);
+                currentStage = stage40_empty;
             }
         }
 
@@ -115,26 +115,34 @@ public class Auton_Depot_Crater extends OpMode {
             if (RBTChassis.getcmdComplete()) {
                 RBTChassis.intakeArm.cmd_moveToCarryPos();
                 RBTChassis.dumpBox.cmd_ServosOut();
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 2);
                 currentStage = stage50_backup;
             }
         }
+
         if (currentStage == stage50_backup) {
-            RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, -30);
-            currentStage = stage60_turn90;
+            if (RBTChassis.getcmdComplete()) {
+                // driving backwards
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 22);
+                currentStage = stage60_turn90;
+            }
         }
+
         if (currentStage == stage60_turn90) {
             if (RBTChassis.getcmdComplete()) {
                 RBTChassis.cmdTurn(AUTO_TURNPower, -AUTO_TURNPower, 90);
                 currentStage = stage70_drive2Side;
             }
         }
+
         if (currentStage == stage70_drive2Side) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.cmdDrive(AUTO_DRIVEPower, 90, -36);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 90, -40);
                 currentStage = stage80_turn2Crater;
             }
         }
-        if (currentStage == stage80_turn2Crater){
+
+        if (currentStage == stage80_turn2Crater) {
             if (RBTChassis.getcmdComplete()) {
                 RBTChassis.cmdTurn(-AUTO_TURNPower, AUTO_TURNPower, 45);
                 currentStage = stage85_drive2Crater;
@@ -142,14 +150,15 @@ public class Auton_Depot_Crater extends OpMode {
         }
 
 
-        if (currentStage == stage85_drive2Crater){
+        if (currentStage == stage85_drive2Crater) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.cmdDrive(AUTO_DRIVEPower, 45, -48);
+                // driving backwards
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 45, -48);
                 currentStage = stage99_stop;
             }
         }
 
-        if (currentStage == stage90_turnFinal){
+        if (currentStage == stage90_turnFinal) {
             if (RBTChassis.getcmdComplete()) {
                 RBTChassis.dumpBox.cmd_ServosIn();
                 RBTChassis.cmdTurn(AUTO_TURNPower, -AUTO_TURNPower, 180);

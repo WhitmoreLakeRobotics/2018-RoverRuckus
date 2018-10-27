@@ -14,11 +14,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class DumpBox extends OpMode {
     private static final String TAGDumpBox = "8492-DumpBox";
-    private final double SVRR_IN = 1;
-    private final double SVRR_OUT = -1;
+    private final double SVRR_IN = -1;
+    private final double SVRR_OUT = 1;
     private final double SVRR_STOP = 0;
-    private final double SVRL_IN = -1;
-    private final double SVRL_OUT = 1;
+    private final double SVRL_IN = 1;
+    private final double SVRL_OUT = -1;
     private final double SVRL_STOP = SVRR_STOP;
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();

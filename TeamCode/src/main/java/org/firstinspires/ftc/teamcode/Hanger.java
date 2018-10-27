@@ -44,7 +44,7 @@ public class Hanger extends OpMode {
 
      */
     public static final int HANGERPOS_TOL = 40;
-    public static final int HANGERPOS_EXNTENDED = 1032;  //measured on robot on Oct 11, 2018
+    public static final int HANGERPOS_EXNTENDED = 1000;  //measured on robot on Oct 11, 2018
     public static final double HANGERPOWER_EXTEND = 1;
     public static final double HANGERPOWER_RETRACT = -1;
     private static final String TAGHanger = "8492-Hanger";
