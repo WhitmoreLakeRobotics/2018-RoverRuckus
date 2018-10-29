@@ -43,6 +43,7 @@ public class Chassis extends OpMode {
     public Hanger hanger = new Hanger();
     public IntakeArm intakeArm = new IntakeArm();
     public DumpBox dumpBox = new DumpBox();
+    public ScannerArms scannerArms = new ScannerArms();
     // The IMU sensor object
     BNO055IMU imu;
 
@@ -157,6 +158,10 @@ public class Chassis extends OpMode {
         dumpBox.hardwareMap = hardwareMap;
         dumpBox.telemetry = telemetry;
         dumpBox.init();
+
+        scannerArms.hardwareMap = hardwareMap;
+        scannerArms.telemetry = telemetry;
+        scannerArms.init();
     }
 
     /*
@@ -167,6 +172,7 @@ public class Chassis extends OpMode {
         hanger.init_loop();
         intakeArm.init_loop();
         dumpBox.init_loop();
+        scannerArms.init_loop();
     }
 
     public void setParentMode(PARENTMODE pm) {
@@ -227,6 +233,7 @@ public class Chassis extends OpMode {
         hanger.start();
         intakeArm.start();
         dumpBox.start();
+        scannerArms.start();
     }
 
     /*
@@ -238,6 +245,7 @@ public class Chassis extends OpMode {
         intakeArm.loop();
         hanger.loop();
         dumpBox.loop();
+        scannerArms.loop();
 
         if (ChassisMode_Current == ChassisMode_Stop) {
             doStop();
@@ -488,6 +496,7 @@ public class Chassis extends OpMode {
         hanger.stop();
         intakeArm.stop();
         dumpBox.stop();
+        scannerArms.stop();
     }
     public void setMaxPower(double newMax){
 

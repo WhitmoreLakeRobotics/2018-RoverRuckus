@@ -27,6 +27,8 @@ public class DumpBox extends OpMode {
     private BoxModes boxMode_Current = BoxModes.BoxModes_Stop;
     private BoxModes boxMode_Desired = BoxModes.BoxModes_Stop;
 
+    private int autoOutmSec = 0;
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -69,12 +71,21 @@ public class DumpBox extends OpMode {
     public void loop() {
         telemetry.addData("DumpBox", "In");
 
+        if ((boxMode_Current == BoxModes.BoxModes_AutoOut) &&
+                (runtime.milliseconds() > autoOutmSec)) {
+            boxMode_Desired = BoxModes.BoxModes_Stop;
+        }
 
         if (boxMode_Current != boxMode_Desired) {
 
             boxMode_Current = boxMode_Desired;
 
             switch (boxMode_Current) {
+                case BoxModes_AutoOut:
+                    SVRL.setPower(SVRL_OUT);
+                    SVRR.setPower(SVRR_OUT);
+                    break;
+
                 case BoxModes_In:
                     telemetry.addData("DumpBox", "In");
                     SVRL.setPower(SVRL_IN);
@@ -111,6 +122,12 @@ public class DumpBox extends OpMode {
 
     }
 
+    public void cmd_ServoAutoOut(int mSecRuntime) {
+        boxMode_Desired = BoxModes.BoxModes_AutoOut;
+        autoOutmSec = mSecRuntime;
+        runtime.reset();
+    }
+
     public BoxModes getServoMode() {
 
         return boxMode_Current;
@@ -131,5 +148,6 @@ public class DumpBox extends OpMode {
         BoxModes_In,
         BoxModes_Stop,
         BoxModes_Out,
+        BoxModes_AutoOut
     }
 }
