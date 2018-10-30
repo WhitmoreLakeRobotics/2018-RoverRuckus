@@ -82,6 +82,7 @@ public class DumpBox extends OpMode {
 
             switch (boxMode_Current) {
                 case BoxModes_AutoOut:
+                    telemetry.addData("DumpBox", "Auto_Out");
                     runtime.reset();
                     SVRL.setPower(SVRL_OUT);
                     SVRR.setPower(SVRR_OUT);

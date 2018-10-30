@@ -312,8 +312,7 @@ public class IntakeArm extends OpMode {
      */
     @Override
     public void stop() {
-        SetMotorPower(0.0);
-
+        AM1.setPower(0.0);
     }
 
 
