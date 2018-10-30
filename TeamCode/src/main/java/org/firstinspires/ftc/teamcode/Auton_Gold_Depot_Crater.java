@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "Auton_Gold_Depot_Crater ", group = "Auton")
+@Autonomous(name = "Auton_Gold_Depot_Crater", group = "Auton")
 // @Autonomous(...) is the other common choice
 
 public class Auton_Gold_Depot_Crater extends OpMode {
@@ -25,7 +25,7 @@ public class Auton_Gold_Depot_Crater extends OpMode {
     private static final int stage85_drive2Crater = 85;
     private static final int stage90_turnFinal = 90;
     private static final int stage99_stop = 99;
-    private static final String TAGTeleop = "8492-Autonmous";
+    private static final String TAGTeleop = "8492-Auton_Gold_Depot_Crater";
     // create instance of Chassis
     Chassis RBTChassis = new Chassis();
     private int currentStage = stage0_preStart;
