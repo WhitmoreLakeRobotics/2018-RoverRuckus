@@ -32,6 +32,7 @@ public class Auton_Gold_Depot_Crater extends OpMode {
 
     // declare auton power variables
     private double AUTO_DRIVEPower = .5;
+    private double AUTO_DRIVEPower_HI = .75;
     private double AUTO_TURNPower = .5;
 
 
@@ -126,7 +127,7 @@ public class Auton_Gold_Depot_Crater extends OpMode {
 
         if (currentStage == stage50_backup) {
             if (RBTChassis.dumpBox.getServoMode() == DumpBox.BoxModes.BoxModes_Stop) {
-                //RBTChassis.intakeArm.cmd_moveToCarryPos();
+                RBTChassis.intakeArm.cmd_moveToCarryPos();
                 // driving backwards
                 RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 29);
                 currentStage = stage60_turn90;
@@ -158,7 +159,7 @@ public class Auton_Gold_Depot_Crater extends OpMode {
         if (currentStage == stage85_drive2Crater) {
             if (RBTChassis.getcmdComplete()) {
                 // driving backwards
-                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 45, -60);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower_HI , 45, -60);
                 currentStage = stage99_stop;
             }
         }

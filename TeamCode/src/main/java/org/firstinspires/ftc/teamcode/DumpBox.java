@@ -27,7 +27,7 @@ public class DumpBox extends OpMode {
     private BoxModes boxMode_Current = BoxModes.BoxModes_Stop;
     private BoxModes boxMode_Desired = BoxModes.BoxModes_Stop;
 
-    private int autoOutmSec = 0;
+    private double autoOutmSec = 0;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -82,6 +82,7 @@ public class DumpBox extends OpMode {
 
             switch (boxMode_Current) {
                 case BoxModes_AutoOut:
+                    runtime.reset();
                     SVRL.setPower(SVRL_OUT);
                     SVRR.setPower(SVRR_OUT);
                     break;
@@ -122,10 +123,9 @@ public class DumpBox extends OpMode {
 
     }
 
-    public void cmd_ServoAutoOut(int mSecRuntime) {
+    public void cmd_ServoAutoOut(double mSecRuntime) {
         boxMode_Desired = BoxModes.BoxModes_AutoOut;
         autoOutmSec = mSecRuntime;
-        runtime.reset();
     }
 
     public BoxModes getServoMode() {
