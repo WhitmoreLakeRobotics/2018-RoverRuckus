@@ -151,9 +151,9 @@ public class IntakeArm extends OpMode {
             case IntakeDestinations_Pickup:
                 retValue = inPosition_Tol(IntakePos_Pickup, IntakePosCurrent, IntakePos_Tol);
                 // we are on the switch we are in Pickup pos
-                if (!ArmTCH.getState()) {
-                    retValue = true;
-                }
+                //if (!ArmTCH.getState()) {
+                //    retValue = true;
+                //}
                 // We are below pickup... likely only by a few ticks but call it in position
                 // and cause a stop to happen
                 if (IntakePosCurrent < IntakePos_Pickup) {

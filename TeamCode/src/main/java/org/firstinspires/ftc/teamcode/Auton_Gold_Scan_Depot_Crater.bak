@@ -5,10 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "Auton_Gold_Depot_Crater ", group = "Auton")
+@Autonomous(name = "Auton_Scan_Depot_Crater ", group = "Auton")
 // @Autonomous(...) is the other common choice
 
-public class Auton_Gold_Depot_Crater extends OpMode {
+public class Auton_Gold_Scan_Depot_Crater extends OpMode {
 
 
     //declare and initialize stages
@@ -16,8 +16,16 @@ public class Auton_Gold_Depot_Crater extends OpMode {
     private static final int stage10_extened = 10;
     private static final int stage20_liftIntakeAarm = 20;
     private static final int stage30_drive = 30;
-    private static final int stage35_empty = 35;
+    private static final int stage31_scan = 31;
+
+    private static final int stage33_centerMine = 33;
+    private static final int stage34_centerMine = 34;
+
+    private static final int stage37_sideMine = 37;
+
+    private static final int stage39_2Depot = 39;
     private static final int stage40_empty = 40;
+    private static final int stage45_empty = 45;
     private static final int stage50_backup = 50;
     private static final int stage60_turn90 = 60;
     private static final int stage70_drive2Side = 70;
@@ -104,21 +112,72 @@ public class Auton_Gold_Depot_Crater extends OpMode {
 
         if (currentStage == stage30_drive) {
             if (RBTChassis.hanger.isExtended()) {
-                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 52);
-                currentStage = stage35_empty;
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 24);
+                RBTChassis.scannerArms.cmdMoveDown();
+                currentStage = stage31_scan;
             }
         }
 
-        if (currentStage == stage35_empty) {
+        if (currentStage == stage31_scan) {
+            if (RBTChassis.getcmdComplete()){
+                if (RBTChassis.scannerArms.isGoldCenter()) {
+                    //Move both arms up...
+                    RBTChassis.scannerArms.cmdMoveUp();
+                    RBTChassis.intakeArm.cmd_moveToPickupPos();
+                    currentStage = stage33_centerMine;
+                }
+                else if (RBTChassis.scannerArms.isGoldLeft()) {
+                    RBTChassis.scannerArms.cmdMoveUpRight();
+                    currentStage = stage37_sideMine;
+                }
+                else if (RBTChassis.scannerArms.isGoldRight()) {
+                    RBTChassis.scannerArms.cmdMoveUpLeft();
+                    currentStage = stage37_sideMine;
+                }
+                else {
+                    currentStage = stage37_sideMine;
+                }
+            }
+        }
+
+        if (currentStage == stage33_centerMine){
+            if (RBTChassis.scannerArms.getIsUp() &&
+                    RBTChassis.intakeArm.atDestination(IntakeArm.IntakeDestinations.IntakeDestinations_Pickup)) {
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower / 2, 0, -4);
+                currentStage = stage39_2Depot;
+            }
+        }
+
+        if (currentStage == stage34_centerMine){
+            if (RBTChassis.scannerArms.getIsUp() &&
+                    RBTChassis.intakeArm.atDestination(IntakeArm.IntakeDestinations.IntakeDestinations_Pickup)) {
+                RBTChassis.cmdDrive(AUTO_DRIVEPower / 2, 0, 8);
+                currentStage = stage39_2Depot;
+            }
+        }
+        if (currentStage == stage37_sideMine){
+            if (RBTChassis.scannerArms.getIsUpLeft() || RBTChassis.scannerArms.getIsUpRight()) {
+                RBTChassis.cmdDrive(AUTO_DRIVEPower / 2, 0, 4);
+                currentStage = stage39_2Depot;
+            }
+        }
+
+        if (currentStage == stage39_2Depot) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
-                RBTChassis.intakeArm.cmd_moveToPickupPos();
-                currentStage = stage40_empty;
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 14);
             }
         }
 
         if (currentStage == stage40_empty) {
-            if (RBTChassis.intakeArm.atDestination(IntakeArm.IntakeDestinations.IntakeDestinations_Pickup)) {
+            if (RBTChassis.getcmdComplete()) {
+                RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
+                RBTChassis.intakeArm.cmd_moveToPickupPos();
+                currentStage = stage45_empty;
+            }
+        }
+
+        if (currentStage == stage45_empty) {
+            if (RBTChassis.intakeArm.atDestination(IntakeArm.IntakeDestinations.IntakeDestinations_Pickup) == true) {
                 RBTChassis.dumpBox.cmd_ServoAutoOut(2000);
                 currentStage = stage50_backup;
             }
@@ -126,9 +185,9 @@ public class Auton_Gold_Depot_Crater extends OpMode {
 
         if (currentStage == stage50_backup) {
             if (RBTChassis.dumpBox.getServoMode() == DumpBox.BoxModes.BoxModes_Stop) {
-                //RBTChassis.intakeArm.cmd_moveToCarryPos();
+                RBTChassis.intakeArm.cmd_moveToCarryPos();
                 // driving backwards
-                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 29);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 24);
                 currentStage = stage60_turn90;
             }
         }
@@ -142,7 +201,7 @@ public class Auton_Gold_Depot_Crater extends OpMode {
 
         if (currentStage == stage70_drive2Side) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 90, -50);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 90, -40);
                 currentStage = stage80_turn2Crater;
             }
         }
@@ -158,7 +217,7 @@ public class Auton_Gold_Depot_Crater extends OpMode {
         if (currentStage == stage85_drive2Crater) {
             if (RBTChassis.getcmdComplete()) {
                 // driving backwards
-                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 45, -60);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 45, -48);
                 currentStage = stage99_stop;
             }
         }
