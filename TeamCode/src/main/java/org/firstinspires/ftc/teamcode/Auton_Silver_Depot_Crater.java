@@ -105,7 +105,7 @@ public class Auton_Silver_Depot_Crater extends OpMode {
 
         if (currentStage == stage30_drive) {
             if (RBTChassis.hanger.isExtended()) {
-                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 24);
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 14);
                 currentStage = stage40_sample;
             }
         }
@@ -119,21 +119,21 @@ public class Auton_Silver_Depot_Crater extends OpMode {
 
         if (currentStage == stage60_turn90) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.cmdTurn(-AUTO_TURNPower, AUTO_TURNPower, -90);
+                RBTChassis.cmdTurn(-AUTO_TURNPower, AUTO_TURNPower, -80);
                 currentStage = stage70_drive2Side;
             }
         }
 
         if (currentStage == stage70_drive2Side) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.cmdDrive(AUTO_DRIVEPower, -90, 48);
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, -80, 48);
                 currentStage = stage80_turn2Depot;
             }
         }
 
         if (currentStage == stage80_turn2Depot) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.cmdTurn(-AUTO_TURNPower, AUTO_TURNPower, 135);
+                RBTChassis.cmdTurn(-AUTO_TURNPower, AUTO_TURNPower, -135);
                 currentStage = stage85_drive2Depot;
             }
         }
@@ -141,9 +141,9 @@ public class Auton_Silver_Depot_Crater extends OpMode {
 
         if (currentStage == stage85_drive2Depot) {
             if (RBTChassis.getcmdComplete()) {
-                // driving backwards
-                RBTChassis.cmdDrive(AUTO_DRIVEPower, 135, 48);
-                currentStage = stage99_stop;
+
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, -125, 36);
+                currentStage = stage90_Empty;
             }
         }
 
@@ -158,7 +158,7 @@ public class Auton_Silver_Depot_Crater extends OpMode {
         if (currentStage == stage95_Backup2Crater) {
             if (RBTChassis.dumpBox.getServoMode() == DumpBox.BoxModes.BoxModes_Stop ) {
                 // driving backwards
-                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 135, -80);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, -125, -80);
                 currentStage = stage99_stop;
             }
         }

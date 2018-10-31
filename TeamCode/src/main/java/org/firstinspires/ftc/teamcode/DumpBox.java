@@ -126,7 +126,9 @@ public class DumpBox extends OpMode {
 
     public void cmd_ServoAutoOut(double mSecRuntime) {
         boxMode_Desired = BoxModes.BoxModes_AutoOut;
+        boxMode_Current = BoxModes.BoxModes_Out;
         autoOutmSec = mSecRuntime;
+        runtime.reset();
     }
 
     public BoxModes getServoMode() {
