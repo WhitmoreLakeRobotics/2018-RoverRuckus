@@ -106,7 +106,6 @@ public class Auton_Silver_Depot_Crater extends OpMode {
         if (currentStage == stage30_drive) {
             if (RBTChassis.hanger.isExtended()) {
                 RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 14);
-                RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
                 currentStage = stage40_sample;
             }
         }
@@ -120,6 +119,7 @@ public class Auton_Silver_Depot_Crater extends OpMode {
 
         if (currentStage == stage60_turn90) {
             if (RBTChassis.getcmdComplete()) {
+                RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
                 RBTChassis.cmdTurn(-AUTO_TURNPower, AUTO_TURNPower, -75);
                 currentStage = stage70_drive2Side;
             }
@@ -159,7 +159,7 @@ public class Auton_Silver_Depot_Crater extends OpMode {
         if (currentStage == stage95_Backup2Crater) {
             if (RBTChassis.dumpBox.getServoMode() == DumpBox.BoxModes.BoxModes_Stop ) {
                 // driving backwards
-                RBTChassis.cmdDrive(-AUTO_DRIVEPower, -115, -80);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, -135, -80);
                 currentStage = stage99_stop;
             }
         }
