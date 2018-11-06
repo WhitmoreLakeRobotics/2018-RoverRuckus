@@ -33,7 +33,7 @@ public class Auton_Gold_Depot_Crater extends OpMode {
     // declare auton power variables
     private double AUTO_DRIVEPower = .5;
     private double AUTO_DRIVEPower_HI = .75;
-    private double AUTO_TURNPower = .5;
+    private double AUTO_TURNPower = .4;
 
 
     /* Declare OpMode members. */

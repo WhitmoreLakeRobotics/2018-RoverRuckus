@@ -25,7 +25,7 @@ import java.util.Locale;
 public class Chassis extends OpMode {
 
     //for truning this is the tolerance of trun in degrees
-    public static final int chassis_GyroHeadingTol = 2;
+    public static final int chassis_GyroHeadingTol = 3;
 
     public static final int ChassisMode_Stop = 0;
     public static final int ChassisMode_Drive = 1;
