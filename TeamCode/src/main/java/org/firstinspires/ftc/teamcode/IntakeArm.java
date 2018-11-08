@@ -18,10 +18,10 @@ public class IntakeArm extends OpMode {
     public static final int IntakePos_Tol = 70;
     public static final int IntakePos_Pickup = 0;
     public static final int IntakePos_Dump = 3670;
-    public static final int IntakePos_Carry = Math.round(IntakePos_Dump / 4);
+    public static final int IntakePos_Carry = Math.round(IntakePos_Dump / 3);
     public static final double IntakePowerDown = -.35;
-    public static final double IntakePowerUp = 0.75;
-    public static final double IntakePowerInit = -0.20;
+    public static final double IntakePowerUp = 0.80;
+    public static final double IntakePowerInit = -0.30;
     private static final String TAGIntakeArm = "8492-IntakeArm";
     double IntakePowerCurrent = 0;
     double IntakePowerDesired = 0;
@@ -196,9 +196,11 @@ public class IntakeArm extends OpMode {
                     retValue = false;
                 }
                 break;
+
             case IntakeDestinations_Unknown:
                 retValue = true;
                 break;
+
             default:
                 retValue = true;
                 break;
