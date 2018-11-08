@@ -5,10 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "Auton_Null ",  group = "Auton")
+@Autonomous(name = "Auton_Silver_Crater ",  group = "Auton")
 // @Autonomous(...) is the other common choice
 
-public class Auton_Null extends OpMode {
+public class Auton_Silver_Crater extends OpMode {
 
 
     //declare and initialize stages
@@ -17,13 +17,13 @@ public class Auton_Null extends OpMode {
     private static final int stage10_drive = 10;
     private static final int stage15_hangerDown = 15;
     private static final int stage20_stop = 20;
-    private static final String TAGTeleop = "8492-Auton_Null";
+    private static final String TAGTeleop = "8492-Auton_Gold_Crater";
     // create instance of Chassis
     Chassis RBTChassis = new Chassis();
     private int currentStage = stage0_preStart;
 
 
-    private double AUTO_DRIVEPower = .5;
+    private double AUTO_DRIVEPower = .9;
 
 
     /* Declare OpMode members. */
@@ -34,7 +34,7 @@ public class Auton_Null extends OpMode {
      */
     @Override
     public void init() {
-        telemetry.addData("Auton_Null", "Initialized");
+        telemetry.addData("Auton_Gold_Crater", "Initialized");
         RBTChassis.setParentMode(Chassis.PARENTMODE.PARENT_MODE_AUTO);
         RBTChassis.hardwareMap = hardwareMap;
         RBTChassis.telemetry = telemetry;
@@ -71,7 +71,7 @@ public class Auton_Null extends OpMode {
     @Override
     public void loop() {
 
-        telemetry.addData("Auto_Null", currentStage);
+        telemetry.addData("Auto_Gold_Crater", currentStage);
         RBTChassis.loop();
 
         // check stage and do what's appropriate
@@ -80,12 +80,13 @@ public class Auton_Null extends OpMode {
         }
         if (currentStage == stage2_extened) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
+            RBTChassis.intakeArm.cmd_moveToCarryPos();
             currentStage = stage10_drive;
         }
 
         if (currentStage == stage10_drive) {
             if (RBTChassis.hanger.isExtended()) {
-                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 1.5);
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 56);
                 currentStage = stage15_hangerDown;
             }
         }
