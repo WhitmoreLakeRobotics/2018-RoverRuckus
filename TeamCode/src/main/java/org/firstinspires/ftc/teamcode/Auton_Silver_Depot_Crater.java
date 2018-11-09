@@ -143,7 +143,6 @@ public class Auton_Silver_Depot_Crater extends OpMode {
 
         if (currentStage == stage85_drive2Depot) {
             if (RBTChassis.getcmdComplete()) {
-
                 RBTChassis.cmdDrive(AUTO_DRIVEPower, -120, 40);
                 currentStage = stage90_Empty;
             }
@@ -152,7 +151,7 @@ public class Auton_Silver_Depot_Crater extends OpMode {
 
         if (currentStage == stage90_Empty) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.dumpBox.cmd_ServoAutoOut(2000);
+                RBTChassis.dumpBox.cmd_ServoAutoOut(1250);
                 currentStage = stage95_Backup2Crater;
             }
         }
