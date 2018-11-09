@@ -49,6 +49,7 @@ public class Auton_Gold_Depot_Crater extends OpMode {
         RBTChassis.hardwareMap = hardwareMap;
         RBTChassis.telemetry = telemetry;
         RBTChassis.init();
+        msStuckDetectStart = 8000;
 
 
         // initialize chassis with hardware map
