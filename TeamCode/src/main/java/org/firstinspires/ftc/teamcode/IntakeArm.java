@@ -162,7 +162,7 @@ public class IntakeArm extends OpMode {
                 break;
 
             case IntakeDestinations_Carry:
-                retValue = inPosition_Tol(IntakePos_Carry, IntakePosCurrent, IntakePos_Tol * 2);
+                retValue = inPosition_Tol(IntakePos_Carry, IntakePosCurrent, (int)(IntakePos_Tol * 1.4));
                 break;
 
             case IntakeDestinations_Dump:
