@@ -18,7 +18,7 @@ public class IntakeArm extends OpMode {
     public static final int IntakePos_Tol = 70;
     public static final int IntakePos_Pickup = 0;
     public static final int IntakePos_Dump = 3670;
-    public static final int IntakePos_Carry = Math.round(IntakePos_Dump / 3);
+    public static final int IntakePos_Carry = 1600;
     public static final double IntakePowerDown = -.35;
     public static final double IntakePowerUp = 0.80;
     public static final double IntakePowerInit = -0.30;
@@ -162,7 +162,7 @@ public class IntakeArm extends OpMode {
                 break;
 
             case IntakeDestinations_Carry:
-                retValue = inPosition_Tol(IntakePos_Carry, IntakePosCurrent, (int)(IntakePos_Tol * 1.4));
+                retValue = inPosition_Tol(IntakePos_Carry, IntakePosCurrent, (int)(IntakePos_Tol * 1.75));
                 break;
 
             case IntakeDestinations_Dump:
@@ -221,7 +221,7 @@ public class IntakeArm extends OpMode {
             newPower = 0;
         }
 
-        if (!hanger.isRetracted()) {
+        if (!hanger.isRetracted() && newMotorPower > 0 && (IntakePosCurrent > (int)(IntakePos_Dump * .75))) {
             newPower = 0;
         }
 

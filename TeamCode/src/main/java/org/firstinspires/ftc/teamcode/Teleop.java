@@ -61,8 +61,10 @@ public class Teleop extends OpMode {
     private double LeftMotorPower = 0;
     private double RightMotorPower = 0;
 
-    private double powerNormal = .8;
-    private double powerMax = 1;
+    private double powerNormal = .5;
+
+
+    private double powerMax = 8;
 
     /*
      * Code to run ONCE when the driver hits INIT

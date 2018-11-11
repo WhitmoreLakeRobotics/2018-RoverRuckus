@@ -130,7 +130,7 @@ public class Auton_Gold_Depot_Crater extends OpMode {
             if (RBTChassis.dumpBox.getServoMode() == DumpBox.BoxModes.BoxModes_Stop) {
                 RBTChassis.intakeArm.cmd_moveToCarryPos();
                 // driving backwards
-                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 29);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 32);
                 currentStage = stage60_turn90;
             }
         }
