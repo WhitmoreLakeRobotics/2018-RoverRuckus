@@ -13,6 +13,15 @@ public class MineralVision extends BaseHardware {
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
 
+    public static enum GOLD_LOCATION {
+        UNKNOWN,
+        LEFT,
+        CENTER,
+        RIGHT
+    }
+
+    private GOLD_LOCATION gold_location = GOLD_LOCATION.UNKNOWN;
+
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
      * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
@@ -55,6 +64,7 @@ public class MineralVision extends BaseHardware {
         } else {
             telemetry.addData("Sorry!", "This device is not compatible with TFOD");
         }
+
     }
 
     /**
@@ -76,9 +86,7 @@ public class MineralVision extends BaseHardware {
      *
      */
     public void start() {
-        if (tfod != null) {
-            tfod.activate();
-        }
+        startLogic();
     }
 
     /**
@@ -87,39 +95,7 @@ public class MineralVision extends BaseHardware {
      * This method will be called repeatedly in a loop while this op mode is running
      */
     public void loop(){
-
-        if (tfod != null) {
-            // getUpdatedRecognitions() will return null if no new information is available since
-            // the last time that call was made.
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-            if (updatedRecognitions != null) {
-                telemetry.addData("# Object Detected", updatedRecognitions.size());
-                if (updatedRecognitions.size() == 3) {
-                    int goldMineralX = -1;
-                    int silverMineral1X = -1;
-                    int silverMineral2X = -1;
-                    for (Recognition recognition : updatedRecognitions) {
-                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                            goldMineralX = (int) recognition.getLeft();
-                        } else if (silverMineral1X == -1) {
-                            silverMineral1X = (int) recognition.getLeft();
-                        } else {
-                            silverMineral2X = (int) recognition.getLeft();
-                        }
-                    }
-                    if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
-                        if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                            telemetry.addData("Gold Mineral Position", "Left");
-                        } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                            telemetry.addData("Gold Mineral Position", "Right");
-                        } else {
-                            telemetry.addData("Gold Mineral Position", "Center");
-                        }
-                    }
-                }
-                telemetry.update();
-            }
-        }
+        loopLogic ();
     }
 
     /**
@@ -130,9 +106,7 @@ public class MineralVision extends BaseHardware {
      * The stop method is optional. By default this method takes no action.
      */
     void stop() {
-        if (tfod != null) {
-            tfod.shutdown();
-        }
+        stopLogic();
     }
 
 
@@ -146,7 +120,8 @@ public class MineralVision extends BaseHardware {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        //parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
@@ -165,4 +140,77 @@ public class MineralVision extends BaseHardware {
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }
+
+    private void loopLogic () {
+        if (tfod != null) {
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            if (updatedRecognitions != null) {
+                telemetry.addData("# Object Detected", updatedRecognitions.size());
+                if (updatedRecognitions.size() >= 3 && updatedRecognitions.size() < 6) {
+                    int goldMineralX = -1;
+                    int silverMineral1X = -1;
+                    int silverMineral2X = -1;
+                    for (Recognition recognition : updatedRecognitions) {
+                        if (recognition.getTop() > 300) {
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                goldMineralX = (int) recognition.getLeft();
+                            } else if (silverMineral1X == -1) {
+                                silverMineral1X = (int) recognition.getLeft();
+                            } else {
+                                silverMineral2X = (int) recognition.getLeft();
+                            }
+                        }
+                    }
+                    if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
+                        if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
+                            telemetry.addData("Gold Mineral Position", "Left");
+                            gold_location=GOLD_LOCATION.LEFT;
+                        } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                            telemetry.addData("Gold Mineral Position", "Right");
+                            gold_location=GOLD_LOCATION.RIGHT;
+                        } else {
+                            telemetry.addData("Gold Mineral Position", "Center");
+                            gold_location=GOLD_LOCATION.CENTER;
+                        }
+                    }
+                }
+                else {
+                    gold_location=GOLD_LOCATION.UNKNOWN;
+                }
+                telemetry.update();
+            }
+        }
+
+    }
+
+    private void startLogic () {
+        if (tfod != null) {
+            tfod.activate();
+        }
+    }
+
+    private void stopLogic () {
+        if (tfod != null) {
+            tfod.shutdown();
+        }
+    }
+
+    public GOLD_LOCATION getGoldLocation (){
+        return gold_location;
+    }
+
+    public boolean isGoldLeft (){
+        return (gold_location == GOLD_LOCATION.LEFT);
+    }
+
+    public boolean isGoldRight (){
+        return (gold_location == GOLD_LOCATION.RIGHT);
+    }
+
+    public boolean isGoldCenter (){
+        return (gold_location == GOLD_LOCATION.CENTER);
+    }
+
 }
