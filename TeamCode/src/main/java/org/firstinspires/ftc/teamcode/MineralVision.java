@@ -152,6 +152,7 @@ public class MineralVision extends BaseHardware {
                     int goldMineralX = -1;
                     int silverMineral1X = -1;
                     int silverMineral2X = -1;
+
                     for (Recognition recognition : updatedRecognitions) {
                         if (recognition.getTop() > 300) {
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
@@ -163,6 +164,7 @@ public class MineralVision extends BaseHardware {
                             }
                         }
                     }
+
                     if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
                         if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
                             telemetry.addData("Gold Mineral Position", "Left");

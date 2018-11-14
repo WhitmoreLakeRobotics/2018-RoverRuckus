@@ -16,12 +16,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class ScannerArms extends OpMode {
     private static final String TAGIntakeArm = "8492-ScannerArms";
-    private ScannerArm scannerArmRight = new ScannerArm();
-    private ScannerArm scannerArmLeft = new ScannerArm();
-
+    private ScannerArm ArmRight = new ScannerArm();
+    private ScannerArm ArmLeft = new ScannerArm();
 
     private double scanSvoRPos_up = 0;
     private double scanSvoRPos_down = .7;
+
     private double scanSvoLPos_up = .7;
     private double scanSvoLPos_down = 0;
 
@@ -37,17 +37,13 @@ public class ScannerArms extends OpMode {
          * to 'get' must correspond to the names assigned during the robot configuration
          * step (using the FTC Robot Controller app on the phone).
          */
-        scannerArmLeft.setServo(hardwareMap.servo.get("ScanSvoR"));
-        scannerArmLeft.setColorSensor(hardwareMap.get(ColorSensor.class, "ColorL"));
-        scannerArmLeft.setDistanceSensor(hardwareMap.get(DistanceSensor.class, "DistL"));
-        scannerArmLeft.setPositions(scanSvoLPos_up, scanSvoLPos_down);
-        scannerArmLeft.init();
+        ArmLeft.setServo(hardwareMap.servo.get("ScanSvoL"));
+        ArmLeft.setPositions(scanSvoLPos_up, scanSvoLPos_down);
+        ArmLeft.init();
 
-        scannerArmRight.setServo(hardwareMap.servo.get("ScanSvoL"));
-        scannerArmRight.setColorSensor(hardwareMap.get(ColorSensor.class, "ColorR"));
-        scannerArmRight.setDistanceSensor(hardwareMap.get(DistanceSensor.class, "DistR"));
-        scannerArmRight.setPositions(scanSvoRPos_up, scanSvoRPos_down);
-        scannerArmRight.init();
+        ArmRight.setServo(hardwareMap.servo.get("ScanSvoR"));
+        ArmRight.setPositions(scanSvoRPos_up, scanSvoRPos_down);
+        ArmRight.init();
 
     }
 
@@ -56,8 +52,8 @@ public class ScannerArms extends OpMode {
      */
     @Override
     public void init_loop() {
-        scannerArmLeft.init_loop();
-        scannerArmRight.init_loop();
+        ArmLeft.init_loop();
+        ArmRight.init_loop();
     }
 
     /*
@@ -65,8 +61,8 @@ public class ScannerArms extends OpMode {
      */
     @Override
     public void start() {
-        scannerArmLeft.start();
-        scannerArmRight.start();
+        ArmLeft.start();
+        ArmRight.start();
     }
 
     /*
@@ -74,68 +70,61 @@ public class ScannerArms extends OpMode {
      */
     @Override
     public void loop() {
-        scannerArmRight.loop();
-        scannerArmLeft.loop();
+        ArmRight.loop();
+        ArmLeft.loop();
     }
 
-    public void cmdMoveDown(){
-        scannerArmRight.cmd_moveDown();
-        scannerArmLeft.cmd_moveDown();
+    public void cmdMoveAllDown(){
+        ArmRight.cmd_moveDown();
+        ArmLeft.cmd_moveDown();
     }
 
-    public void cmdMoveUp() {
-        scannerArmRight.cmd_moveUp();
-        scannerArmLeft.cmd_moveUp();
+    public void cmdMoveAllUp() {
+        ArmRight.cmd_moveUp();
+        ArmLeft.cmd_moveUp();
     }
 
     public void cmdMoveUpLeft() {
-        scannerArmLeft.cmd_moveUp();
+        ArmLeft.cmd_moveUp();
     }
 
     public void cmdMoveUpRight() {
-        scannerArmRight.cmd_moveUp();
+        ArmRight.cmd_moveUp();
     }
+
+    public void cmdMoveDownLeft() {
+        ArmLeft.cmd_moveDown();
+    }
+
+    public void cmdMoveDownRight() {
+        ArmRight.cmd_moveDown();
+    }
+
 
     public boolean getIsDown(){
-        return (scannerArmLeft.getIsDown() && scannerArmRight.getIsDown());
+        return (ArmLeft.getIsDown() && ArmRight.getIsDown());
     }
 
-
     public boolean getIsUp() {
-        return (scannerArmLeft.getIsUp() && scannerArmRight.getIsUp());
+        return (ArmLeft.getIsUp() && ArmRight.getIsUp());
     }
 
     public boolean getIsUpLeft() {
-        return (scannerArmLeft.getIsUp());
+        return (ArmLeft.getIsUp());
     }
 
     public boolean getIsUpRight() {
-        return (scannerArmRight.getIsUp());
+        return (ArmRight.getIsUp());
     }
 
-
-    public boolean isGoldLeft() {
-        return (scannerArmLeft.getIsGold());
-
-    }
-
-    public boolean isGoldCenter() {
-        return (scannerArmLeft.getIsSilver() && scannerArmRight.getIsSilver());
-
-    }
-
-    public boolean isGoldRight() {
-        return (scannerArmLeft.getIsGold());
-
-    }
 
     /*
      * Code to run ONCE after the driver hits STOP
      */
     @Override
     public void stop() {
-        scannerArmRight.stop();
-        scannerArmLeft.stop();
+        ArmRight.stop();
+        ArmLeft.stop();
     }
 
 }

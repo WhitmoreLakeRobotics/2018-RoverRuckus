@@ -263,9 +263,8 @@ public class Chassis extends OpMode {
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "left (%.2f), right (%.2f)");
 
-//        RobotLog.aa(TAGChassis,"Stage: "+ CurrentStage );
+        // RobotLog.aa(TAGChassis,"Stage: "+ CurrentStage );
         RobotLog.aa(TAGChassis, "Runtime: " + runtime.seconds());
 
         double inchesTraveled = Math.abs(getEncoderInches());
@@ -278,7 +277,7 @@ public class Chassis extends OpMode {
 
     public void doTeleop(double LDMpower, double RDMpower) {
         ChassisMode_Current = ChassisMode_Teleop;
-        RobotLog.aa(TAGChassis, "doTeleop: " + LDMpower);
+
 
         double lPower = LDMpower;
         double rPower = RDMpower;
@@ -299,7 +298,7 @@ public class Chassis extends OpMode {
             rPower = maxPower;
         }
 
-
+        RobotLog.aa(TAGChassis, "doTeleop: lPower=" + lPower + " rPower=" + rPower);
         LDM1.setPower(lPower);
         RDM1.setPower(rPower);
         LDM2.setPower(lPower);
@@ -309,7 +308,7 @@ public class Chassis extends OpMode {
     }
 
     private void doStop() {
-
+        RobotLog.aa(TAGChassis, "doStop:");
         TargetMotorPowerLeft = 0;
         TargetMotorPowerRight = 0;
         TargetDistanceInches = 0;
@@ -337,7 +336,6 @@ public class Chassis extends OpMode {
         RobotLog.aa(TAGChassis, "leftpower: " + leftPower + " right " + rightPower);
 
 
-        // RobotLog.aa(TAGChassis, "doDrive: " + leftPower);
         if (leftPower < -1) {
             leftPower = -1;
         }
@@ -357,15 +355,12 @@ public class Chassis extends OpMode {
         RDM1.setPower(rightPower);
         RDM2.setPower(rightPower);
 
-        // RobotLog.aa(TAGChassis, "AFTER SETPOWER leftpower: " + leftPower + " right " + rightPower);
-
-
         //check if we've gone far enough, if so stop and mark task complete
         double inchesTraveled = Math.abs(getEncoderInches());
-        //RobotLog.aa(TAGChassis, "targetinches: " + Math.abs(TargetDistanceInches - Chassis_DriveTolerInches));
-        //RobotLog.aa(TAGChassis, "inchesTraveled: " + inchesTraveled);
 
         if (inchesTraveled >= Math.abs(TargetDistanceInches - Chassis_DriveTolerInches)) {
+            RobotLog.aa(TAGChassis, "Target Inches: " + Math.abs(TargetDistanceInches - Chassis_DriveTolerInches));
+            RobotLog.aa(TAGChassis, "Inches Traveled: " + inchesTraveled);
             cmdComplete = true;
             doStop();
         }
