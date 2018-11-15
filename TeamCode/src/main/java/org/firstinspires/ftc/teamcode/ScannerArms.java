@@ -19,11 +19,13 @@ public class ScannerArms extends OpMode {
     private ScannerArm ArmRight = new ScannerArm();
     private ScannerArm ArmLeft = new ScannerArm();
 
+    private double scanSvoRPos_start = .6;
     private double scanSvoRPos_up = .5;
-    private double scanSvoRPos_down = .6;
+    private double scanSvoRPos_down = .17;
 
+    private double scanSvoLPos_start = .4;
     private double scanSvoLPos_up = .5;
-    private double scanSvoLPos_down = .4;
+    private double scanSvoLPos_down = .83;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -38,11 +40,11 @@ public class ScannerArms extends OpMode {
          * step (using the FTC Robot Controller app on the phone).
          */
         ArmLeft.setServo(hardwareMap.servo.get("ScanSvoL"));
-        ArmLeft.setPositions(scanSvoLPos_up, scanSvoLPos_down);
+        ArmLeft.setPositions(scanSvoLPos_start, scanSvoLPos_up, scanSvoLPos_down);
         ArmLeft.init();
 
         ArmRight.setServo(hardwareMap.servo.get("ScanSvoR"));
-        ArmRight.setPositions(scanSvoRPos_up, scanSvoRPos_down);
+        ArmRight.setPositions(scanSvoRPos_start, scanSvoRPos_up, scanSvoRPos_down);
         ArmRight.init();
 
     }

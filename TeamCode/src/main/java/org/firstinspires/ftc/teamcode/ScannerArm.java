@@ -18,17 +18,15 @@ public class ScannerArm extends OpMode {
 
     /* Declare OpMode members. */
 
-    private ElapsedTime runtime = new ElapsedTime();
-
-
-    private SCANNER_ARM_STATES ScannerArmState_desired = SCANNER_ARM_STATES.MOVING_UP;
+    private SCANNER_ARM_STATES ScannerArmState_desired = SCANNER_ARM_STATES.UNKNOWN;
     private SCANNER_ARM_STATES ScannerArmState_current = SCANNER_ARM_STATES.UNKNOWN;
 
     private ElapsedTime ScannerArmTimer = null;
-    private int ScannerArmMoveTime = 1500;
+    private int ScannerArmMoveTime = 1250;
 
     // Define the hardware
     private Servo scanSvo = null;
+    private double scanSvoPos_start = 0;
     private double scanSvoPos_up = 0;
     private double scanSvoPos_down = 0;
 
@@ -37,15 +35,14 @@ public class ScannerArm extends OpMode {
         scanSvo = svro;
     }
 
-    public void setPositions(double upPos, double downPos){
+    public void setPositions(double startPos, double upPos,  double downPos){
+        scanSvoPos_start = startPos;
         scanSvoPos_up = upPos;
         scanSvoPos_down = downPos;
     }
 
     @Override
     public void init() {
-
-        telemetry.addData("ScannerArm", "Initialized");
         ScannerArmTimer = new ElapsedTime();
     }
 
@@ -62,7 +59,10 @@ public class ScannerArm extends OpMode {
      */
     @Override
     public void start() {
-        scanSvo.setPosition(scanSvoPos_up);
+        ScannerArmState_desired = SCANNER_ARM_STATES.START;
+        ScannerArmState_current = SCANNER_ARM_STATES.UNKNOWN;
+        ScannerArmTimer.reset();
+        scanSvo.setPosition(scanSvoPos_start);
     }
 
     /*
@@ -102,14 +102,26 @@ public class ScannerArm extends OpMode {
                     }
                     break;
                 }
+
+                case START:{
+                    if (ScannerArmTimer.milliseconds() > ScannerArmMoveTime) {
+                        ScannerArmState_current = SCANNER_ARM_STATES.START;
+                        ScannerArmState_desired = SCANNER_ARM_STATES.MOVING_UP;
+                    }
+                    break;
+                }
+
+                default: {
+                    break;
+                }
             }
         }
-
     }
 
     public boolean atDestination(SCANNER_ARM_STATES test_state) {
         return (ScannerArmState_current == test_state);
     }
+
 
     public void cmd_moveDown() {
         ScannerArmState_desired = SCANNER_ARM_STATES.MOVING_DOWN;
@@ -140,6 +152,7 @@ public class ScannerArm extends OpMode {
     }
 
     public static enum SCANNER_ARM_STATES {
+        START,
         UP,
         MOVING_DOWN,
         DOWN,
