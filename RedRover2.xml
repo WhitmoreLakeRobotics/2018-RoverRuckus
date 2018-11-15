@@ -15,7 +15,7 @@
             <ContinuousRotationServo name="dmpSvrr" port="0" />
             <ContinuousRotationServo name="dmpSvrl" port="1" />
             <Servo name="ScanSvoL" port="4" />
-            <Servo name="ScwnSvoR" port="5" />
+            <Servo name="ScanSvoR" port="5" />
             <DigitalDevice name="ArmTCH" port="1" />
             <DigitalDevice name="HangTCH" port="3" />
             <LynxEmbeddedIMU name="imu 1" port="0" bus="0" />

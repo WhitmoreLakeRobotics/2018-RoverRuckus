@@ -19,11 +19,11 @@ public class ScannerArms extends OpMode {
     private ScannerArm ArmRight = new ScannerArm();
     private ScannerArm ArmLeft = new ScannerArm();
 
-    private double scanSvoRPos_up = 0;
-    private double scanSvoRPos_down = .7;
+    private double scanSvoRPos_up = .5;
+    private double scanSvoRPos_down = .6;
 
-    private double scanSvoLPos_up = .7;
-    private double scanSvoLPos_down = 0;
+    private double scanSvoLPos_up = .5;
+    private double scanSvoLPos_down = .4;
 
     /*
      * Code to run ONCE when the driver hits INIT
