@@ -61,6 +61,7 @@ public class Teleop extends OpMode {
     private double LeftMotorPower = 0;
     private double RightMotorPower = 0;
 
+
     private double powerNormal = .5;
 
 
@@ -133,14 +134,31 @@ public class Teleop extends OpMode {
         telemetry.addData("IntakeArmPos", RBTChassis.intakeArm.getPOS_Ticks());
 
         RBTChassis.hanger.cmdStickControl(joystickMath(gamepad2.right_stick_y));
-        RBTChassis.intakeArm.cmd_StickControl(joystickMath(-gamepad2.left_stick_y));
+       RBTChassis.intakeArm.cmd_StickControl(joystickMath(-gamepad2.left_stick_y));
+
+        if (gamepad2.dpad_down){
+            RBTChassis.scannerArms.cmdMoveDownLeft();
+        }
+        if (gamepad2.dpad_up){
+            RBTChassis.scannerArms.cmdMoveUpLeft();
+        }
+
+        if (gamepad2.dpad_left){
+            RBTChassis.scannerArms.cmdMoveDownRight();
+        }
+        if (gamepad2.dpad_right){
+            RBTChassis.scannerArms.cmdMoveUpRight();
+        }
 
 
         if (gamepad2.a) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
             RobotLog.aa(TAGTeleop, "gamepad2 a pressed ");
             gamepad2_a_pressed = true;
-            gamepad2_b_pressed = false;
+            gamepad2_b_pressed = false;if (gamepad2.dpad_down){
+            RBTChassis.scannerArms.cmdMoveAllDown();
+        }
+
             gamepad2_x_pressed = false;
             gamepad2_y_pressed = false;
         }

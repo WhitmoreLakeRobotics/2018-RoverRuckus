@@ -15,17 +15,17 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 //@TeleOp(name = "ScannerArms", group = "CHASSIS")  // @Autonomous(...) is the other common choice
 
 public class ScannerArms extends OpMode {
-    private static final String TAGIntakeArm = "8492-ScannerArms";
+    private  static final String TAGIntakeArm = "8492-ScannerArms";
     private ScannerArm ArmRight = new ScannerArm();
     private ScannerArm ArmLeft = new ScannerArm();
 
-    private double scanSvoRPos_start = .6;
-    private double scanSvoRPos_up = .5;
-    private double scanSvoRPos_down = .17;
+    private double scanSvoRPos_start = .86;
+    private double scanSvoRPos_up = .74;
+    private double scanSvoRPos_down = .24;
 
-    private double scanSvoLPos_start = .4;
-    private double scanSvoLPos_up = .5;
-    private double scanSvoLPos_down = .83;
+    private double scanSvoLPos_start = .15;
+    private double scanSvoLPos_up = .27;
+    private double scanSvoLPos_down = .77;
 
     /*
      * Code to run ONCE when the driver hits INIT

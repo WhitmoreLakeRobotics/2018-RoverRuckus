@@ -31,11 +31,11 @@ public class ScannerArm extends OpMode {
     private double scanSvoPos_down = 0;
 
 
-    public void setServo (Servo svro){
+    public void setServo(Servo svro) {
         scanSvo = svro;
     }
 
-    public void setPositions(double startPos, double upPos,  double downPos){
+    public void setPositions(double startPos, double upPos, double downPos) {
         scanSvoPos_start = startPos;
         scanSvoPos_up = upPos;
         scanSvoPos_down = downPos;
@@ -82,6 +82,14 @@ public class ScannerArm extends OpMode {
                     break;
                 }
 
+                case MOVING_START: {
+                    ScannerArmState_current = SCANNER_ARM_STATES.MOVING_DOWN;
+                    ScannerArmState_desired = SCANNER_ARM_STATES.START;
+                    ScannerArmTimer.reset();
+                    scanSvo.setPosition(scanSvoPos_start);
+                    break;
+                }
+
                 case MOVING_UP: {
                     ScannerArmState_current = SCANNER_ARM_STATES.MOVING_UP;
                     ScannerArmState_desired = SCANNER_ARM_STATES.UP;
@@ -103,10 +111,10 @@ public class ScannerArm extends OpMode {
                     break;
                 }
 
-                case START:{
+                case START: {
                     if (ScannerArmTimer.milliseconds() > ScannerArmMoveTime) {
                         ScannerArmState_current = SCANNER_ARM_STATES.START;
-                        ScannerArmState_desired = SCANNER_ARM_STATES.MOVING_UP;
+                        //ScannerArmState_desired = SCANNER_ARM_STATES.MOVING_UP;
                     }
                     break;
                 }
@@ -133,6 +141,10 @@ public class ScannerArm extends OpMode {
     }
 
 
+    public void cmd_moveStart() {
+        ScannerArmState_desired = SCANNER_ARM_STATES.MOVING_START;
+    }
+
     public boolean getIsDown() {
         return ScannerArmState_current == SCANNER_ARM_STATES.DOWN;
     }
@@ -140,7 +152,6 @@ public class ScannerArm extends OpMode {
     public boolean getIsUp() {
         return ScannerArmState_current == SCANNER_ARM_STATES.UP;
     }
-
 
 
     /*
@@ -153,6 +164,7 @@ public class ScannerArm extends OpMode {
 
     public static enum SCANNER_ARM_STATES {
         START,
+        MOVING_START,
         UP,
         MOVING_DOWN,
         DOWN,
