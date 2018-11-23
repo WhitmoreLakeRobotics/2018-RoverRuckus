@@ -493,7 +493,7 @@ public class IntakeArmStates extends BaseHardware {
     public int getPivotPOS_Ticks() {
         return IntakePivotPosCurrent;
     }
-    public int getReactPOS_Ticks() {
+    public int getReachPOS_Ticks() {
         return IntakeReachPosCurrent;
     }
 
