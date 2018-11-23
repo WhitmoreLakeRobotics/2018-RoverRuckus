@@ -1,0 +1,550 @@
+package org.firstinspires.ftc.teamcode;
+
+/* controls all actions the intake arm
+
+ */
+
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+
+//@TeleOp(name = "IntakeArm", group = "CHASSIS")  // @Autonomous(...) is the other common choice
+
+public class IntakeArmStates extends BaseHardware {
+    //Encoder positions for the IntakeArm
+    public static final int IntakePivotPos_Tol = 70;
+    public static final int IntakePivotPos_Pickup = 0;
+    public static final int IntakePivotPos_Dump = 3670;
+    public static final int IntakePivotPos_Carry = 1600;
+    public static final double IntakePivotPowerDown = -.35;
+    public static final double IntakePivotPowerUp = 0.80;
+    public static final double IntakePivotPowerInit = -0.30;
+
+
+    public static final int IntakeReachPos_Tol = 70;
+    public static final int IntakeReachPos_Retracted = 0;
+    public static final int IntakeReachPos_Extended = 3670;
+    public static final int IntakeReachPos_Carry = 1600;
+    public static final double IntakeReachPowerRetract = -.5;
+    public static final double IntakeReachPowerExtend = 0.5;
+    public static final double IntakeReachPowerInit = -0.2;
+
+
+    private static final String TAGIntakeArm = "8492-IntakeArm";
+    double IntakePivotPowerCurrent = 0;
+    double IntakePivotPowerDesired = 0;
+    boolean cmdPivotComplete = false;
+    int IntakePivotPosCurrent = IntakePivotPos_Pickup;
+    double IntakePivotStickDeadBand = 1;
+
+
+    double IntakeReachPowerCurrent = 0;
+    double IntakeReachPowerDesired = 0;
+    boolean cmdReachComplete = false;
+    int IntakeReachPosCurrent = IntakeReachPos_Retracted;
+    double IntakeReachStickDeadBand = 1;
+
+
+
+    /* Declare OpMode members. */
+    private ElapsedTime runtime = new ElapsedTime();
+    private Hanger hanger = null;
+    private IntakePivotDestinations desiredPivotDestination = IntakePivotDestinations.Pickup;
+    private IntakeReachDestinations desiredReachDestination = IntakeReachDestinations.Retracted;
+
+    private IntakePivotDestinations currentPivotDestination = IntakePivotDestinations.Pickup;
+    private IntakeReachDestinations currentReachDestination = IntakeReachDestinations.Retracted;
+
+    //set the powers... We will need different speeds for up and down.
+    private DcMotor AM1_Pivot = null;
+    private DigitalChannel ArmTCH = null;
+
+    private DcMotor AM2_Reach = null;
+
+    /*
+     * Code to run ONCE when the driver hits INIT
+     */
+    @Override
+    public void init() {
+
+        // telemetry.addData("Status", "Initialized");
+
+        /* eg: Initialize the hardware variables. Note that the strings used here as parameters
+         * to 'get' must correspond to the names assigned during the robot configuration
+         * step (using the FTC Robot Controller app on the phone).
+         */
+        // get a reference to our digitalTouch object.
+
+        ArmTCH = hardwareMap.get(DigitalChannel.class, "ArmTCH");
+        ArmTCH.setMode(DigitalChannel.Mode.INPUT);
+        AM1_Pivot = hardwareMap.dcMotor.get("AM1");
+        AM1_Pivot.setDirection(DcMotor.Direction.REVERSE);
+        AM1_Pivot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        AM2_Reach = hardwareMap.dcMotor.get("AM2");
+        AM2_Reach.setDirection(DcMotor.Direction.REVERSE);
+        AM2_Reach.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public void MotorEncoderReset() {
+        AM1_Pivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        AM1_Pivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+     */
+    @Override
+    public void init_loop() {
+
+    }
+
+    /*
+     * Code to run ONCE when the driver hits PLAY
+     */
+    @Override
+    public void start() {
+
+    }
+
+    public void autoStart() {
+        initArmTCH();
+        AM1_Pivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        AM1_Pivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        AM2_Reach.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        AM2_Reach.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+    }
+
+    public void teleStart() {
+
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+     */
+    @Override
+    public void loop() {
+        telemetry.addData("IntakeArmPower", IntakePivotPowerDesired);
+
+        //check if under stick control [must create process (public void ...) first]
+        // IntakeArmSafetyChecks();
+        SetPivotMotorPower(IntakePivotPowerDesired);
+        SetReachMotorPower(IntakeReachPowerDesired);
+    }
+
+    private void initArmTCH() {
+        ElapsedTime runtime = new ElapsedTime();
+        runtime.reset();
+        //runtime.startTime();
+
+        AM1_Pivot.setPower(IntakePivotPowerInit);
+        while (ArmTCH.getState()) {
+            if (runtime.milliseconds() > 2000) {
+                break;
+            }
+        }
+        AM1_Pivot.setPower(0);
+    }
+
+
+    private boolean inPosition_Tol(int dest, int currPos, int tol) {
+        // Tests if current position is within positional tolerance
+        boolean retValue = false;
+        if (Math.abs(dest - currPos) < Math.abs(tol)) {
+            retValue = true;
+        }
+        return retValue;
+    }
+
+    public boolean atPivotDestination(IntakePivotDestinations desiredDestination) {
+        // Tests if we are at desired named destination
+        boolean retValue = false;
+
+        switch (desiredDestination) {
+            case Pickup:
+                if (inPosition_Tol(IntakePivotPos_Pickup, IntakePivotPosCurrent, IntakePivotPos_Tol)) {
+                    retValue = true;
+                    currentPivotDestination = IntakePivotDestinations.Pickup;
+                } else if (IntakePivotPosCurrent < IntakePivotPos_Pickup) {
+                    retValue = true;
+                    currentPivotDestination = IntakePivotDestinations.Pickup;
+                }
+                break;
+
+            case Carry:
+                if (inPosition_Tol(IntakePivotPos_Carry, IntakePivotPosCurrent, (int)(IntakePivotPos_Tol * 1.75))){
+                    retValue = true;
+                    currentPivotDestination = IntakePivotDestinations.Carry;
+                }
+                break;
+
+            case Dump:
+                if (inPosition_Tol(IntakePivotPos_Dump, IntakePivotPosCurrent, IntakePivotPos_Tol)){
+                    retValue = true;
+                    currentPivotDestination = IntakePivotDestinations.Dump;
+                } else if (IntakePivotPosCurrent > IntakePivotPos_Dump) {
+                    retValue = true;
+                    currentPivotDestination = IntakePivotDestinations.Dump;
+                }
+                break;
+
+
+            case StickControl:
+                // Stick control only stops at Pickup and Dump positions.
+
+                if (inPosition_Tol(IntakePivotPos_Pickup, IntakePivotPosCurrent, IntakePivotPos_Tol) && IntakePivotPowerDesired < 0) {
+                    retValue = true;
+                    currentPivotDestination = IntakePivotDestinations.Pickup;
+
+                } else if (!ArmTCH.getState()) {
+                    retValue = true;
+                    currentPivotDestination = IntakePivotDestinations.Pickup;
+
+                } else if ((IntakePivotPosCurrent < IntakePivotPos_Pickup) && (IntakePivotPowerDesired < 0)) {
+                    retValue = true;
+                    currentPivotDestination = IntakePivotDestinations.Pickup;
+
+                } else if (inPosition_Tol(IntakePivotPos_Dump, IntakePivotPosCurrent, IntakePivotPos_Tol) && IntakePivotPowerDesired > 0) {
+                    retValue = true;
+                    currentPivotDestination = IntakePivotDestinations.Dump;
+
+                } else if ((IntakePivotPosCurrent > IntakePivotPos_Dump) && (IntakePivotPowerDesired > 0)) {
+                    retValue = true;
+                    currentPivotDestination = IntakePivotDestinations.Dump;
+
+                } else {
+                    retValue = false;
+                    currentPivotDestination = IntakePivotDestinations.Unknown;
+                }
+                break;
+
+            case Unknown:
+                retValue = true;
+                currentPivotDestination = IntakePivotDestinations.Unknown;
+                break;
+
+            default:
+                retValue = true;
+                currentPivotDestination = IntakePivotDestinations.Unknown;
+                break;
+
+        }
+        cmdPivotComplete = retValue;
+        return retValue;
+    }
+
+
+
+    public boolean atReachDestination(IntakeReachDestinations desiredDestination) {
+
+        // Tests if we are at desired named destination
+        boolean retValue = false;
+
+        switch (desiredDestination) {
+            case Retracted:
+                if (inPosition_Tol(IntakeReachPos_Retracted, IntakeReachPosCurrent, IntakeReachPos_Tol)){
+                    retValue = true;
+                    currentReachDestination = IntakeReachDestinations.Retracted;
+                } else  if (IntakeReachPosCurrent < IntakeReachPos_Retracted) {
+                    retValue = true;
+                    currentReachDestination = IntakeReachDestinations.Retracted;
+                }
+                break;
+
+            case Carry:
+                if (inPosition_Tol(IntakeReachPos_Carry, IntakeReachPosCurrent, (int)(IntakeReachPos_Tol * 1.75))){
+                    retValue = true;
+                    currentReachDestination = IntakeReachDestinations.Carry;
+                };
+                break;
+
+            case Extended:
+                if (inPosition_Tol(IntakeReachPos_Extended, IntakeReachPosCurrent, IntakeReachPos_Tol)){
+                    retValue = true;
+                    currentReachDestination = IntakeReachDestinations.Extended;
+                } else if (IntakeReachPosCurrent > IntakeReachPos_Extended) {
+                    retValue = true;
+                    currentReachDestination = IntakeReachDestinations.Extended;
+                }
+                break;
+
+
+            case StickControl:
+                // Stick control only stops at Pickup and Dump positions.
+
+                if (inPosition_Tol(IntakeReachPos_Retracted, IntakeReachPosCurrent, IntakeReachPos_Tol) && IntakeReachPowerDesired < 0) {
+                    retValue = true;
+                    currentReachDestination = IntakeReachDestinations.Retracted;
+
+                } else if ((IntakeReachPosCurrent < IntakeReachPos_Retracted) && (IntakeReachPowerDesired < 0)) {
+                    retValue = true;
+                    currentReachDestination = IntakeReachDestinations.Retracted;
+
+                } else if (inPosition_Tol(IntakeReachPos_Extended, IntakeReachPosCurrent, IntakeReachPos_Tol) && IntakeReachPowerDesired > 0) {
+                    retValue = true;
+                    currentReachDestination = IntakeReachDestinations.Extended;
+
+                } else if ((IntakeReachPosCurrent > IntakeReachPos_Extended) && (IntakeReachPowerDesired > 0)) {
+                    retValue = true;
+                    currentReachDestination = IntakeReachDestinations.Extended;
+
+                } else {
+                    retValue = false;
+                    currentReachDestination = IntakeReachDestinations.Unknown;
+                }
+                break;
+
+            case Unknown:
+                retValue = true;
+                currentReachDestination = IntakeReachDestinations.Unknown;
+                break;
+
+            default:
+                retValue = true;
+                break;
+
+        }
+        cmdReachComplete = retValue;
+        return retValue;
+    }
+
+    private void SetPivotMotorPower(double newMotorPower) {
+        //set the motors for the intake Arm to the new power only after
+        // Safety checks to prevent too low or too high
+        IntakePivotPosCurrent = AM1_Pivot.getCurrentPosition();
+
+        double newPower = newMotorPower;
+
+        if (atPivotDestination(desiredPivotDestination)) {
+            newPower = 0;
+        }
+
+        // This is a saftey check of the hanger and intake pivot
+        if (!hanger.isRetracted() && newMotorPower > 0 && (IntakePivotPosCurrent > (int)(IntakePivotPos_Dump * .75))) {
+            newPower = 0;
+        }
+
+        //only set the power to the hardware when it is being changed.
+        if (newPower != IntakePivotPowerCurrent) {
+            IntakePivotPowerCurrent = newPower;
+            IntakePivotPowerDesired = newPower;
+            AM1_Pivot.setPower(IntakePivotPowerCurrent);
+        }
+    }
+
+
+    private void SetReachMotorPower(double newMotorPower) {
+        //set the motors for the intake Arm to the new power only after
+        // Safety checks to prevent too low or too high
+        IntakeReachPosCurrent = AM2_Reach.getCurrentPosition();
+
+        double newPower = newMotorPower;
+
+        if (atReachDestination(desiredReachDestination)) {
+            newPower = 0;
+        }
+
+        //only set the power to the hardware when it is being changed.
+        if (newPower != IntakeReachPowerCurrent) {
+            IntakeReachPowerCurrent = newPower;
+            IntakePivotPowerDesired = newPower;
+            AM2_Reach.setPower(IntakeReachPowerCurrent);
+        }
+    }
+
+
+    //driver is using stick control for Intake Arm
+    public void cmd_PivotStickControl(double stickPos) {
+
+        if (Math.abs(stickPos) < Math.abs(IntakePivotStickDeadBand)) {
+            // If driver releases the sticks stop the motion
+            if (currentPivotDestination == IntakePivotDestinations.StickControl) {
+                IntakePivotPowerDesired = 0;
+            }
+            return;
+        } else {
+            desiredPivotDestination = IntakePivotDestinations.StickControl;
+
+            double currPower = stickPos;
+
+            //limit the power of the stick
+            if (currPower > IntakePivotPowerUp) {
+                currPower = IntakePivotPowerUp;
+            }
+
+            //Make sure the hanger is Down  AKA no going up unless the hanger is down
+            if (!hanger.isRetracted()) {
+                currPower = 0;
+            }
+
+            //limit the power of the stick
+            if (currPower < IntakePivotPowerDown) {
+                currPower = IntakePivotPowerDown;
+            }
+
+            IntakePivotPowerDesired = currPower;
+        }
+    }
+
+    //driver is using stick control for Intake Arm
+    public void cmd_ReachStickControl(double stickPos) {
+
+        if (Math.abs(stickPos) < Math.abs(IntakeReachStickDeadBand)) {
+            // If driver releases the sticks stop the motion
+            if (currentReachDestination == IntakeReachDestinations.StickControl) {
+                IntakeReachPowerDesired = 0;
+            }
+
+            return;
+        } else {
+            desiredReachDestination = IntakeReachDestinations.StickControl;
+
+            double currPower = stickPos;
+
+            //limit the power of the stick
+            if (currPower > IntakeReachPowerExtend) {
+                currPower = IntakeReachPowerExtend;
+            }
+
+            //limit the power of the stick
+            if (currPower < IntakeReachPowerRetract) {
+                currPower = IntakeReachPowerRetract;
+            }
+
+            IntakeReachPowerDesired = currPower;
+        }
+    }
+
+    public void cmd_moveToPickupPos() {
+
+        desiredPivotDestination = IntakePivotDestinations.Pickup;
+        if (atPivotDestination(desiredPivotDestination)) {
+            IntakePivotPowerDesired = 0;
+        } else {
+            IntakePivotPowerDesired = IntakePivotPowerDown;
+        }
+
+    }
+
+    public void cmd_moveToDumpPos() {
+        desiredPivotDestination = IntakePivotDestinations.Dump;
+        if (atPivotDestination(desiredPivotDestination)) {
+            IntakePivotPowerDesired = 0;
+        } else {
+            IntakePivotPowerDesired = IntakePivotPowerUp;
+        }
+
+    }
+
+    public void cmd_moveToCarryPos() {
+        desiredPivotDestination = IntakePivotDestinations.Carry;
+        if (atPivotDestination(desiredPivotDestination)) {
+            //we are at carry Pos   Stop Now
+            IntakePivotPowerDesired = 0;
+        } else if (IntakePivotPosCurrent > IntakePivotPos_Carry) {
+            IntakePivotPowerDesired = IntakePivotPowerDown;
+        } else if (IntakePivotPosCurrent < IntakePivotPos_Carry) {
+            IntakePivotPowerDesired = IntakePivotPowerUp;
+        }
+
+    }
+
+    public void cmd_moveToRetractredPos() {
+        desiredReachDestination = IntakeReachDestinations.Retracted;
+        if (atReachDestination(desiredReachDestination)) {
+            IntakeReachPowerDesired = 0;
+        } else {
+            IntakeReachPowerDesired = IntakeReachPowerRetract;
+        }
+    }
+
+    public void cmd_moveToExtendedPos(){
+        desiredReachDestination = IntakeReachDestinations.Extended;
+        if (atReachDestination(desiredReachDestination)) {
+            IntakeReachPowerDesired = 0;
+        } else {
+            IntakeReachPowerDesired = IntakeReachPowerExtend;
+        }
+    }
+
+    public void cmd_moveReachToCarryPos() {
+        desiredReachDestination = IntakeReachDestinations.Carry;
+        if (atReachDestination(desiredReachDestination)) {
+            //we are at carry Pos   Stop Now
+            IntakeReachPowerDesired = 0;
+        } else if (IntakeReachPosCurrent > IntakeReachPos_Carry) {
+            IntakeReachPowerDesired = IntakeReachPowerRetract;
+        } else if (IntakeReachPosCurrent < IntakeReachPos_Carry) {
+            IntakeReachPowerDesired = IntakeReachPowerExtend;
+        }
+
+    }
+
+
+    public void setHanger(Hanger hangR) {
+        hanger = hangR;
+    }
+
+    public int getPivotPOS_Ticks() {
+        return IntakePivotPosCurrent;
+    }
+    public int getReactPOS_Ticks() {
+        return IntakeReachPosCurrent;
+    }
+
+
+    public boolean isPivotAtPickup(){
+        return currentPivotDestination == IntakePivotDestinations.Pickup;
+    }
+
+    public boolean isPivotAtDump(){
+        return currentPivotDestination == IntakePivotDestinations.Dump;
+    }
+
+    public boolean isPivotAtCarry(){
+        return currentPivotDestination == IntakePivotDestinations.Carry;
+    }
+
+    public boolean isReachRetracted() {
+        return currentReachDestination == IntakeReachDestinations.Retracted;
+    }
+
+    public boolean isReachExtended () {
+        return currentReachDestination == IntakeReachDestinations.Extended;
+    }
+
+    public boolean isReachCarry(){
+        return currentReachDestination == IntakeReachDestinations.Carry;
+    }
+
+    /*
+     * Code to run ONCE after the driver hits STOP
+     */
+    @Override
+    public void stop() {
+        AM1_Pivot.setPower(0.0);
+        AM2_Reach.setPower(0.0);
+    }
+
+
+    public static enum IntakePivotDestinations {
+        Pickup,
+        Carry,
+        Dump,
+        StickControl,
+        Unknown
+    }
+
+   public static enum IntakeReachDestinations {
+       Retracted,
+       Extended,
+       Carry,
+       StickControl,
+       Unknown
+   }
+}
