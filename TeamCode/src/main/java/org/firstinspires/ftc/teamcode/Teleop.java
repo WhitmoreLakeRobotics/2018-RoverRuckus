@@ -130,12 +130,12 @@ public class Teleop extends OpMode {
         // - This uses basic math to combine motions and is easier to drive straight.
         RBTChassis.doTeleop(joystickMath(-gamepad1.left_stick_y), joystickMath(-gamepad1.right_stick_y));
         RobotLog.aa(TAGTeleop, "gamepad1 " + RightMotorPower);
-        telemetry.addData("HangerPos", RBTChassis.hanger.getHangerPos());
-        telemetry.addData("IntakeArmPos", RBTChassis.intakeArm.getPOS_Ticks());
+        //telemetry.addData("HangerPos", RBTChassis.hanger.getHangerPos());
+      //  telemetry.addData("IntakeArmPos", RBTChassis.intakeArm.IntakePivotPosCurrent());
 
-        RBTChassis.hanger.cmdStickControl(joystickMath(gamepad2.right_stick_y));
-       RBTChassis.intakeArm.cmd_StickControl(joystickMath(-gamepad2.left_stick_y));
-
+        //RBTChassis.hanger.cmdStickControl(joystickMath(gamepad2.right_stick_y));
+       RBTChassis.intakeArm.cmd_PivotStickControl(joystickMath(-gamepad2.left_stick_y));
+        RBTChassis.intakeArm.cmd_ReachStickControl(joystickMath(-gamepad2.right_stick_y));
         if (gamepad2.dpad_down){
             RBTChassis.scannerArms.cmdMoveDownLeft();
         }

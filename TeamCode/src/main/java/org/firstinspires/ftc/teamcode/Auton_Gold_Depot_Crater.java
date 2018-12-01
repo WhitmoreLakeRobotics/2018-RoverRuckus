@@ -120,7 +120,7 @@ public class Auton_Gold_Depot_Crater extends OpMode {
         }
 
         if (currentStage == stage40_empty) {
-            if (RBTChassis.intakeArm.atDestination(IntakeArm.IntakeDestinations.IntakeDestinations_Pickup)) {
+            if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Pickup)) {
                 RBTChassis.dumpBox.cmd_ServoAutoOut(1250);
                 currentStage = stage50_backup;
             }

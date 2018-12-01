@@ -10,8 +10,9 @@
         </LynxModule>
         <LynxModule name="Expansion Hub 3" port="3">
             <RevRoboticsCoreHexMotor name="HM1" port="0" />
-            <RevRobotics40HDHexMotor name="HM2" port="1" />
-            <RevRobotics20HDHexMotor name="AM1" port="2" />
+            <RevRoboticsCoreHexMotor name="HM2" port="1" />
+            <RevRobotics40HDHexMotor name="AM1" port="2" />
+            <RevRoboticsCoreHexMotor name="AM2" port="3" />
             <ContinuousRotationServo name="dmpSvrr" port="0" />
             <ContinuousRotationServo name="dmpSvrl" port="1" />
             <Servo name="ScanSvoL" port="4" />

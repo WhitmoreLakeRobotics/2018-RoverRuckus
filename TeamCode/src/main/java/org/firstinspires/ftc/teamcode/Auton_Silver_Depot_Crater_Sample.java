@@ -136,7 +136,7 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
         }
 
         if (currentStage == stage50_backup){
-            RBTChassis.cmdDrive(AUTO_DRIVEPower,180,8);
+            RBTChassis.cmdDrive(-AUTO_DRIVEPower,0,8);
             currentStage = stage55_dropIntakearm;
         }
 
@@ -174,6 +174,8 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
                 currentStage = stage90_Empty;
             }
         }
+
+
 
 
         if (currentStage == stage90_Empty) {

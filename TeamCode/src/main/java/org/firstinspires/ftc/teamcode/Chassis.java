@@ -41,7 +41,7 @@ public class Chassis extends OpMode {
     public static final double chassis_KPGyroStraight = 0.02;
     private static final String TAGChassis = "8492-Chassis";
     public Hanger hanger = new Hanger();
-    public IntakeArm intakeArm = new IntakeArm();
+    public IntakeArmStates intakeArm = new IntakeArmStates();
     public DumpBox dumpBox = new DumpBox();
     public ScannerArms scannerArms = new ScannerArms();
     // The IMU sensor object
@@ -262,7 +262,7 @@ public class Chassis extends OpMode {
         }
 
         // Show the elapsed game time and wheel power.
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
+       // telemetry.addData("Status", "Run Time: " + runtime.toString());
 
         // RobotLog.aa(TAGChassis,"Stage: "+ CurrentStage );
         RobotLog.aa(TAGChassis, "Runtime: " + runtime.seconds());

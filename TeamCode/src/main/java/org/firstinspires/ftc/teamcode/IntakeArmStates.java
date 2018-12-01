@@ -5,7 +5,6 @@ package org.firstinspires.ftc.teamcode;
  */
 
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -25,9 +24,9 @@ public class IntakeArmStates extends BaseHardware {
 
 
     public static final int IntakeReachPos_Tol = 70;
-    public static final int IntakeReachPos_Retracted = 0;
-    public static final int IntakeReachPos_Extended = 3670;
-    public static final int IntakeReachPos_Carry = 1600;
+    public static final int IntakeReachPos_Retracted = -0;
+    public static final int IntakeReachPos_Extended = 1295;
+    public static final int IntakeReachPos_Carry = 650;
     public static final double IntakeReachPowerRetract = -.5;
     public static final double IntakeReachPowerExtend = 0.5;
     public static final double IntakeReachPowerInit = -0.2;
@@ -46,7 +45,6 @@ public class IntakeArmStates extends BaseHardware {
     boolean cmdReachComplete = false;
     int IntakeReachPosCurrent = IntakeReachPos_Retracted;
     double IntakeReachStickDeadBand = 1;
-
 
 
     /* Declare OpMode members. */
@@ -85,7 +83,7 @@ public class IntakeArmStates extends BaseHardware {
         AM1_Pivot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         AM2_Reach = hardwareMap.dcMotor.get("AM2");
-        AM2_Reach.setDirection(DcMotor.Direction.REVERSE);
+        AM2_Reach.setDirection(DcMotor.Direction.FORWARD);
         AM2_Reach.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
@@ -129,12 +127,13 @@ public class IntakeArmStates extends BaseHardware {
      */
     @Override
     public void loop() {
-        telemetry.addData("IntakeArmPower", IntakePivotPowerDesired);
+        //  telemetry.addData("IntakeArmPower", IntakePivotPowerDesired);
 
         //check if under stick control [must create process (public void ...) first]
         // IntakeArmSafetyChecks();
         SetPivotMotorPower(IntakePivotPowerDesired);
         SetReachMotorPower(IntakeReachPowerDesired);
+        telemetry.addData("AM2Ticks", AM2_Reach.getCurrentPosition());
     }
 
     private void initArmTCH() {
@@ -177,14 +176,14 @@ public class IntakeArmStates extends BaseHardware {
                 break;
 
             case Carry:
-                if (inPosition_Tol(IntakePivotPos_Carry, IntakePivotPosCurrent, (int)(IntakePivotPos_Tol * 1.75))){
+                if (inPosition_Tol(IntakePivotPos_Carry, IntakePivotPosCurrent, (int) (IntakePivotPos_Tol * 1.75))) {
                     retValue = true;
                     currentPivotDestination = IntakePivotDestinations.Carry;
                 }
                 break;
 
             case Dump:
-                if (inPosition_Tol(IntakePivotPos_Dump, IntakePivotPosCurrent, IntakePivotPos_Tol)){
+                if (inPosition_Tol(IntakePivotPos_Dump, IntakePivotPosCurrent, IntakePivotPos_Tol)) {
                     retValue = true;
                     currentPivotDestination = IntakePivotDestinations.Dump;
                 } else if (IntakePivotPosCurrent > IntakePivotPos_Dump) {
@@ -239,7 +238,6 @@ public class IntakeArmStates extends BaseHardware {
     }
 
 
-
     public boolean atReachDestination(IntakeReachDestinations desiredDestination) {
 
         // Tests if we are at desired named destination
@@ -247,24 +245,25 @@ public class IntakeArmStates extends BaseHardware {
 
         switch (desiredDestination) {
             case Retracted:
-                if (inPosition_Tol(IntakeReachPos_Retracted, IntakeReachPosCurrent, IntakeReachPos_Tol)){
+                if (inPosition_Tol(IntakeReachPos_Retracted, IntakeReachPosCurrent, IntakeReachPos_Tol)) {
                     retValue = true;
                     currentReachDestination = IntakeReachDestinations.Retracted;
-                } else  if (IntakeReachPosCurrent < IntakeReachPos_Retracted) {
+                } else if (IntakeReachPosCurrent < IntakeReachPos_Retracted) {
                     retValue = true;
                     currentReachDestination = IntakeReachDestinations.Retracted;
                 }
                 break;
 
             case Carry:
-                if (inPosition_Tol(IntakeReachPos_Carry, IntakeReachPosCurrent, (int)(IntakeReachPos_Tol * 1.75))){
+                if (inPosition_Tol(IntakeReachPos_Carry, IntakeReachPosCurrent, (int) (IntakeReachPos_Tol * 1.75))) {
                     retValue = true;
                     currentReachDestination = IntakeReachDestinations.Carry;
-                };
+                }
+                ;
                 break;
 
             case Extended:
-                if (inPosition_Tol(IntakeReachPos_Extended, IntakeReachPosCurrent, IntakeReachPos_Tol)){
+                if (inPosition_Tol(IntakeReachPos_Extended, IntakeReachPosCurrent, IntakeReachPos_Tol)) {
                     retValue = true;
                     currentReachDestination = IntakeReachDestinations.Extended;
                 } else if (IntakeReachPosCurrent > IntakeReachPos_Extended) {
@@ -293,10 +292,10 @@ public class IntakeArmStates extends BaseHardware {
                     retValue = true;
                     currentReachDestination = IntakeReachDestinations.Extended;
 
-                } else {
-                    retValue = false;
-                    currentReachDestination = IntakeReachDestinations.Unknown;
-                }
+                } //else {
+                    //retValue = false;
+                    //currentReachDestination = IntakeReachDestinations.Unknown;
+                //}
                 break;
 
             case Unknown:
@@ -325,7 +324,7 @@ public class IntakeArmStates extends BaseHardware {
         }
 
         // This is a saftey check of the hanger and intake pivot
-        if (!hanger.isRetracted() && newMotorPower > 0 && (IntakePivotPosCurrent > (int)(IntakePivotPos_Dump * .75))) {
+        if (!hanger.isRetracted() && newMotorPower > 0 && (IntakePivotPosCurrent > (int) (IntakePivotPos_Dump * .75))) {
             newPower = 0;
         }
 
@@ -352,7 +351,6 @@ public class IntakeArmStates extends BaseHardware {
         //only set the power to the hardware when it is being changed.
         if (newPower != IntakeReachPowerCurrent) {
             IntakeReachPowerCurrent = newPower;
-            IntakePivotPowerDesired = newPower;
             AM2_Reach.setPower(IntakeReachPowerCurrent);
         }
     }
@@ -403,7 +401,7 @@ public class IntakeArmStates extends BaseHardware {
             return;
         } else {
             desiredReachDestination = IntakeReachDestinations.StickControl;
-
+            currentReachDestination = IntakeReachDestinations.StickControl;
             double currPower = stickPos;
 
             //limit the power of the stick
@@ -463,7 +461,7 @@ public class IntakeArmStates extends BaseHardware {
         }
     }
 
-    public void cmd_moveToExtendedPos(){
+    public void cmd_moveToExtendedPos() {
         desiredReachDestination = IntakeReachDestinations.Extended;
         if (atReachDestination(desiredReachDestination)) {
             IntakeReachPowerDesired = 0;
@@ -493,20 +491,21 @@ public class IntakeArmStates extends BaseHardware {
     public int getPivotPOS_Ticks() {
         return IntakePivotPosCurrent;
     }
+
     public int getReachPOS_Ticks() {
         return IntakeReachPosCurrent;
     }
 
 
-    public boolean isPivotAtPickup(){
+    public boolean isPivotAtPickup() {
         return currentPivotDestination == IntakePivotDestinations.Pickup;
     }
 
-    public boolean isPivotAtDump(){
+    public boolean isPivotAtDump() {
         return currentPivotDestination == IntakePivotDestinations.Dump;
     }
 
-    public boolean isPivotAtCarry(){
+    public boolean isPivotAtCarry() {
         return currentPivotDestination == IntakePivotDestinations.Carry;
     }
 
@@ -514,11 +513,11 @@ public class IntakeArmStates extends BaseHardware {
         return currentReachDestination == IntakeReachDestinations.Retracted;
     }
 
-    public boolean isReachExtended () {
+    public boolean isReachExtended() {
         return currentReachDestination == IntakeReachDestinations.Extended;
     }
 
-    public boolean isReachCarry(){
+    public boolean isReachCarry() {
         return currentReachDestination == IntakeReachDestinations.Carry;
     }
 
@@ -540,11 +539,11 @@ public class IntakeArmStates extends BaseHardware {
         Unknown
     }
 
-   public static enum IntakeReachDestinations {
-       Retracted,
-       Extended,
-       Carry,
-       StickControl,
-       Unknown
-   }
+    public static enum IntakeReachDestinations {
+        Retracted,
+        Extended,
+        Carry,
+        StickControl,
+        Unknown
+    }
 }

@@ -67,7 +67,7 @@ public class Hanger extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     //set the HANGER powers... We will need different speeds for up and down.
-    private IntakeArm intakeArm = null;
+    private IntakeArmStates intakeArm = null;
     private double initMotorPower = 0;
     private double currentMotorpower = 0.5;
 
@@ -146,7 +146,7 @@ public class Hanger extends OpMode {
         }
 
         if (newMotorPower != initMotorPower) {
-            telemetry.addData("initHangerPower", newMotorPower);
+           // telemetry.addData("initHangerPower", newMotorPower);
             initMotorPower = newMotorPower;
             HM1.setPower(0);
             HM2.setPower(0);
@@ -203,7 +203,7 @@ public class Hanger extends OpMode {
     @Override
     public void loop() {
 
-        telemetry.addData("HangerPos " + hangerPosition_CURRENT, "");
+        //telemetry.addData("HangerPos " + hangerPosition_CURRENT, "");
         RobotLog.aa(TAGHanger, "HangerPos: " + hangerPosition_CURRENT);
 
 //check if under stick control [must create process (public void ...) first]
@@ -216,8 +216,8 @@ public class Hanger extends OpMode {
 
     }
 
-    public void setIntakeArm(IntakeArm iArm) {
-        intakeArm = iArm;
+    public void setIntakeArm(IntakeArmStates iArm1) {
+        intakeArm = iArm1;
     }
 
     private void SetMotorPower(double newMotorPower) {
@@ -247,7 +247,7 @@ public class Hanger extends OpMode {
         }
 
         //Interlock the intake arm and the hanger...
-        if ((intakeArm.IntakePosCurrent > (IntakeArm.IntakePos_Dump * .75)) && newMotorPower > 0) {
+        if ((intakeArm.IntakePivotPosCurrent > (IntakeArm.IntakePos_Dump * .75)) && newMotorPower > 0) {
             newPower = 0;
         }
 
