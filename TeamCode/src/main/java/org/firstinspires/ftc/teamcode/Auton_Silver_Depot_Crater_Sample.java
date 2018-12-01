@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
 
 
 @Autonomous(name = "Auton_Silver_Depot_Crater_Sample", group = "Auton")
@@ -18,7 +19,7 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
     private static final int stage15_scannerArms = 15;
     private static final int stage20_liftIntakeAarm = 20;
     private static final int stage30_drive = 30;
-    private static final int stage40_liftscannerarms = 40;
+    private static final int stage50_liftscannerarms = 40;
     private static final int stage50_backup = 50;
     private static final int stage55_dropIntakearm = 55;
 
@@ -29,7 +30,7 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
     private static final int stage90_Empty = 90;
     private static final int stage95_Backup2Crater = 95;
     private static final int stage99_stop = 99;
-    private static final String TAGTeleop = "8492-Autonmous";
+    private static final String TAGAuton_SDCS = "8492-AutonSliverSample";
     // create instance of Chassis
     Chassis RBTChassis = new Chassis();
     private int currentStage = stage0_preStart;
@@ -87,6 +88,7 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
     public void loop() {
 
         telemetry.addData("Auton_Depot_Cater", currentStage);
+        RobotLog.aa(TAGAuton_SDCS, "Runtime: " + runtime.seconds() + "Auton_Depot_Cater", currentStage);
         RBTChassis.loop();
 
 // check stage and do what's appropriate
@@ -120,24 +122,24 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
             currentStage = stage30_drive;
         }
 
-
-
-
         if (currentStage == stage30_drive) {
             if (RBTChassis.hanger.isExtended()) {
-                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 20);
-                currentStage = stage40_liftscannerarms;
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 25);
+                currentStage = stage50_backup;
             }
         }
-        if (currentStage == stage40_liftscannerarms) {
-            RBTChassis.scannerArms.cmdMoveUpLeft();
-            RBTChassis.scannerArms.cmdMoveUpRight();
-                currentStage = stage50_backup;
-        }
+
 
         if (currentStage == stage50_backup){
-            RBTChassis.cmdDrive(-AUTO_DRIVEPower,0,8);
+            if (RBTChassis.getcmdComplete()) {
+            RBTChassis.cmdDrive(-AUTO_DRIVEPower,0,5);
+                RBTChassis.scannerArms.cmdMoveUpLeft();
+                RBTChassis.scannerArms.cmdMoveUpRight();
             currentStage = stage55_dropIntakearm;
+        }}
+        if (currentStage == stage50_liftscannerarms) {
+
+            currentStage = stage50_backup;
         }
 
         if (currentStage == stage55_dropIntakearm){
