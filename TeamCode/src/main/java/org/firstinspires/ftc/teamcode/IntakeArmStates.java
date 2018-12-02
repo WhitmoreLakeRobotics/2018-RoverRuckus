@@ -361,7 +361,7 @@ public class IntakeArmStates extends BaseHardware {
 
         if (Math.abs(stickPos) < Math.abs(IntakePivotStickDeadBand)) {
             // If driver releases the sticks stop the motion
-            if (currentPivotDestination == IntakePivotDestinations.StickControl) {
+            if (desiredPivotDestination == IntakePivotDestinations.StickControl) {
                 IntakePivotPowerDesired = 0;
             }
             return;
@@ -394,14 +394,13 @@ public class IntakeArmStates extends BaseHardware {
 
         if (Math.abs(stickPos) < Math.abs(IntakeReachStickDeadBand)) {
             // If driver releases the sticks stop the motion
-            if (currentReachDestination == IntakeReachDestinations.StickControl) {
+            if (desiredReachDestination == IntakeReachDestinations.StickControl) {
                 IntakeReachPowerDesired = 0;
             }
 
             return;
         } else {
             desiredReachDestination = IntakeReachDestinations.StickControl;
-            currentReachDestination = IntakeReachDestinations.StickControl;
             double currPower = stickPos;
 
             //limit the power of the stick

@@ -14,9 +14,9 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
 
     //declare and initialize stages
     private static final int stage0_preStart = 0;
-    private static final int stage5_picture = 5;
     private static final int stage10_extened = 10;
-    private static final int stage15_scannerArms = 15;
+    private static final int stage15_doVision = 15;
+    private static final int stage17_doSamplePosition = 17;
     private static final int stage20_liftIntakeAarm = 20;
     private static final int stage30_drive = 30;
     private static final int stage50_liftscannerarms = 40;
@@ -38,8 +38,7 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
     // declare auton power variables
     private double AUTO_DRIVEPower = .5;
     private double AUTO_TURNPower = .4;
-    private double AUTO_DRIVEPower_HI = .75;
-    private String sampleLoc= "left";
+    private double AUTO_DRIVEPower_HI = .85;
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
@@ -91,35 +90,42 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
         RobotLog.aa(TAGAuton_SDCS, "Runtime: " + runtime.seconds() + "Auton_Depot_Cater", currentStage);
         RBTChassis.loop();
 
-// check stage and do what's appropriate
+        // check stage and do what's appropriate
         if (currentStage == stage0_preStart) {
-            currentStage = stage5_picture;
-        }
-
-        if (currentStage == stage5_picture) {
-            // get vision value
-            String sampleLoc= "left";
             currentStage = stage10_extened;
         }
 
+
         if (currentStage == stage10_extened) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
-            currentStage = stage15_scannerArms;
+            RBTChassis.intakeArm.cmd_moveToCarryPos();
+            currentStage = stage15_doVision;
         }
 
-
-        if (currentStage == stage15_scannerArms) {
-           if (sampleLoc == "left"){
-               RBTChassis.scannerArms.cmdMoveDownLeft();
-               RBTChassis.intakeArm.cmd_moveToCarryPos();
-           }
-
-            if (sampleLoc == "Right"){
-                RBTChassis.scannerArms.cmdMoveDownRight();
-                RBTChassis.intakeArm.cmd_moveToCarryPos();
+        if (currentStage == stage15_doVision) {
+            if (RBTChassis.hanger.isExtended()) {
+                if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Carry)) {
+                    RBTChassis.mineralVision.startVision();
+                    currentStage = stage17_doSamplePosition;
+                }
             }
+        }
 
-            currentStage = stage30_drive;
+        if (currentStage == stage17_doSamplePosition) {
+            if (RBTChassis.mineralVision.getVisionComplete() == true) {
+                if (RBTChassis.mineralVision.isGoldLeft()) {
+                    RBTChassis.scannerArms.cmdMoveDownLeft();
+                }
+
+                if (RBTChassis.mineralVision.isGoldCenter()) {
+                    RBTChassis.intakeArm.cmd_moveToPickupPos();
+                }
+
+                if (RBTChassis.mineralVision.isGoldRight()) {
+                    RBTChassis.scannerArms.cmdMoveDownRight();
+                }
+                currentStage = stage30_drive;
+            }
         }
 
         if (currentStage == stage30_drive) {
@@ -130,25 +136,19 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
         }
 
 
-        if (currentStage == stage50_backup){
+        if (currentStage == stage50_backup) {
             if (RBTChassis.getcmdComplete()) {
-            RBTChassis.cmdDrive(-AUTO_DRIVEPower,0,5);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 5);
                 RBTChassis.scannerArms.cmdMoveUpLeft();
                 RBTChassis.scannerArms.cmdMoveUpRight();
-            currentStage = stage55_dropIntakearm;
-        }}
-        if (currentStage == stage50_liftscannerarms) {
-
-            currentStage = stage50_backup;
+                currentStage = stage60_turn90;
+            }
         }
 
-        if (currentStage == stage55_dropIntakearm){
-            RBTChassis.intakeArm.cmd_moveToPickupPos();
-            currentStage = stage60_turn90;
-        }
 
         if (currentStage == stage60_turn90) {
             if (RBTChassis.getcmdComplete()) {
+                RBTChassis.intakeArm.cmd_moveToPickupPos();
                 RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
                 RBTChassis.cmdTurn(-AUTO_TURNPower, AUTO_TURNPower, -75);
                 currentStage = stage70_drive2Side;
@@ -173,19 +173,22 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
         if (currentStage == stage85_drive2Depot) {
             if (RBTChassis.getcmdComplete()) {
                 RBTChassis.cmdDrive(AUTO_DRIVEPower, -123, 40);
+                if (RBTChassis.mineralVision.isGoldRight()) {
+                    RBTChassis.scannerArms.cmdMoveDownLeft();
+                }
                 currentStage = stage90_Empty;
             }
         }
 
 
-
-
         if (currentStage == stage90_Empty) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.dumpBox.cmd_ServoAutoOut(1250);
+                RBTChassis.dumpBox.cmd_ServoAutoOut(1000);
+                RBTChassis.scannerArms.cmdMoveUpLeft();
                 currentStage = stage95_Backup2Crater;
             }
         }
+
 
         if (currentStage == stage95_Backup2Crater) {
             if (RBTChassis.dumpBox.getServoMode() == DumpBox.BoxModes.BoxModes_Stop) {
@@ -196,11 +199,13 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
             }
         }
 
+
         if (currentStage == stage99_stop) {
             if (RBTChassis.getcmdComplete()) {
                 stop();
             }
         }
+
 
         if (runtime.seconds() > 29) {
             stop();

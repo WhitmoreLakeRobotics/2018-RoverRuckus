@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -12,6 +14,10 @@ public class MineralVision extends BaseHardware {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
+
+    private boolean visionComplete = true;
+    private int visionTimeout = 4000;
+    private ElapsedTime runtime = new ElapsedTime();
 
     public static enum GOLD_LOCATION {
         UNKNOWN,
@@ -67,6 +73,7 @@ public class MineralVision extends BaseHardware {
 
     }
 
+
     /**
      * User defined init_loop method
      * <p>
@@ -95,7 +102,9 @@ public class MineralVision extends BaseHardware {
      * This method will be called repeatedly in a loop while this op mode is running
      */
     public void loop(){
-        loopLogic ();
+        if (! visionComplete) {
+            loopLogic ();
+        }
     }
 
     /**
@@ -141,6 +150,17 @@ public class MineralVision extends BaseHardware {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }
 
+    public void startVision(){
+        runtime.reset();
+        visionComplete = false;
+    }
+
+    public boolean getVisionComplete() {
+        return visionComplete;
+    }
+
+
+
     private void loopLogic () {
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
@@ -176,6 +196,7 @@ public class MineralVision extends BaseHardware {
                             telemetry.addData("Gold Mineral Position", "Center");
                             gold_location=GOLD_LOCATION.CENTER;
                         }
+                        visionComplete = true;
                     }
                 }
                 else {
@@ -183,8 +204,11 @@ public class MineralVision extends BaseHardware {
                 }
                 telemetry.update();
             }
-        }
 
+            if (runtime.milliseconds() > visionTimeout) {
+                visionComplete = true;
+            }
+        }
     }
 
     private void startLogic () {
