@@ -55,6 +55,7 @@ public class Chassis extends OpMode {
     Orientation angles;
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
+    private int initCounter = 0;
     //current mode of operation for Chassis
     private int ChassisMode_Current = ChassisMode_Stop;
     private boolean cmdComplete = true;
@@ -85,7 +86,7 @@ public class Chassis extends OpMode {
         // Reverse the motor that runs backwards when connected directly to the battery
 
         // Tell the driver that initialization is complete.
-        telemetry.addData("Status", "Initialized");
+        //telemetry.addData("Status", "Initialized");
 
 
         RDM1 = hardwareMap.dcMotor.get("RDM1");
@@ -170,6 +171,7 @@ public class Chassis extends OpMode {
         mineralVision.telemetry = telemetry;
         mineralVision.init();
 
+        runtime.reset();
     }
 
     /*
@@ -182,6 +184,12 @@ public class Chassis extends OpMode {
         dumpBox.init_loop();
         scannerArms.init_loop();
         mineralVision.init_loop();
+        if (runtime.milliseconds()  > 1000) {
+            initCounter = initCounter + 1;
+            telemetry.addData("Chassis init time: ", initCounter);
+            telemetry.update();
+            runtime.reset();
+        }
     }
 
     public void setParentMode(PARENTMODE pm) {
