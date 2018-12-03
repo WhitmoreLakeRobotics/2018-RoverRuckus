@@ -25,7 +25,7 @@ public class IntakeArmStates extends BaseHardware {
 
     public static final int IntakeReachPos_Tol = 70;
     public static final int IntakeReachPos_Retracted = -0;
-    public static final int IntakeReachPos_Extended = 1295;
+    public static final int IntakeReachPos_Extended = 1195;
     public static final int IntakeReachPos_Carry = 650;
     public static final double IntakeReachPowerRetract = -.5;
     public static final double IntakeReachPowerExtend = 0.5;

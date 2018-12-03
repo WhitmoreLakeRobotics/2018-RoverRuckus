@@ -129,7 +129,7 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
         }
 
         if (currentStage == stage30_drive) {
-            if (RBTChassis.hanger.isExtended()) {
+            if (RBTChassis.intakeArm.cmdPivotComplete == true) {
                 RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 25);
                 currentStage = stage50_backup;
             }
