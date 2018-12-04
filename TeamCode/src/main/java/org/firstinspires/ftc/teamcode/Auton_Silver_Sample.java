@@ -6,10 +6,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 
-@Autonomous(name = "Auton_Silver_Depot_Crater_Sample", group = "Auton")
+@Autonomous(name = "Auton_Silver_Sample", group = "Auton")
 // @Autonomous(...) is the other common choice
 
-public class Auton_Silver_Depot_Crater_Sample extends OpMode {
+public class Auton_Silver_Sample extends OpMode {
 
 
     //declare and initialize stages
@@ -98,7 +98,7 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
 
         if (currentStage == stage10_extened) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
-            RBTChassis.intakeArm.cmd_moveToCarryPos();
+            RBTChassis.intakeArm.cmd_movePivotToCarryPos();
             currentStage = stage15_doVision;
         }
 
@@ -118,7 +118,7 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
                 }
 
                 if (RBTChassis.mineralVision.isGoldCenter()) {
-                    RBTChassis.intakeArm.cmd_moveToPickupPos();
+                    RBTChassis.intakeArm.cmd_movePivotToStartPos();
                 }
 
                 if (RBTChassis.mineralVision.isGoldRight()) {
@@ -138,7 +138,7 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
 
         if (currentStage == stage50_backup) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 5);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 8);
                 RBTChassis.scannerArms.cmdMoveUpLeft();
                 RBTChassis.scannerArms.cmdMoveUpRight();
                 currentStage = stage60_turn90;
@@ -148,7 +148,7 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
 
         if (currentStage == stage60_turn90) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.intakeArm.cmd_moveToPickupPos();
+                RBTChassis.intakeArm.cmd_movePivotToStartPos();
                 RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
                 RBTChassis.cmdTurn(-AUTO_TURNPower, AUTO_TURNPower, -75);
                 currentStage = stage70_drive2Side;
@@ -194,7 +194,7 @@ public class Auton_Silver_Depot_Crater_Sample extends OpMode {
             if (RBTChassis.dumpBox.getServoMode() == DumpBox.BoxModes.BoxModes_Stop) {
                 // driving backwards
                 RBTChassis.cmdDrive(-AUTO_DRIVEPower_HI, -135, -80);
-                RBTChassis.intakeArm.cmd_moveToCarryPos();
+                RBTChassis.intakeArm.cmd_movePivotToStartPos();
                 currentStage = stage99_stop;
             }
         }

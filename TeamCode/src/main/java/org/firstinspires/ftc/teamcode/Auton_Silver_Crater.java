@@ -81,7 +81,7 @@ public class Auton_Silver_Crater extends OpMode {
         }
         if (currentStage == stage2_extened) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
-            RBTChassis.intakeArm.cmd_moveToCarryPos();
+            RBTChassis.intakeArm.cmd_movePivotToCarryPos();
             currentStage = stage10_drive;
         }
 

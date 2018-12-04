@@ -89,7 +89,7 @@ public class Auton_Straight extends OpMode {
 
         if (currentStage == stage10_extened) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
-            RBTChassis.intakeArm.cmd_moveToCarryPos();
+            RBTChassis.intakeArm.cmd_movePivotToCarryPos();
             currentStage = stage20_liftIntakeAarm;
         }
 

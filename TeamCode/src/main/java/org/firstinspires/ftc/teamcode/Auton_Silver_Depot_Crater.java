@@ -160,7 +160,7 @@ public class Auton_Silver_Depot_Crater extends OpMode {
             if (RBTChassis.dumpBox.getServoMode() == DumpBox.BoxModes.BoxModes_Stop ) {
                 // driving backwards
                 RBTChassis.cmdDrive(-AUTO_DRIVEPower_HI, -135, -80);
-                RBTChassis.intakeArm.cmd_moveToCarryPos();
+                RBTChassis.intakeArm.cmd_movePivotToCarryPos();
                 currentStage = stage99_stop;
             }
         }

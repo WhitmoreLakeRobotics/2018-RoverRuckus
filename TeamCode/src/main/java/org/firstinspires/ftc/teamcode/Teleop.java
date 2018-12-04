@@ -58,7 +58,6 @@ public class Teleop extends OpMode {
     boolean gamepad2_b_pressed = false;
     boolean gamepad2_x_pressed = false;
     boolean gamepad2_y_pressed = false;
-    private double LeftMotorPower = 0;
     private double RightMotorPower = 0;
 
 
@@ -66,6 +65,8 @@ public class Teleop extends OpMode {
 
 
     private double powerMax = 8;
+
+
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -175,7 +176,7 @@ public class Teleop extends OpMode {
 
 
         if (gamepad2.x) {
-            RBTChassis.intakeArm.cmd_moveToPickupPos();
+            RBTChassis.intakeArm.cmd_movePivotToCarryPos();
             RobotLog.aa(TAGTeleop, "gamepad2 x pressed ");
             gamepad2_a_pressed = false;
             gamepad2_b_pressed = false;
@@ -184,7 +185,7 @@ public class Teleop extends OpMode {
         }
 
         if (gamepad2.y) {
-            RBTChassis.intakeArm.cmd_moveToDumpPos();
+            RBTChassis.intakeArm.cmd_movePivotToDumpPos();
             RobotLog.aa(TAGTeleop, "gamepad2 y pressed ");
             gamepad2_a_pressed = false;
             gamepad2_b_pressed = false;
@@ -214,6 +215,7 @@ public class Teleop extends OpMode {
         if (gamepad1.right_bumper){
             RBTChassis.setMaxPower(powerNormal);
         }
+
         // Tank Mode uses one
         // stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.

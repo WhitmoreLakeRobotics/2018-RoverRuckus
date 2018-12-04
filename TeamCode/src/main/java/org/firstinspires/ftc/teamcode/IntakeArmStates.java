@@ -17,18 +17,21 @@ public class IntakeArmStates extends BaseHardware {
     public static final int IntakePivotPos_Tol = 70;
     public static final int IntakePivotPos_Pickup = 0;
     public static final int IntakePivotPos_Dump = 3670;
-    public static final int IntakePivotPos_Carry = 1600;
+    public static final int IntakePivotPos_Carry = 2400;
+    public static final int IntakePivotPos_ExtPickup = 1300;
     public static final double IntakePivotPowerDown = -.35;
-    public static final double IntakePivotPowerUp = 0.80;
+    public static final double IntakePivotPowerUp = 0.85;
     public static final double IntakePivotPowerInit = -0.30;
+
+
 
 
     public static final int IntakeReachPos_Tol = 70;
     public static final int IntakeReachPos_Retracted = -0;
     public static final int IntakeReachPos_Extended = 1195;
     public static final int IntakeReachPos_Carry = 650;
-    public static final double IntakeReachPowerRetract = -.5;
-    public static final double IntakeReachPowerExtend = 0.5;
+    public static final double IntakeReachPowerRetract = -.7;
+    public static final double IntakeReachPowerExtend = 0.7;
     public static final double IntakeReachPowerInit = -0.2;
 
 
@@ -50,10 +53,10 @@ public class IntakeArmStates extends BaseHardware {
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
     private Hanger hanger = null;
-    private IntakePivotDestinations desiredPivotDestination = IntakePivotDestinations.Pickup;
+    private IntakePivotDestinations desiredPivotDestination = IntakePivotDestinations.Start;
     private IntakeReachDestinations desiredReachDestination = IntakeReachDestinations.Retracted;
 
-    private IntakePivotDestinations currentPivotDestination = IntakePivotDestinations.Pickup;
+    private IntakePivotDestinations currentPivotDestination = IntakePivotDestinations.Start;
     private IntakeReachDestinations currentReachDestination = IntakeReachDestinations.Retracted;
 
     //set the powers... We will need different speeds for up and down.
@@ -165,13 +168,13 @@ public class IntakeArmStates extends BaseHardware {
         boolean retValue = false;
 
         switch (desiredDestination) {
-            case Pickup:
+            case Start:
                 if (inPosition_Tol(IntakePivotPos_Pickup, IntakePivotPosCurrent, IntakePivotPos_Tol)) {
                     retValue = true;
-                    currentPivotDestination = IntakePivotDestinations.Pickup;
+                    currentPivotDestination = IntakePivotDestinations.Start;
                 } else if (IntakePivotPosCurrent < IntakePivotPos_Pickup) {
                     retValue = true;
-                    currentPivotDestination = IntakePivotDestinations.Pickup;
+                    currentPivotDestination = IntakePivotDestinations.Start;
                 }
                 break;
 
@@ -179,6 +182,13 @@ public class IntakeArmStates extends BaseHardware {
                 if (inPosition_Tol(IntakePivotPos_Carry, IntakePivotPosCurrent, (int) (IntakePivotPos_Tol * 1.75))) {
                     retValue = true;
                     currentPivotDestination = IntakePivotDestinations.Carry;
+                }
+                break;
+
+            case ExtPickup:
+                if (inPosition_Tol(IntakePivotPos_ExtPickup, IntakePivotPosCurrent, (int) (IntakePivotPos_Tol * 1.75))) {
+                    retValue = true;
+                    currentPivotDestination = IntakePivotDestinations.ExtPickup;
                 }
                 break;
 
@@ -198,15 +208,15 @@ public class IntakeArmStates extends BaseHardware {
 
                 if (inPosition_Tol(IntakePivotPos_Pickup, IntakePivotPosCurrent, IntakePivotPos_Tol) && IntakePivotPowerDesired < 0) {
                     retValue = true;
-                    currentPivotDestination = IntakePivotDestinations.Pickup;
+                    currentPivotDestination = IntakePivotDestinations.Start;
 
                 } else if (!ArmTCH.getState()) {
                     retValue = true;
-                    currentPivotDestination = IntakePivotDestinations.Pickup;
+                    currentPivotDestination = IntakePivotDestinations.Start;
 
                 } else if ((IntakePivotPosCurrent < IntakePivotPos_Pickup) && (IntakePivotPowerDesired < 0)) {
                     retValue = true;
-                    currentPivotDestination = IntakePivotDestinations.Pickup;
+                    currentPivotDestination = IntakePivotDestinations.Start;
 
                 } else if (inPosition_Tol(IntakePivotPos_Dump, IntakePivotPosCurrent, IntakePivotPos_Tol) && IntakePivotPowerDesired > 0) {
                     retValue = true;
@@ -293,8 +303,8 @@ public class IntakeArmStates extends BaseHardware {
                     currentReachDestination = IntakeReachDestinations.Extended;
 
                 } //else {
-                    //retValue = false;
-                    //currentReachDestination = IntakeReachDestinations.Unknown;
+                //retValue = false;
+                //currentReachDestination = IntakeReachDestinations.Unknown;
                 //}
                 break;
 
@@ -417,9 +427,9 @@ public class IntakeArmStates extends BaseHardware {
         }
     }
 
-    public void cmd_moveToPickupPos() {
+    public void cmd_movePivotToStartPos() {
 
-        desiredPivotDestination = IntakePivotDestinations.Pickup;
+        desiredPivotDestination = IntakePivotDestinations.Start;
         if (atPivotDestination(desiredPivotDestination)) {
             IntakePivotPowerDesired = 0;
         } else {
@@ -428,7 +438,7 @@ public class IntakeArmStates extends BaseHardware {
 
     }
 
-    public void cmd_moveToDumpPos() {
+    public void cmd_movePivotToDumpPos() {
         desiredPivotDestination = IntakePivotDestinations.Dump;
         if (atPivotDestination(desiredPivotDestination)) {
             IntakePivotPowerDesired = 0;
@@ -438,7 +448,7 @@ public class IntakeArmStates extends BaseHardware {
 
     }
 
-    public void cmd_moveToCarryPos() {
+    public void cmd_movePivotToCarryPos() {
         desiredPivotDestination = IntakePivotDestinations.Carry;
         if (atPivotDestination(desiredPivotDestination)) {
             //we are at carry Pos   Stop Now
@@ -451,7 +461,20 @@ public class IntakeArmStates extends BaseHardware {
 
     }
 
-    public void cmd_moveToRetractredPos() {
+    public void cmd_moveToPivotExtendedPickupPos() {
+        desiredPivotDestination = IntakePivotDestinations.Start;
+        if (atPivotDestination(desiredPivotDestination)) {
+            //we are at carry Pos   Stop Now
+            IntakePivotPowerDesired = 0;
+        } else if (IntakePivotPosCurrent > IntakePivotPos_Pickup) {
+            IntakePivotPowerDesired = IntakePivotPowerDown;
+        } else if (IntakePivotPosCurrent < IntakePivotPos_Carry) {
+            IntakePivotPowerDesired = IntakePivotPowerUp;
+        }
+
+    }
+
+    public void cmd_moveReachToRetractredPos() {
         desiredReachDestination = IntakeReachDestinations.Retracted;
         if (atReachDestination(desiredReachDestination)) {
             IntakeReachPowerDesired = 0;
@@ -460,7 +483,7 @@ public class IntakeArmStates extends BaseHardware {
         }
     }
 
-    public void cmd_moveToExtendedPos() {
+    public void cmd_moveReachToExtendedPos() {
         desiredReachDestination = IntakeReachDestinations.Extended;
         if (atReachDestination(desiredReachDestination)) {
             IntakeReachPowerDesired = 0;
@@ -496,8 +519,9 @@ public class IntakeArmStates extends BaseHardware {
     }
 
 
-    public boolean isPivotAtPickup() {
-        return currentPivotDestination == IntakePivotDestinations.Pickup;
+    public boolean isPivotAtStart() {
+        return currentPivotDestination == IntakePivotDestinations.Start;
+
     }
 
     public boolean isPivotAtDump() {
@@ -531,9 +555,10 @@ public class IntakeArmStates extends BaseHardware {
 
 
     public static enum IntakePivotDestinations {
-        Pickup,
+        Start,
         Carry,
         Dump,
+        ExtPickup,
         StickControl,
         Unknown
     }
@@ -542,6 +567,7 @@ public class IntakeArmStates extends BaseHardware {
         Retracted,
         Extended,
         Carry,
+        ExtPickup,
         StickControl,
         Unknown
     }

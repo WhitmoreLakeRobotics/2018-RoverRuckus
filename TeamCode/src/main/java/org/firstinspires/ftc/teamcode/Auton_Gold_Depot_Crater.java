@@ -94,7 +94,7 @@ public class Auton_Gold_Depot_Crater extends OpMode {
 
         if (currentStage == stage10_extened) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
-            RBTChassis.intakeArm.cmd_moveToCarryPos();
+            RBTChassis.intakeArm.cmd_movePivotToCarryPos();
             currentStage = stage20_liftIntakeAarm;
         }
 
@@ -114,13 +114,13 @@ public class Auton_Gold_Depot_Crater extends OpMode {
         if (currentStage == stage35_empty) {
             if (RBTChassis.getcmdComplete()) {
                 RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
-                RBTChassis.intakeArm.cmd_moveToPickupPos();
+                RBTChassis.intakeArm.cmd_movePivotToCarryPos();
                 currentStage = stage40_empty;
             }
         }
 
         if (currentStage == stage40_empty) {
-            if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Pickup)) {
+            if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Start)) {
                 RBTChassis.dumpBox.cmd_ServoAutoOut(1250);
                 currentStage = stage50_backup;
             }
@@ -128,7 +128,7 @@ public class Auton_Gold_Depot_Crater extends OpMode {
 
         if (currentStage == stage50_backup) {
             if (RBTChassis.dumpBox.getServoMode() == DumpBox.BoxModes.BoxModes_Stop) {
-                RBTChassis.intakeArm.cmd_moveToCarryPos();
+                RBTChassis.intakeArm.cmd_movePivotToCarryPos();
                 // driving backwards
                 RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 32);
                 currentStage = stage60_turn90;
