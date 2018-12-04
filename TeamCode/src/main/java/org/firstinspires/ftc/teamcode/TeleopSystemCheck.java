@@ -35,9 +35,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
 
-@TeleOp(name = "Teleop-Comp", group = "")
+@TeleOp(name = "Tele-SystemsCheck", group = "")
 //@Disabled
-public class Teleop extends OpMode {
+public class TeleopSystemCheck extends OpMode {
     private static final String TAGTeleop = "8492-Teleop";
     Chassis RBTChassis = new Chassis();
     // Declare OpMode members.
@@ -62,7 +62,7 @@ public class Teleop extends OpMode {
     @Override
     public void init() {
         telemetry.addData("TeleOp", "Initialized");
-        RBTChassis.setParentMode(Chassis.PARENTMODE.PARENT_MODE_TELE);
+        RBTChassis.setParentMode(Chassis.PARENTMODE.PARENT_MODE_AUTO);
         RBTChassis.hardwareMap = hardwareMap;
         RBTChassis.telemetry = telemetry;
         RBTChassis.setMaxPower(powerNormal);

@@ -15,23 +15,31 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class IntakeArmStates extends BaseHardware {
     //Encoder positions for the IntakeArm
     public static final int IntakePivotPos_Tol = 70;
-    public static final int IntakePivotPos_Pickup = 0;
-    public static final int IntakePivotPos_Dump = 3670;
-    public static final int IntakePivotPos_Carry = 2400;
+
+    public static final int IntakePivotPos_Start = 0;
     public static final int IntakePivotPos_ExtPickup = 1300;
+    public static final int IntakePivotPos_BottomThrottle = 2000;
+    public static final int IntakePivotPos_Carry = 2400;
+    public static final int IntakePivotPos_TopThrottle = 3000;
+    public static final int IntakePivotPos_Dump = 3670;
+
+
     public static final double IntakePivotPowerDown = -.35;
+    public static final double IntakePivotPowerDown_slow = -.15;
     public static final double IntakePivotPowerUp = 0.85;
+    public static final double IntakePivotPowerUp_slow = .25;
     public static final double IntakePivotPowerInit = -0.30;
 
 
-
-
     public static final int IntakeReachPos_Tol = 70;
-    public static final int IntakeReachPos_Retracted = -0;
-    public static final int IntakeReachPos_Extended = 1195;
+    public static final int IntakeReachPos_Retracted = 0;
+    public static final int IntakeReachPos_ExtPickup = 400;
     public static final int IntakeReachPos_Carry = 650;
-    public static final double IntakeReachPowerRetract = -.7;
-    public static final double IntakeReachPowerExtend = 0.7;
+    public static final int IntakeReachPos_Extended = 1195;
+
+
+    public static final double IntakeReachPowerRetract = -.9;
+    public static final double IntakeReachPowerExtend = 0.9;
     public static final double IntakeReachPowerInit = -0.2;
 
 
@@ -39,7 +47,7 @@ public class IntakeArmStates extends BaseHardware {
     double IntakePivotPowerCurrent = 0;
     double IntakePivotPowerDesired = 0;
     boolean cmdPivotComplete = false;
-    int IntakePivotPosCurrent = IntakePivotPos_Pickup;
+    int IntakePivotPosCurrent = IntakePivotPos_Start;
     double IntakePivotStickDeadBand = 1;
 
 
@@ -145,11 +153,13 @@ public class IntakeArmStates extends BaseHardware {
         //runtime.startTime();
 
         AM1_Pivot.setPower(IntakePivotPowerInit);
+        AM2_Reach.setPower(IntakeReachPowerInit);
         while (ArmTCH.getState()) {
             if (runtime.milliseconds() > 2000) {
                 break;
             }
         }
+        AM2_Reach.setPower(0);
         AM1_Pivot.setPower(0);
     }
 
@@ -169,10 +179,10 @@ public class IntakeArmStates extends BaseHardware {
 
         switch (desiredDestination) {
             case Start:
-                if (inPosition_Tol(IntakePivotPos_Pickup, IntakePivotPosCurrent, IntakePivotPos_Tol)) {
+                if (inPosition_Tol(IntakePivotPos_Start, IntakePivotPosCurrent, IntakePivotPos_Tol)) {
                     retValue = true;
                     currentPivotDestination = IntakePivotDestinations.Start;
-                } else if (IntakePivotPosCurrent < IntakePivotPos_Pickup) {
+                } else if (IntakePivotPosCurrent < IntakePivotPos_Start) {
                     retValue = true;
                     currentPivotDestination = IntakePivotDestinations.Start;
                 }
@@ -186,7 +196,7 @@ public class IntakeArmStates extends BaseHardware {
                 break;
 
             case ExtPickup:
-                if (inPosition_Tol(IntakePivotPos_ExtPickup, IntakePivotPosCurrent, (int) (IntakePivotPos_Tol * 1.75))) {
+                if (inPosition_Tol(IntakePivotPos_ExtPickup, IntakePivotPosCurrent, (int) (IntakePivotPos_Tol * 1.5))) {
                     retValue = true;
                     currentPivotDestination = IntakePivotDestinations.ExtPickup;
                 }
@@ -206,7 +216,7 @@ public class IntakeArmStates extends BaseHardware {
             case StickControl:
                 // Stick control only stops at Pickup and Dump positions.
 
-                if (inPosition_Tol(IntakePivotPos_Pickup, IntakePivotPosCurrent, IntakePivotPos_Tol) && IntakePivotPowerDesired < 0) {
+                if (inPosition_Tol(IntakePivotPos_Start, IntakePivotPosCurrent, IntakePivotPos_Tol) && IntakePivotPowerDesired < 0) {
                     retValue = true;
                     currentPivotDestination = IntakePivotDestinations.Start;
 
@@ -214,7 +224,7 @@ public class IntakeArmStates extends BaseHardware {
                     retValue = true;
                     currentPivotDestination = IntakePivotDestinations.Start;
 
-                } else if ((IntakePivotPosCurrent < IntakePivotPos_Pickup) && (IntakePivotPowerDesired < 0)) {
+                } else if ((IntakePivotPosCurrent < IntakePivotPos_Start) && (IntakePivotPowerDesired < 0)) {
                     retValue = true;
                     currentPivotDestination = IntakePivotDestinations.Start;
 
@@ -270,6 +280,13 @@ public class IntakeArmStates extends BaseHardware {
                     currentReachDestination = IntakeReachDestinations.Carry;
                 }
                 ;
+                break;
+
+            case ExtPickup:
+                if (inPosition_Tol(IntakeReachPos_ExtPickup, IntakeReachPosCurrent, (int) (IntakeReachPos_Tol * 1.75))) {
+                    retValue = true;
+                    currentPivotDestination = IntakePivotDestinations.ExtPickup;
+                }
                 break;
 
             case Extended:
@@ -333,7 +350,24 @@ public class IntakeArmStates extends BaseHardware {
             newPower = 0;
         }
 
-        // This is a saftey check of the hanger and intake pivot
+        // slow down if near dump position
+        if ((newPower > 0) && (IntakePivotPosCurrent > IntakePivotPos_TopThrottle) ) {
+            newPower = IntakePivotPowerUp_slow;
+        }
+
+        //slow down if near bottom position
+        if ((newPower < 0 )  && (IntakePivotPosCurrent < IntakePivotPos_BottomThrottle)) {
+            newPower = IntakePivotPowerDown_slow;
+        }
+
+        //Safety Check: stop if trying to move towards start position with reach not retracted.
+        if ((newPower < 0 ) &&
+            (! atReachDestination(IntakeReachDestinations.Retracted)) &&
+            (IntakePivotPosCurrent < IntakePivotPos_ExtPickup )){
+            newPower = 0;
+        }
+
+        // This is a safety check of the hanger and intake pivot
         if (!hanger.isRetracted() && newMotorPower > 0 && (IntakePivotPosCurrent > (int) (IntakePivotPos_Dump * .75))) {
             newPower = 0;
         }
@@ -357,6 +391,12 @@ public class IntakeArmStates extends BaseHardware {
         if (atReachDestination(desiredReachDestination)) {
             newPower = 0;
         }
+
+        //If pivot is too low do not allow this to extend
+        if ((newPower > 0) && (IntakePivotPosCurrent < IntakePivotPos_ExtPickup)) {
+            newPower = 0;
+        }
+
 
         //only set the power to the hardware when it is being changed.
         if (newPower != IntakeReachPowerCurrent) {
@@ -433,6 +473,8 @@ public class IntakeArmStates extends BaseHardware {
         if (atPivotDestination(desiredPivotDestination)) {
             IntakePivotPowerDesired = 0;
         } else {
+            //Start can only be reached if the reach is fully retracted.
+            cmd_moveReachToRetractredPos();
             IntakePivotPowerDesired = IntakePivotPowerDown;
         }
 
@@ -461,12 +503,12 @@ public class IntakeArmStates extends BaseHardware {
 
     }
 
-    public void cmd_moveToPivotExtendedPickupPos() {
+    public void cmd_movePivotToExtPickupPos() {
         desiredPivotDestination = IntakePivotDestinations.Start;
         if (atPivotDestination(desiredPivotDestination)) {
             //we are at carry Pos   Stop Now
             IntakePivotPowerDesired = 0;
-        } else if (IntakePivotPosCurrent > IntakePivotPos_Pickup) {
+        } else if (IntakePivotPosCurrent > IntakePivotPos_Start) {
             IntakePivotPowerDesired = IntakePivotPowerDown;
         } else if (IntakePivotPosCurrent < IntakePivotPos_Carry) {
             IntakePivotPowerDesired = IntakePivotPowerUp;
@@ -505,6 +547,10 @@ public class IntakeArmStates extends BaseHardware {
 
     }
 
+    public void cmd_moveToExtPickup() {
+        cmd_movePivotToExtPickupPos();
+        cmd_moveReachToExtendedPos();
+    }
 
     public void setHanger(Hanger hangR) {
         hanger = hangR;

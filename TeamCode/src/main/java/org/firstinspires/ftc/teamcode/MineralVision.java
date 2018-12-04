@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -11,12 +12,14 @@ import java.util.List;
 
 public class MineralVision extends BaseHardware {
 
+    private static final String TAGMineralVision = "8492-MineralVision";
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
 
+    private int loopCounter = 0;
     private boolean visionComplete = true;
-    private int visionTimeout = 4000;
+    private int visionTimeout = 400000;
     private ElapsedTime runtime = new ElapsedTime();
 
     public static enum GOLD_LOCATION {
@@ -59,7 +62,7 @@ public class MineralVision extends BaseHardware {
      * <p>
      * This method will be called once when the INIT button is pressed.
      */
-    public void init(){
+    public void init() {
 
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
@@ -90,7 +93,6 @@ public class MineralVision extends BaseHardware {
      * This method will be called once when the PLAY button is first pressed.
      * This method is optional. By default this method takes not action.
      * Example usage: Starting another thread.
-     *
      */
     public void start() {
         startLogic();
@@ -101,9 +103,9 @@ public class MineralVision extends BaseHardware {
      * <p>
      * This method will be called repeatedly in a loop while this op mode is running
      */
-    public void loop(){
-        if (! visionComplete) {
-            loopLogic ();
+    public void loop() {
+        if (!visionComplete) {
+            loopLogic();
         }
     }
 
@@ -111,7 +113,7 @@ public class MineralVision extends BaseHardware {
      * User defined stop method
      * <p>
      * This method will be called when this op mode is first disabled
-     *
+     * <p>
      * The stop method is optional. By default this method takes no action.
      */
     void stop() {
@@ -150,7 +152,7 @@ public class MineralVision extends BaseHardware {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }
 
-    public void startVision(){
+    public void startVision() {
         runtime.reset();
         visionComplete = false;
     }
@@ -160,23 +162,30 @@ public class MineralVision extends BaseHardware {
     }
 
 
-
-    private void loopLogic () {
+    private void loopLogic() {
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
                 telemetry.addData("# Object Detected", updatedRecognitions.size());
+                RobotLog.aa(TAGMineralVision, "Loop:" + loopCounter +
+                        " Objects Detected:" + updatedRecognitions.size());
+                loopCounter = loopCounter + 1;
                 if (updatedRecognitions.size() >= 3 && updatedRecognitions.size() < 6) {
                     int goldMineralX = -1;
                     int silverMineral1X = -1;
                     int silverMineral2X = -1;
-
+                    int goldMineralY = -1;
                     for (Recognition recognition : updatedRecognitions) {
-                        if (recognition.getTop() > 300) {
+
+                        RobotLog.aa(TAGMineralVision, recognition.getLabel() +
+                                ": " + recognition.getLeft() + ": " + recognition.getTop());
+
+                        if (recognition.getTop() > 0) {
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                 goldMineralX = (int) recognition.getLeft();
+                                goldMineralY = (int) recognition.getTop();
                             } else if (silverMineral1X == -1) {
                                 silverMineral1X = (int) recognition.getLeft();
                             } else {
@@ -187,22 +196,29 @@ public class MineralVision extends BaseHardware {
 
                     if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
                         if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                            telemetry.addData("Gold Mineral Position", "Left");
-                            gold_location=GOLD_LOCATION.LEFT;
+                            telemetry.addData("Gold Mineral Position", "Left:" + goldMineralX + ":" + goldMineralY);
+                            RobotLog.aa(TAGMineralVision, "Gold Mineral Position Left:" + goldMineralX + ":" + goldMineralY);
+                            gold_location = GOLD_LOCATION.LEFT;
+
                         } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                            telemetry.addData("Gold Mineral Position", "Right");
-                            gold_location=GOLD_LOCATION.RIGHT;
+                            telemetry.addData("Gold Mineral Position", "Right:" + goldMineralX + ":" + goldMineralY);
+                            RobotLog.aa(TAGMineralVision, "Gold Mineral Position Right:" + goldMineralX + ":" + goldMineralY);
+                            gold_location = GOLD_LOCATION.RIGHT;
+
                         } else {
-                            telemetry.addData("Gold Mineral Position", "Center");
-                            gold_location=GOLD_LOCATION.CENTER;
+                            telemetry.addData("Gold Mineral Position", "Center:" + goldMineralX + ":" + goldMineralY);
+                            RobotLog.aa(TAGMineralVision, "Gold Mineral Position Center:" + goldMineralX + ":" + goldMineralY);
+                            gold_location = GOLD_LOCATION.CENTER;
+
                         }
                         visionComplete = true;
                     }
-                }
-                else {
-                    gold_location=GOLD_LOCATION.UNKNOWN;
+                } else {
+                    gold_location = GOLD_LOCATION.UNKNOWN;
                 }
                 telemetry.update();
+            } else {
+                telemetry.addData("# Object Detected", 0);
             }
 
             if (runtime.milliseconds() > visionTimeout) {
@@ -211,31 +227,31 @@ public class MineralVision extends BaseHardware {
         }
     }
 
-    private void startLogic () {
+    private void startLogic() {
         if (tfod != null) {
             tfod.activate();
         }
     }
 
-    private void stopLogic () {
+    private void stopLogic() {
         if (tfod != null) {
             tfod.shutdown();
         }
     }
 
-    public GOLD_LOCATION getGoldLocation (){
+    public GOLD_LOCATION getGoldLocation() {
         return gold_location;
     }
 
-    public boolean isGoldLeft (){
+    public boolean isGoldLeft() {
         return (gold_location == GOLD_LOCATION.LEFT);
     }
 
-    public boolean isGoldRight (){
+    public boolean isGoldRight() {
         return (gold_location == GOLD_LOCATION.RIGHT);
     }
 
-    public boolean isGoldCenter (){
+    public boolean isGoldCenter() {
         return (gold_location == GOLD_LOCATION.CENTER);
     }
 
