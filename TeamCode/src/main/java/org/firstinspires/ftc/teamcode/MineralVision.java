@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -13,7 +14,7 @@ import java.util.List;
 public class MineralVision extends BaseHardware {
 
     private static final String TAGMineralVision = "8492-MineralVision";
-    private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
+    private static final String TFOD_MODEL_ASSET = "RoverRuckus.tf lite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
 
@@ -168,7 +169,7 @@ public class MineralVision extends BaseHardware {
             // the last time that call was made.
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
-                telemetry.addData("# Object Detected", updatedRecognitions.size());
+                telemetry.addData("Objects Detected", updatedRecognitions.size());
                 RobotLog.aa(TAGMineralVision, "Loop:" + loopCounter +
                         " Objects Detected:" + updatedRecognitions.size());
                 loopCounter = loopCounter + 1;
@@ -180,7 +181,9 @@ public class MineralVision extends BaseHardware {
                     for (Recognition recognition : updatedRecognitions) {
 
                         RobotLog.aa(TAGMineralVision, recognition.getLabel() +
-                                ": " + recognition.getLeft() + ": " + recognition.getTop());
+                                ": " + recognition.getLeft() + ": " + recognition.getTop() +
+                                ": " + recognition.getConfidence() +
+                                ": " + recognition.estimateAngleToObject(AngleUnit.DEGREES));
 
                         if (recognition.getTop() > 0) {
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
@@ -218,7 +221,7 @@ public class MineralVision extends BaseHardware {
                 }
                 telemetry.update();
             } else {
-                telemetry.addData("# Object Detected", 0);
+                telemetry.addData("Objects Detected", 0);
             }
 
             if (runtime.milliseconds() > visionTimeout) {

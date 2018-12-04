@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -97,8 +98,10 @@ public class ConceptTensorFlowObjectDetection extends LinearOpMode {
                             int silverMineral2X = -1;
                             int goldMineralY = -1;
                             for (Recognition recognition : updatedRecognitions) {
-                                RobotLog.aa(TAGMineralVision, recognition.getLabel() +
-                                        ": " + recognition.getLeft() + ": " + recognition.getTop());
+                        RobotLog.aa(TAGMineralVision, recognition.getLabel() +
+                                ": " + recognition.getLeft() + ": " + recognition.getTop() +
+                                ": " + recognition.getConfidence() +
+                                ": " + recognition.estimateAngleToObject(AngleUnit.DEGREES));
 
                                 if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                     goldMineralX = (int) recognition.getLeft();
