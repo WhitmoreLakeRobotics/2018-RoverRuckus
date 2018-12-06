@@ -17,15 +17,15 @@ public class IntakeArmStates extends BaseHardware {
     public static final int IntakePivotPos_Tol = 70;
 
     public static final int IntakePivotPos_Start = 0;
-    public static final int IntakePivotPos_ExtPickup = 1300;
-    public static final int IntakePivotPos_BottomThrottle = 2000;
-    public static final int IntakePivotPos_Carry = 2400;
-    public static final int IntakePivotPos_TopThrottle = 3000;
+    public static final int IntakePivotPos_ExtPickup = 1800;
+    public static final int IntakePivotPos_BottomThrottle = 2900;
+    public static final int IntakePivotPos_Carry = 2900;
+    public static final int IntakePivotPos_TopThrottle = 2900;
     public static final int IntakePivotPos_Dump = 3670;
 
 
-    public static final double IntakePivotPowerDown = -.35;
-    public static final double IntakePivotPowerDown_slow = -.15;
+    public static final double IntakePivotPowerDown = -.50;
+    public static final double IntakePivotPowerDown_slow = -.12;
     public static final double IntakePivotPowerUp = 0.85;
     public static final double IntakePivotPowerUp_slow = .25;
     public static final double IntakePivotPowerInit = -0.30;
@@ -236,9 +236,6 @@ public class IntakeArmStates extends BaseHardware {
                     retValue = true;
                     currentPivotDestination = IntakePivotDestinations.Dump;
 
-                } else {
-                    retValue = false;
-                    currentPivotDestination = IntakePivotDestinations.Unknown;
                 }
                 break;
 
@@ -319,10 +316,7 @@ public class IntakeArmStates extends BaseHardware {
                     retValue = true;
                     currentReachDestination = IntakeReachDestinations.Extended;
 
-                } //else {
-                //retValue = false;
-                //currentReachDestination = IntakeReachDestinations.Unknown;
-                //}
+                }
                 break;
 
             case Unknown:
@@ -367,8 +361,10 @@ public class IntakeArmStates extends BaseHardware {
             newPower = 0;
         }
 
+        //Make sure the hanger is Down  AKA no going up past TopThrottle unless the hanger is down
         // This is a safety check of the hanger and intake pivot
-        if (!hanger.isRetracted() && newMotorPower > 0 && (IntakePivotPosCurrent > (int) (IntakePivotPos_Dump * .75))) {
+        if (!hanger.isRetracted() && newPower > 0 &&
+            (IntakePivotPosCurrent > IntakePivotPos_TopThrottle)) {
             newPower = 0;
         }
 
@@ -425,10 +421,6 @@ public class IntakeArmStates extends BaseHardware {
                 currPower = IntakePivotPowerUp;
             }
 
-            //Make sure the hanger is Down  AKA no going up unless the hanger is down
-            if (!hanger.isRetracted()) {
-                currPower = 0;
-            }
 
             //limit the power of the stick
             if (currPower < IntakePivotPowerDown) {
