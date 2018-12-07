@@ -45,7 +45,7 @@ public class Chassis extends OpMode {
     public DumpBox dumpBox = new DumpBox();
     public ScannerArms scannerArms = new ScannerArms();
 
-    public MineralVision mineralVision = new MineralVision();
+    //public MineralVision mineralVision = new MineralVision();
 
     // The IMU sensor object
     BNO055IMU imu;
@@ -167,9 +167,9 @@ public class Chassis extends OpMode {
         scannerArms.telemetry = telemetry;
         scannerArms.init();
 
-        mineralVision.hardwareMap = hardwareMap;
-        mineralVision.telemetry = telemetry;
-        mineralVision.init();
+        //mineralVision.hardwareMap = hardwareMap;
+        //mineralVision.telemetry = telemetry;
+        //mineralVision.init();
 
         runtime.reset();
     }
@@ -183,7 +183,7 @@ public class Chassis extends OpMode {
         intakeArm.init_loop();
         dumpBox.init_loop();
         scannerArms.init_loop();
-        mineralVision.init_loop();
+        //mineralVision.init_loop();
         if (runtime.milliseconds()  > 1000) {
             initCounter = initCounter + 1;
             telemetry.addData("Chassis init time: ", initCounter);
@@ -251,7 +251,7 @@ public class Chassis extends OpMode {
         intakeArm.start();
         dumpBox.start();
         scannerArms.start();
-        mineralVision.start();
+        //mineralVision.start();
     }
 
     /*
@@ -264,7 +264,7 @@ public class Chassis extends OpMode {
         hanger.loop();
         dumpBox.loop();
         scannerArms.loop();
-        mineralVision.loop();
+        //mineralVision.loop();
 
 
         if (ChassisMode_Current == ChassisMode_Stop) {
@@ -512,7 +512,7 @@ public class Chassis extends OpMode {
         intakeArm.stop();
         dumpBox.stop();
         scannerArms.stop();
-        mineralVision.stop();
+        //mineralVision.stop();
     }
     public void setMaxPower(double newMax){
 

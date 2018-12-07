@@ -185,7 +185,7 @@ public class MineralVision extends BaseHardware {
                                 ": " + recognition.getConfidence() +
                                 ": " + recognition.estimateAngleToObject(AngleUnit.DEGREES));
 
-                        if (recognition.getTop() > 0) {
+                        if (recognition.getTop() > 150) {
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                 goldMineralX = (int) recognition.getLeft();
                                 goldMineralY = (int) recognition.getTop();

@@ -15,6 +15,7 @@ public class Auton_Silver_Sample extends OpMode {
     //declare and initialize stages
     private static final int stage0_preStart = 0;
     private static final int stage10_extened = 10;
+    private static final int stage12_drive = 12;
     private static final int stage15_doVision = 15;
     private static final int stage17_doSamplePosition = 17;
     private static final int stage20_liftIntakeAarm = 20;
@@ -86,8 +87,8 @@ public class Auton_Silver_Sample extends OpMode {
     @Override
     public void loop() {
 
-        telemetry.addData("Auton_Depot_Cater", currentStage);
-        RobotLog.aa(TAGAuton_SDCS, "Runtime: " + runtime.seconds() + "Auton_Depot_Cater", currentStage);
+        telemetry.addData("Auton_Silver_Sample", currentStage);
+        RobotLog.aa(TAGAuton_SDCS, "Runtime: " + runtime.seconds() + "Auton_Silver_Sample", currentStage);
         RBTChassis.loop();
 
         // check stage and do what's appropriate
@@ -99,11 +100,18 @@ public class Auton_Silver_Sample extends OpMode {
         if (currentStage == stage10_extened) {
             RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
             RBTChassis.intakeArm.cmd_movePivotToCarryPos();
-            currentStage = stage15_doVision;
+            currentStage = stage12_drive;
+        }
+
+        if (currentStage == stage12_drive) {
+            if  (RBTChassis.hanger.isExtended()) {
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 6);
+                currentStage = stage15_doVision;
+            }
         }
 
         if (currentStage == stage15_doVision) {
-            if (RBTChassis.hanger.isExtended()) {
+            if (RBTChassis.getcmdComplete()) {
                 if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Carry)) {
                     RBTChassis.mineralVision.startVision();
                     currentStage = stage17_doSamplePosition;
