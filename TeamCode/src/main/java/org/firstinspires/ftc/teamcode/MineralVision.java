@@ -32,20 +32,6 @@ public class MineralVision extends BaseHardware {
 
     private GOLD_LOCATION gold_location = GOLD_LOCATION.UNKNOWN;
 
-    /*
-     * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
-     * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
-     * A Vuforia 'Development' license key, can be obtained free of charge from the Vuforia developer
-     * web site at https://developer.vuforia.com/license-manager.
-     *
-     * Vuforia license keys are always 380 characters long, and look as if they contain mostly
-     * random data. As an example, here is a example of a fragment of a valid key:
-     *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
-     * Once you've obtained a license key, copy the string from the Vuforia web site
-     * and paste it in to your code on the next line, between the double quotes.
-     */
-    private static final String VUFORIA_KEY = "ASrOKuv/////AAABmU6x4I/irUd9rSBiByWNEU9W5d6LMOF4HcVnDpFdolVX1uvuwxLkcVNxmvVWSG7X1yYHbgYzM1/NF+9rvaMWi+0rc1Pn+eAi324EMHiQmIqmybTW3VvwkoLXdnOS/LERjn+Ax/3BiRkp7fL3LEQj7nDWZ0PMtFJqrITCH9/r6M9d5gloZdcPnAo2h+Qp1onchXpXjXCrP3Ud+wbO2RyH1YG1Tv2khrt1kqShu7H0cCP4ZCHSM3oFl5quTOpgVYjohjqlKelmI8du2y5OnecKWhYQoTLeHRjesYcSyY0vSs2LpejTasCNpsrJXSlNJdMcDmHnTq3I84GBI0PUMWdwpCCY8fbX5MlUekIRx4QWXFyj";
-
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
      * localization engine.
@@ -131,7 +117,7 @@ public class MineralVision extends BaseHardware {
          */
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.vuforiaLicenseKey = MineralVisionKey.VUFORIA_KEY;
         //parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
 

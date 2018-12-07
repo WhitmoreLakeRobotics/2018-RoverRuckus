@@ -49,13 +49,12 @@ public class Auton_Silver_Sample extends OpMode {
      */
     @Override
     public void init() {
-        telemetry.addData("Auton_Depot_Crater", "Initialized");
         RBTChassis.setParentMode(Chassis.PARENTMODE.PARENT_MODE_AUTO);
         RBTChassis.hardwareMap = hardwareMap;
         RBTChassis.telemetry = telemetry;
         RBTChassis.init();
         msStuckDetectStart = 8000;
-
+        telemetry.addData("Auton_Silver_Sample", "Initialized");
         // initialize chassis with hardware map
     }
 
@@ -66,7 +65,6 @@ public class Auton_Silver_Sample extends OpMode {
     public void init_loop() {
         // initialize chassis
         RBTChassis.init_loop();
-
     }
 
     /*
@@ -110,6 +108,7 @@ public class Auton_Silver_Sample extends OpMode {
             }
         }
 
+
         if (currentStage == stage15_doVision) {
             if (RBTChassis.getcmdComplete()) {
                 if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Carry)) {
@@ -118,6 +117,7 @@ public class Auton_Silver_Sample extends OpMode {
                 }
             }
         }
+
 
         if (currentStage == stage17_doSamplePosition) {
             if (RBTChassis.mineralVision.getVisionComplete() == true) {
@@ -135,6 +135,7 @@ public class Auton_Silver_Sample extends OpMode {
                 currentStage = stage30_drive;
             }
         }
+
 
         if (currentStage == stage30_drive) {
             if (RBTChassis.intakeArm.cmdPivotComplete == true) {
