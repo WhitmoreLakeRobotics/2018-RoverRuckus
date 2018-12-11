@@ -26,7 +26,7 @@ public class Auton_Silver_Depot_Crater extends OpMode {
     private static final int stage90_Empty = 90;
     private static final int stage95_Backup2Crater = 95;
     private static final int stage99_stop = 99;
-    private static final String TAGTeleop = "8492-Autonmous";
+    private static final String TAGTeleop = "8492-Silver-Depot-Crater";
     // create instance of Chassis
     Chassis RBTChassis = new Chassis();
     private int currentStage = stage0_preStart;

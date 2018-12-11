@@ -16,6 +16,8 @@ public class Auton_Silver_Sample extends OpMode {
     private static final int stage0_preStart = 0;
     private static final int stage10_extened = 10;
     private static final int stage12_drive = 12;
+    private static final int stage13_storeHanger = 13;
+    private static final int stage14_prepPhotos = 14;
     private static final int stage15_doVision = 15;
     private static final int stage17_doSamplePosition = 17;
     private static final int stage20_liftIntakeAarm = 20;
@@ -96,21 +98,40 @@ public class Auton_Silver_Sample extends OpMode {
 
 
         if (currentStage == stage10_extened) {
-            RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
-            RBTChassis.intakeArm.cmd_movePivotToCarryPos();
-            currentStage = stage12_drive;
+            if (RBTChassis.scannerArms.getIsUp()) {
+                RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
+                RBTChassis.intakeArm.cmd_movePivotToCarryPos();
+                currentStage = stage12_drive;
+            }
         }
+
 
         if (currentStage == stage12_drive) {
             if  (RBTChassis.hanger.isExtended()) {
                 RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 6);
+                currentStage = stage13_storeHanger;
+            }
+        }
+
+        if (currentStage == stage13_storeHanger) {
+            if  (RBTChassis.getcmdComplete()) {
+                RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
+                currentStage = stage14_prepPhotos;
+            }
+        }
+
+        if (currentStage == stage14_prepPhotos) {
+            if  (RBTChassis.hanger.isRetracted()) {
+                RBTChassis.intakeArm.cmd_movePivotToDumpPos();
                 currentStage = stage15_doVision;
             }
         }
 
 
+
+
         if (currentStage == stage15_doVision) {
-            if (RBTChassis.getcmdComplete()) {
+            if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Dump)) {
                 if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Carry)) {
                     RBTChassis.mineralVision.startVision();
                     currentStage = stage17_doSamplePosition;

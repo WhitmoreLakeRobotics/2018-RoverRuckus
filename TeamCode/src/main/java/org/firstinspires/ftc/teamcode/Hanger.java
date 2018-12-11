@@ -24,25 +24,6 @@ public class Hanger extends OpMode {
     public static final int RESTMODE = 0;
     public static final int HANGERPOS_RETRACTED = 0;
 
-
-    /*
-     cmd_MoveToTarget takes the new position in tick counts.
-
-        It figures out if we need to move up with positive power or Down with negative power
-        It then sets the new HANGERPOS_CmdPos and New HANGERPOWER_current
-        It sets a boolean that we are underStickControl to false
-        It does NOT set the motor Power... That will happen in the next loop if we are allowed
-        to set the next power
-        The buttons are used to very quickly move the HANGER to a given position with minimal
-        overshoot or undershoot.
-
-      cmdStickControl takes a double from the joystick position
-         It simply sets the new power if it is legal value... AKA it limits
-         the power to the valid powers that must be between HANGERPOWER_UP and HANGERPOWER_DOWN
-         Stick control allows the driver to adjust and drive by eye
-
-
-     */
     public static final int HANGERPOS_TOL = 40;
     public static final int HANGERPOS_EXNTENDED = 925;  //measured on robot on Oct 11, 2018
     public static final double HANGERPOWER_EXTEND = 1;
@@ -130,7 +111,7 @@ public class Hanger extends OpMode {
      */
     @Override
     public void init_loop() {
-        // initPowerHang();
+      //initPowerHang();
     }
 
     private void initPowerHang() {
@@ -141,15 +122,18 @@ public class Hanger extends OpMode {
         if (HangTCH.getState()) {
             newMotorPower = initMotorPower + (HANGERPOWER_RETRACT * .01);
         } else {
-            // initMotorPower = initMotorPower + (HANGERPOWER_EXTEND * .01);
-            newMotorPower = 0;
+            //initMotorPower = initMotorPower + (HANGERPOWER_EXTEND * .01);
+            newMotorPower = initMotorPower - (HANGERPOWER_EXTEND * .01);
+            if (newMotorPower < 0) {
+                newMotorPower = 0;
+            }
         }
 
         if (newMotorPower != initMotorPower) {
-           // telemetry.addData("initHangerPower", newMotorPower);
+           telemetry.addData("initHangerPower", newMotorPower);
             initMotorPower = newMotorPower;
-            HM1.setPower(0);
-            HM2.setPower(0);
+            HM1.setPower(initMotorPower);
+            HM2.setPower(initMotorPower);
         }
 
     }
@@ -192,7 +176,7 @@ public class Hanger extends OpMode {
 
 
     public void teleStart() {
-        // This is only called by chassis when running Tele OpModes
+        // This is only called by chassis when running Tele Modes
 
     }
 
@@ -203,7 +187,7 @@ public class Hanger extends OpMode {
     @Override
     public void loop() {
 
-        //telemetry.addData("HangerPos " + hangerPosition_CURRENT, "");
+        telemetry.addData("HangerPos",  hangerPosition_CURRENT);
         RobotLog.aa(TAGHanger, "HangerPos: " + hangerPosition_CURRENT);
 
 //check if under stick control [must create process (public void ...) first]
@@ -247,7 +231,7 @@ public class Hanger extends OpMode {
         }
 
         //Interlock the intake arm and the hanger...
-        if ((intakeArm.IntakePivotPosCurrent > (IntakeArm.IntakePos_Dump * .75)) && newMotorPower > 0) {
+        if ((intakeArm.IntakePivotPosCurrent > (2800)) && newMotorPower > 0) {
             newPower = 0;
         }
 

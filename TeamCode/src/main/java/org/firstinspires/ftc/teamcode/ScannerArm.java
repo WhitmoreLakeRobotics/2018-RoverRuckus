@@ -62,7 +62,8 @@ public class ScannerArm extends OpMode {
         ScannerArmState_desired = SCANNER_ARM_STATES.UP;
         ScannerArmState_current = SCANNER_ARM_STATES.UNKNOWN;
         ScannerArmTimer.reset();
-        scanSvo.setPosition(scanSvoPos_start);
+        cmd_moveUp();
+
     }
 
     /*

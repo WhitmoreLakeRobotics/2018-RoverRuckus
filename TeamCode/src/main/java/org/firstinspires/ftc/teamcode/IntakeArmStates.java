@@ -17,19 +17,21 @@ public class IntakeArmStates extends BaseHardware {
     public static final int IntakePivotPos_Tol = 70;
 
     public static final int IntakePivotPos_Start = 0;
-    public static final int IntakePivotPos_ExtPickup = 1800;
-    public static final int IntakePivotPos_BottomThrottle = 2900;
-    public static final int IntakePivotPos_Carry = 2900;
-    public static final int IntakePivotPos_TopThrottle = 2900;
+    public static final int IntakePivotPos_ExtPickup = 1450;
+    public static final int IntakePivotPos_BottomThrottle = 2700;
+    public static final int IntakePivotPos_BottomBrake = 1600;
+    public static final int IntakePivotPos_Carry = 2500;
+    public static final int IntakePivotPos_TopThrottle = 3250;
     public static final int IntakePivotPos_Dump = 3670;
 
 
-    public static final double IntakePivotPowerDown = -.50;
+    public static final double IntakePivotPowerDown = -.70;
     public static final double IntakePivotPowerDown_slow = -.12;
-    public static final double IntakePivotPowerUp = 0.85;
-    public static final double IntakePivotPowerUp_slow = .25;
+    public static final double IntakePivotPowerDown_brake = -.07;
+    public static final double IntakePivotPowerUp = .85;
+    public static final double IntakePivotPowerUp_slow = .35;
     public static final double IntakePivotPowerInit = -0.30;
-
+    public static final double IntakePivotPowerUp_med = .45;
 
     public static final int IntakeReachPos_Tol = 70;
     public static final int IntakeReachPos_Retracted = 0;
@@ -145,7 +147,9 @@ public class IntakeArmStates extends BaseHardware {
         SetPivotMotorPower(IntakePivotPowerDesired);
         SetReachMotorPower(IntakeReachPowerDesired);
         telemetry.addData("AM2Ticks", AM2_Reach.getCurrentPosition());
+        telemetry.addData("AM1Ticks", AM1_Pivot.getCurrentPosition());
     }
+
 
     private void initArmTCH() {
         ElapsedTime runtime = new ElapsedTime();
@@ -345,14 +349,26 @@ public class IntakeArmStates extends BaseHardware {
         }
 
         // slow down if near dump position
-        if ((newPower > 0) && (IntakePivotPosCurrent > IntakePivotPos_TopThrottle) ) {
+        if ((newPower > 0) && (IntakePivotPosCurrent > IntakePivotPos_TopThrottle) &&
+                (IntakeReachPosCurrent < 600)) {
             newPower = IntakePivotPowerUp_slow;
+        }
+
+        if ((newPower > 0) && (IntakePivotPosCurrent > IntakePivotPos_TopThrottle) &&
+                (IntakeReachPosCurrent > 600)) {
+            newPower = IntakePivotPowerUp_med;
         }
 
         //slow down if near bottom position
         if ((newPower < 0 )  && (IntakePivotPosCurrent < IntakePivotPos_BottomThrottle)) {
             newPower = IntakePivotPowerDown_slow;
         }
+
+        if ((newPower < 0 )  && (IntakePivotPosCurrent < IntakePivotPos_BottomBrake)&&
+                (IntakePivotPosCurrent > IntakePivotPos_ExtPickup)) {
+            newPower = IntakePivotPowerDown_brake;
+        }
+
 
         //Safety Check: stop if trying to move towards start position with reach not retracted.
         if ((newPower < 0 ) &&

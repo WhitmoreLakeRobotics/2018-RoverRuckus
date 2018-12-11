@@ -14,13 +14,13 @@ import java.util.List;
 public class MineralVision extends BaseHardware {
 
     private static final String TAGMineralVision = "8492-MineralVision";
-    private static final String TFOD_MODEL_ASSET = "RoverRuckus.tf lite";
+    private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
 
     private int loopCounter = 0;
     private boolean visionComplete = true;
-    private int visionTimeout = 400000;
+    private int visionTimeout = 4000;
     private ElapsedTime runtime = new ElapsedTime();
 
     public static enum GOLD_LOCATION {
@@ -165,7 +165,6 @@ public class MineralVision extends BaseHardware {
                     int silverMineral2X = -1;
                     int goldMineralY = -1;
                     for (Recognition recognition : updatedRecognitions) {
-
                         RobotLog.aa(TAGMineralVision, recognition.getLabel() +
                                 ": " + recognition.getLeft() + ": " + recognition.getTop() +
                                 ": " + recognition.getConfidence() +
