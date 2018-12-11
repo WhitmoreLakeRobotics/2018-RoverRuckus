@@ -231,7 +231,7 @@ public class Hanger extends OpMode {
         }
 
         //Interlock the intake arm and the hanger...
-        if ((intakeArm.IntakePivotPosCurrent > (2800)) && newMotorPower > 0) {
+        if ((intakeArm.IntakePivotPosCurrent > (IntakeArmStates.IntakePivotPost_HangerInterferance)) && newMotorPower > 0) {
             newPower = 0;
         }
 

@@ -21,6 +21,7 @@ public class IntakeArmStates extends BaseHardware {
     public static final int IntakePivotPos_BottomThrottle = 2700;
     public static final int IntakePivotPos_BottomBrake = 1600;
     public static final int IntakePivotPos_Carry = 2500;
+    public static final int IntakePivotPost_HangerInterferance = 2900;
     public static final int IntakePivotPos_TopThrottle = 3250;
     public static final int IntakePivotPos_Dump = 3670;
 
@@ -35,6 +36,7 @@ public class IntakeArmStates extends BaseHardware {
 
     public static final int IntakeReachPos_Tol = 70;
     public static final int IntakeReachPos_Retracted = 0;
+    public static final int IntakeReachPos_ExtDump = 200;
     public static final int IntakeReachPos_ExtPickup = 400;
     public static final int IntakeReachPos_Carry = 650;
     public static final int IntakeReachPos_Extended = 1195;
@@ -276,7 +278,7 @@ public class IntakeArmStates extends BaseHardware {
                 break;
 
             case Carry:
-                if (inPosition_Tol(IntakeReachPos_Carry, IntakeReachPosCurrent, (int) (IntakeReachPos_Tol * 1.75))) {
+                if (inPosition_Tol(IntakeReachPos_Carry, IntakeReachPosCurrent, (int) (IntakeReachPos_Tol * 1.25))) {
                     retValue = true;
                     currentReachDestination = IntakeReachDestinations.Carry;
                 }
@@ -284,9 +286,16 @@ public class IntakeArmStates extends BaseHardware {
                 break;
 
             case ExtPickup:
-                if (inPosition_Tol(IntakeReachPos_ExtPickup, IntakeReachPosCurrent, (int) (IntakeReachPos_Tol * 1.75))) {
+                if (inPosition_Tol(IntakeReachPos_ExtPickup, IntakeReachPosCurrent, (int) (IntakeReachPos_Tol * 1.25))) {
                     retValue = true;
-                    currentPivotDestination = IntakePivotDestinations.ExtPickup;
+                    currentReachDestination = IntakeReachDestinations.ExtPickup;
+                }
+                break;
+
+            case ExtDump:
+                if (inPosition_Tol(IntakeReachPos_ExtDump, IntakeReachPosCurrent, (int) (IntakeReachPos_Tol * 1.25))) {
+                    retValue = true;
+                    currentReachDestination = IntakeReachDestinations.ExtDump;
                 }
                 break;
 
@@ -524,6 +533,7 @@ public class IntakeArmStates extends BaseHardware {
 
     }
 
+
     public void cmd_moveReachToRetractredPos() {
         desiredReachDestination = IntakeReachDestinations.Retracted;
         if (atReachDestination(desiredReachDestination)) {
@@ -542,6 +552,22 @@ public class IntakeArmStates extends BaseHardware {
         }
     }
 
+
+    public void cmd_moveReachToExtDumpPos() {
+        desiredReachDestination = IntakeReachDestinations.ExtDump;
+        if (atReachDestination(desiredReachDestination)) {
+            IntakeReachPowerDesired = 0;
+        } else {
+            if (IntakeReachPosCurrent < IntakeReachPos_ExtDump) {
+                IntakeReachPowerDesired = IntakeReachPowerExtend;
+            }
+            else {
+                IntakeReachPowerDesired = IntakeReachPowerRetract;
+            }
+        }
+    }
+
+
     public void cmd_moveReachToCarryPos() {
         desiredReachDestination = IntakeReachDestinations.Carry;
         if (atReachDestination(desiredReachDestination)) {
@@ -558,6 +584,11 @@ public class IntakeArmStates extends BaseHardware {
     public void cmd_moveToExtPickup() {
         cmd_movePivotToExtPickupPos();
         cmd_moveReachToExtendedPos();
+    }
+
+    public void cmd_moveToExtDump() {
+        cmd_movePivotToDumpPos();
+        cmd_moveReachToExtDumpPos();
     }
 
     public void setHanger(Hanger hangR) {
@@ -622,6 +653,7 @@ public class IntakeArmStates extends BaseHardware {
         Extended,
         Carry,
         ExtPickup,
+        ExtDump,
         StickControl,
         Unknown
     }

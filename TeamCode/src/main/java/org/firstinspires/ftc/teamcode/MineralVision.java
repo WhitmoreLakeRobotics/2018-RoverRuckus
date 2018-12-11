@@ -20,7 +20,7 @@ public class MineralVision extends BaseHardware {
 
     private int loopCounter = 0;
     private boolean visionComplete = true;
-    private int visionTimeout = 4000;
+    private int visionTimeout = 10000;
     private ElapsedTime runtime = new ElapsedTime();
 
     public static enum GOLD_LOCATION {
@@ -151,15 +151,19 @@ public class MineralVision extends BaseHardware {
 
     private void loopLogic() {
         if (tfod != null) {
+            int goldCount = 0;
+            int silverCount = 0;
+
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
             List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            gold_location = GOLD_LOCATION.UNKNOWN;
             if (updatedRecognitions != null) {
-                telemetry.addData("Objects Detected", updatedRecognitions.size());
+                // telemetry.addData("Objects Detected", updatedRecognitions.size());
                 RobotLog.aa(TAGMineralVision, "Loop:" + loopCounter +
                         " Objects Detected:" + updatedRecognitions.size());
                 loopCounter = loopCounter + 1;
-                if (updatedRecognitions.size() >= 3 && updatedRecognitions.size() < 6) {
+                //if (updatedRecognitions.size() < 6) {
                     int goldMineralX = -1;
                     int silverMineral1X = -1;
                     int silverMineral2X = -1;
@@ -169,6 +173,13 @@ public class MineralVision extends BaseHardware {
                                 ": " + recognition.getLeft() + ": " + recognition.getTop() +
                                 ": " + recognition.getConfidence() +
                                 ": " + recognition.estimateAngleToObject(AngleUnit.DEGREES));
+
+                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                            goldCount = goldCount + 1;
+                        }
+                        else{
+                            silverCount = silverCount + 1;
+                        }
 
                         if (recognition.getTop() > 150) {
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
@@ -201,9 +212,9 @@ public class MineralVision extends BaseHardware {
                         }
                         visionComplete = true;
                     }
-                } else {
-                    gold_location = GOLD_LOCATION.UNKNOWN;
-                }
+                //}
+                telemetry.addData("GoldCount", goldCount);
+                telemetry.addData("SilverCount", silverCount);
                 telemetry.update();
             } else {
                 telemetry.addData("Objects Detected", 0);

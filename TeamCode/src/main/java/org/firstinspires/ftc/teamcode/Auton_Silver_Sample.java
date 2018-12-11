@@ -100,7 +100,7 @@ public class Auton_Silver_Sample extends OpMode {
         if (currentStage == stage10_extened) {
             if (RBTChassis.scannerArms.getIsUp()) {
                 RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
-                RBTChassis.intakeArm.cmd_movePivotToCarryPos();
+                //RBTChassis.intakeArm.cmd_movePivotToCarryPos();
                 currentStage = stage12_drive;
             }
         }
@@ -123,19 +123,15 @@ public class Auton_Silver_Sample extends OpMode {
         if (currentStage == stage14_prepPhotos) {
             if  (RBTChassis.hanger.isRetracted()) {
                 RBTChassis.intakeArm.cmd_movePivotToDumpPos();
+                RBTChassis.scannerArms.cmdMoveAllDown();
                 currentStage = stage15_doVision;
             }
         }
 
-
-
-
         if (currentStage == stage15_doVision) {
             if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Dump)) {
-                if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Carry)) {
-                    RBTChassis.mineralVision.startVision();
-                    currentStage = stage17_doSamplePosition;
-                }
+                 RBTChassis.mineralVision.startVision();
+                 currentStage = stage17_doSamplePosition;
             }
         }
 
@@ -143,15 +139,16 @@ public class Auton_Silver_Sample extends OpMode {
         if (currentStage == stage17_doSamplePosition) {
             if (RBTChassis.mineralVision.getVisionComplete() == true) {
                 if (RBTChassis.mineralVision.isGoldLeft()) {
-                    RBTChassis.scannerArms.cmdMoveDownLeft();
+                    RBTChassis.scannerArms.cmdMoveUpRight();
                 }
 
                 if (RBTChassis.mineralVision.isGoldCenter()) {
                     RBTChassis.intakeArm.cmd_movePivotToStartPos();
+                    RBTChassis.scannerArms.cmdMoveAllUp();
                 }
 
                 if (RBTChassis.mineralVision.isGoldRight()) {
-                    RBTChassis.scannerArms.cmdMoveDownRight();
+                    RBTChassis.scannerArms.cmdMoveUpLeft();
                 }
                 currentStage = stage30_drive;
             }
@@ -160,7 +157,7 @@ public class Auton_Silver_Sample extends OpMode {
 
         if (currentStage == stage30_drive) {
             if (RBTChassis.intakeArm.cmdPivotComplete == true) {
-                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 25);
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 19);
                 currentStage = stage50_backup;
             }
         }

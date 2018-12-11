@@ -71,11 +71,13 @@ public class ConceptTensorFlowObjectDetection extends LinearOpMode {
 
             while (opModeIsActive()) {
                 if (tfod != null) {
+                    int goldCount = 0;
+                    int silverCount = 0;
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
-                        telemetry.addData("Objects Detected", updatedRecognitions.size());
+                        // telemetry.addData("Objects Detected", updatedRecognitions.size());
                         RobotLog.aa(TAGMineralVision, "Loop:" + loopCounter +
                                 " Objects Detected:" + updatedRecognitions.size());
                         loopCounter = loopCounter + 1;
@@ -85,11 +87,16 @@ public class ConceptTensorFlowObjectDetection extends LinearOpMode {
                             int silverMineral2X = -1;
                             int goldMineralY = -1;
                             for (Recognition recognition : updatedRecognitions) {
-                        RobotLog.aa(TAGMineralVision, recognition.getLabel() +
-                                ": " + recognition.getLeft() + ": " + recognition.getTop() +
-                                ": " + recognition.getConfidence() +
-                                ": " + recognition.estimateAngleToObject(AngleUnit.DEGREES));
+                                RobotLog.aa(TAGMineralVision, recognition.getLabel() +
+                                        ": " + recognition.getLeft() + ": " + recognition.getTop() +
+                                        ": " + recognition.getConfidence() +
+                                        ": " + recognition.estimateAngleToObject(AngleUnit.DEGREES));
 
+                                if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                    goldCount = goldCount + 1;
+                                } else {
+                                    silverCount = silverCount + 1;
+                                }
                                 if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                     goldMineralX = (int) recognition.getLeft();
                                     goldMineralY = (int) recognition.getTop();
@@ -106,25 +113,27 @@ public class ConceptTensorFlowObjectDetection extends LinearOpMode {
                                     RobotLog.aa(TAGMineralVision, "Gold Mineral Position Left:" + goldMineralX + ":" + goldMineralY);
 
 
-                                } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                                }
+                                else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
                                     telemetry.addData("Gold Mineral Position", "Right:" + goldMineralX + ":" + goldMineralY);
                                     RobotLog.aa(TAGMineralVision, "Gold Mineral Position Right:" + goldMineralX + ":" + goldMineralY);
 
                                 } else {
                                     telemetry.addData("Gold Mineral Position", "Center:" + goldMineralX + ":" + goldMineralY);
                                     RobotLog.aa(TAGMineralVision, "Gold Mineral Position Center:" + goldMineralX + ":" + goldMineralY);
-
                                 }
                             }
                         }
+                        telemetry.addData("GoldCount", goldCount);
+                        telemetry.addData("SilverCount", silverCount);
                         telemetry.update();
                     }
                 }
             }
         }
 
-        if (tfod != null) {
-            tfod.shutdown();
+        if(tfod !=null)    {
+        tfod.shutdown();
         }
     }
 
