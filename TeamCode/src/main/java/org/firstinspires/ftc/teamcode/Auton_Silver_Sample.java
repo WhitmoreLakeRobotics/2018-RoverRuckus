@@ -210,8 +210,8 @@ public class Auton_Silver_Sample extends OpMode {
 
         if (currentStage == stage90_Empty) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.dumpBox.cmd_ServoAutoOut(1000);
                 RBTChassis.scannerArms.cmdMoveUpLeft();
+                RBTChassis.dumpBox.cmd_ServoAutoOut(1000);
                 currentStage = stage95_Backup2Crater;
             }
         }
@@ -221,7 +221,7 @@ public class Auton_Silver_Sample extends OpMode {
             if (RBTChassis.dumpBox.getServoMode() == DumpBox.BoxModes.BoxModes_Stop) {
                 // driving backwards
                 RBTChassis.cmdDrive(-AUTO_DRIVEPower_HI, -135, -80);
-                RBTChassis.intakeArm.cmd_movePivotToStartPos();
+                RBTChassis.intakeArm.cmd_moveToExtPickup();
                 currentStage = stage99_stop;
             }
         }

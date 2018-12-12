@@ -168,12 +168,15 @@ public class MineralVision extends BaseHardware {
                     int silverMineral1X = -1;
                     int silverMineral2X = -1;
                     int goldMineralY = -1;
+                    int MineralIndex = 0;
                     for (Recognition recognition : updatedRecognitions) {
-                        RobotLog.aa(TAGMineralVision, recognition.getLabel() +
+                        RobotLog.aa(TAGMineralVision, "Mineral " + MineralIndex +
+                                " is " + recognition.getLabel() +
                                 ": " + recognition.getLeft() + ": " + recognition.getTop() +
                                 ": " + recognition.getConfidence() +
                                 ": " + recognition.estimateAngleToObject(AngleUnit.DEGREES));
 
+                        MineralIndex = MineralIndex + 1;
                         if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                             goldCount = goldCount + 1;
                         }
@@ -194,6 +197,7 @@ public class MineralVision extends BaseHardware {
                     }
 
                     if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
+                        RobotLog.aa(TAGMineralVision, "GoldX=" + goldMineralX + " Silver1X=" + silverMineral1X + " Silver2X=" + silverMineral2X);
                         if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
                             telemetry.addData("Gold Mineral Position", "Left:" + goldMineralX + ":" + goldMineralY);
                             RobotLog.aa(TAGMineralVision, "Gold Mineral Position Left:" + goldMineralX + ":" + goldMineralY);
