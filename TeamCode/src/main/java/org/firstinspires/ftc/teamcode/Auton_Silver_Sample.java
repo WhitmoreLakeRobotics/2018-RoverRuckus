@@ -161,7 +161,8 @@ public class Auton_Silver_Sample extends OpMode {
 
 
         if (currentStage == stage30_drive) {
-            if (RBTChassis.intakeArm.cmdPivotComplete == true) {
+            if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Dump) ||
+                    RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Start)) {
                 RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 19);
                 currentStage = stage50_backup;
             }

@@ -189,10 +189,10 @@ public class MineralVision extends BaseHardware {
                         if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                             visionComplete = true;
                             telemetry.addData("Gold Mineral", "Left:" + recognition.getLeft() + "  Top:" + recognition.getTop());
-                            if (recognition.getLeft() < 150) {
+                            if (recognition.getLeft() < 160) {
                                 telemetry.addData("Gold Mineral on:", "LEFT");
                                 gold_location = GOLD_LOCATION.LEFT;
-                            } else if (recognition.getLeft() > 450) {
+                            } else if (recognition.getLeft() > 430) {
                                 gold_location = GOLD_LOCATION.RIGHT;
                                 telemetry.addData("Gold Mineral on:", "RIGHT");
                             } else {
@@ -204,11 +204,11 @@ public class MineralVision extends BaseHardware {
                 }
             }
             //}
-            telemetry.addData("GoldCount", goldCount);
-            telemetry.addData("SilverCount", silverCount);
-            telemetry.update();
+            //telemetry.addData("GoldCount", goldCount);
+            //telemetry.addData("SilverCount", silverCount);
+            //telemetry.update();
         } else {
-            telemetry.addData("Objects Detected", 0);
+            //telemetry.addData("Objects Detected", 0);
         }
 
         if (runtime.milliseconds() > visionTimeout) {
