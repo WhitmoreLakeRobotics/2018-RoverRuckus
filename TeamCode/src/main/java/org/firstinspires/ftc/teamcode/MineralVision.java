@@ -20,7 +20,7 @@ public class MineralVision extends BaseHardware {
 
     private int loopCounter = 0;
     private boolean visionComplete = true;
-    private int visionTimeout = 10000;
+    private int visionTimeout = 2500;
     private ElapsedTime runtime = new ElapsedTime();
 
     public static enum GOLD_LOCATION {
@@ -184,19 +184,21 @@ public class MineralVision extends BaseHardware {
                             silverCount = silverCount + 1;
                         }
 
-                        if (recognition.getTop() > 150) {
+                        if (recognition.getTop() > 300) {
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                goldMineralX = (int) recognition.getLeft();
-                                goldMineralY = (int) recognition.getTop();
-                            } else if (silverMineral1X == -1) {
-                                silverMineral1X = (int) recognition.getLeft();
-                            } else {
-                                silverMineral2X = (int) recognition.getLeft();
+                               if (recognition.getLeft() < 150){
+                                   gold_location = GOLD_LOCATION.LEFT;
+                               }else if (recognition.getLeft() > 450 ) {
+                                        gold_location = GOLD_LOCATION.RIGHT;
+                               }
+                               else {
+                                   gold_location = GOLD_LOCATION.CENTER;
+                               }
                             }
                         }
                     }
 
-                    if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
+                    /*if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
                         RobotLog.aa(TAGMineralVision, "GoldX=" + goldMineralX + " Silver1X=" + silverMineral1X + " Silver2X=" + silverMineral2X);
                         if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
                             telemetry.addData("Gold Mineral Position", "Left:" + goldMineralX + ":" + goldMineralY);
@@ -214,6 +216,7 @@ public class MineralVision extends BaseHardware {
                             gold_location = GOLD_LOCATION.CENTER;
 
                         }
+                        */
                         visionComplete = true;
                     }
                 //}
@@ -228,7 +231,7 @@ public class MineralVision extends BaseHardware {
                 visionComplete = true;
             }
         }
-    }
+
 
     private void startLogic() {
         if (tfod != null) {

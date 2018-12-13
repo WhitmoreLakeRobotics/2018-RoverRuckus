@@ -39,7 +39,7 @@ public class Auton_Silver_Sample extends OpMode {
     private int currentStage = stage0_preStart;
 
     // declare auton power variables
-    private double AUTO_DRIVEPower = .5;
+    private double AUTO_DRIVEPower = .7;
     private double AUTO_TURNPower = .4;
     private double AUTO_DRIVEPower_HI = .85;
 
@@ -88,7 +88,7 @@ public class Auton_Silver_Sample extends OpMode {
     public void loop() {
 
         telemetry.addData("Auton_Silver_Sample", currentStage);
-        RobotLog.aa(TAGAuton_SDCS, "Runtime: " + runtime.seconds() + "Auton_Silver_Sample", currentStage);
+        RobotLog.aa(TAGAuton_SDCS, "Runtime: " + runtime.seconds() + "Auton_Silver_Sample Stage"+ currentStage);
         RBTChassis.loop();
 
         // check stage and do what's appropriate
@@ -100,7 +100,6 @@ public class Auton_Silver_Sample extends OpMode {
         if (currentStage == stage10_extened) {
             if (RBTChassis.scannerArms.getIsUp()) {
                 RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
-                //RBTChassis.intakeArm.cmd_movePivotToCarryPos();
                 currentStage = stage12_drive;
             }
         }
@@ -108,7 +107,7 @@ public class Auton_Silver_Sample extends OpMode {
 
         if (currentStage == stage12_drive) {
             if  (RBTChassis.hanger.isExtended()) {
-                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 6);
+                RBTChassis.cmdDrive(AUTO_DRIVEPower, 0, 4);
                 currentStage = stage13_storeHanger;
             }
         }
@@ -116,6 +115,7 @@ public class Auton_Silver_Sample extends OpMode {
         if (currentStage == stage13_storeHanger) {
             if  (RBTChassis.getcmdComplete()) {
                 RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
+                RBTChassis.intakeArm.cmd_movePivotToCarryPos();
                 currentStage = stage14_prepPhotos;
             }
         }
@@ -140,6 +140,9 @@ public class Auton_Silver_Sample extends OpMode {
             if (RBTChassis.mineralVision.getVisionComplete() == true) {
                 if (RBTChassis.mineralVision.isGoldLeft()) {
                     RBTChassis.scannerArms.cmdMoveUpRight();
+
+                }else{
+                    RBTChassis.scannerArms.cmdMoveUpLeft();
                 }
 
                 if (RBTChassis.mineralVision.isGoldCenter()) {
@@ -149,6 +152,8 @@ public class Auton_Silver_Sample extends OpMode {
 
                 if (RBTChassis.mineralVision.isGoldRight()) {
                     RBTChassis.scannerArms.cmdMoveUpLeft();
+                }else{
+                    RBTChassis.scannerArms.cmdMoveUpRight();
                 }
                 currentStage = stage30_drive;
             }
@@ -176,7 +181,7 @@ public class Auton_Silver_Sample extends OpMode {
         if (currentStage == stage60_turn90) {
             if (RBTChassis.getcmdComplete()) {
                 RBTChassis.intakeArm.cmd_movePivotToStartPos();
-                RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
+               // RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_RETRACTED);
                 RBTChassis.cmdTurn(-AUTO_TURNPower, AUTO_TURNPower, -75);
                 currentStage = stage70_drive2Side;
             }
@@ -192,6 +197,9 @@ public class Auton_Silver_Sample extends OpMode {
         if (currentStage == stage80_turn2Depot) {
             if (RBTChassis.getcmdComplete()) {
                 RBTChassis.cmdTurn(-AUTO_TURNPower, AUTO_TURNPower, -115);
+                if (RBTChassis.mineralVision.isGoldRight()) {
+                    RBTChassis.scannerArms.cmdMoveDownLeft();
+                }
                 currentStage = stage85_drive2Depot;
             }
         }
@@ -234,7 +242,7 @@ public class Auton_Silver_Sample extends OpMode {
         }
 
 
-        if (runtime.seconds() > 29) {
+        if (runtime.seconds() > 30) {
             stop();
         }
 
