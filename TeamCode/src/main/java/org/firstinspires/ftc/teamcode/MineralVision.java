@@ -142,6 +142,11 @@ public class MineralVision extends BaseHardware {
     public void startVision() {
         runtime.reset();
         visionComplete = false;
+        gold_location = GOLD_LOCATION.UNKNOWN;
+    }
+
+    public void setVisionTimeout(int mSecVisionTimeout) {
+        visionTimeout = mSecVisionTimeout;
     }
 
     public boolean getVisionComplete() {
@@ -150,9 +155,10 @@ public class MineralVision extends BaseHardware {
 
 
     private void loopLogic() {
+        int goldCount = 0;
+        int silverCount = 0;
+
         if (tfod != null) {
-            int goldCount = 0;
-            int silverCount = 0;
 
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
@@ -164,73 +170,51 @@ public class MineralVision extends BaseHardware {
                         " Objects Detected:" + updatedRecognitions.size());
                 loopCounter = loopCounter + 1;
                 //if (updatedRecognitions.size() < 6) {
-                    int goldMineralX = -1;
-                    int silverMineral1X = -1;
-                    int silverMineral2X = -1;
-                    int goldMineralY = -1;
-                    int MineralIndex = 0;
-                    for (Recognition recognition : updatedRecognitions) {
-                        RobotLog.aa(TAGMineralVision, "Mineral " + MineralIndex +
-                                " is " + recognition.getLabel() +
-                                ": " + recognition.getLeft() + ": " + recognition.getTop() +
-                                ": " + recognition.getConfidence() +
-                                ": " + recognition.estimateAngleToObject(AngleUnit.DEGREES));
+                int MineralIndex = 0;
+                for (Recognition recognition : updatedRecognitions) {
+                    RobotLog.aa(TAGMineralVision, "Mineral " + MineralIndex +
+                            " is " + recognition.getLabel() +
+                            ": " + recognition.getLeft() + ": " + recognition.getTop() +
+                            ": " + recognition.getConfidence() +
+                            ": " + recognition.estimateAngleToObject(AngleUnit.DEGREES));
 
-                        MineralIndex = MineralIndex + 1;
+                    MineralIndex = MineralIndex + 1;
+                    if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                        goldCount = goldCount + 1;
+                    } else {
+                        silverCount = silverCount + 1;
+                    }
+
+                    if (recognition.getTop() > 300) {
                         if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                            goldCount = goldCount + 1;
-                        }
-                        else{
-                            silverCount = silverCount + 1;
-                        }
-
-                        if (recognition.getTop() > 300) {
-                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                               if (recognition.getLeft() < 150){
-                                   gold_location = GOLD_LOCATION.LEFT;
-                               }else if (recognition.getLeft() > 450 ) {
-                                        gold_location = GOLD_LOCATION.RIGHT;
-                               }
-                               else {
-                                   gold_location = GOLD_LOCATION.CENTER;
-                               }
+                            visionComplete = true;
+                            telemetry.addData("Gold Mineral", "Left:" + recognition.getLeft() + "  Top:" + recognition.getTop());
+                            if (recognition.getLeft() < 150) {
+                                telemetry.addData("Gold Mineral on:", "LEFT");
+                                gold_location = GOLD_LOCATION.LEFT;
+                            } else if (recognition.getLeft() > 450) {
+                                gold_location = GOLD_LOCATION.RIGHT;
+                                telemetry.addData("Gold Mineral on:", "RIGHT");
+                            } else {
+                                gold_location = GOLD_LOCATION.CENTER;
+                                telemetry.addData("Gold Mineral on:", "CENTER");
                             }
                         }
                     }
-
-                    /*if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
-                        RobotLog.aa(TAGMineralVision, "GoldX=" + goldMineralX + " Silver1X=" + silverMineral1X + " Silver2X=" + silverMineral2X);
-                        if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                            telemetry.addData("Gold Mineral Position", "Left:" + goldMineralX + ":" + goldMineralY);
-                            RobotLog.aa(TAGMineralVision, "Gold Mineral Position Left:" + goldMineralX + ":" + goldMineralY);
-                            gold_location = GOLD_LOCATION.LEFT;
-
-                        } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                            telemetry.addData("Gold Mineral Position", "Right:" + goldMineralX + ":" + goldMineralY);
-                            RobotLog.aa(TAGMineralVision, "Gold Mineral Position Right:" + goldMineralX + ":" + goldMineralY);
-                            gold_location = GOLD_LOCATION.RIGHT;
-
-                        } else {
-                            telemetry.addData("Gold Mineral Position", "Center:" + goldMineralX + ":" + goldMineralY);
-                            RobotLog.aa(TAGMineralVision, "Gold Mineral Position Center:" + goldMineralX + ":" + goldMineralY);
-                            gold_location = GOLD_LOCATION.CENTER;
-
-                        }
-                        */
-                        visionComplete = true;
-                    }
-                //}
-                telemetry.addData("GoldCount", goldCount);
-                telemetry.addData("SilverCount", silverCount);
-                telemetry.update();
-            } else {
-                telemetry.addData("Objects Detected", 0);
+                }
             }
-
-            if (runtime.milliseconds() > visionTimeout) {
-                visionComplete = true;
-            }
+            //}
+            telemetry.addData("GoldCount", goldCount);
+            telemetry.addData("SilverCount", silverCount);
+            telemetry.update();
+        } else {
+            telemetry.addData("Objects Detected", 0);
         }
+
+        if (runtime.milliseconds() > visionTimeout) {
+            visionComplete = true;
+        }
+    }
 
 
     private void startLogic() {
