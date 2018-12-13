@@ -35,7 +35,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
 
-@TeleOp(name = "Teleop-Comp", group = "")
+@TeleOp(name = "Teleop-Comp", group = "TeleOp")
 //@Disabled
 public class Teleop extends OpMode {
     private static final String TAGTeleop = "8492-Teleop";
