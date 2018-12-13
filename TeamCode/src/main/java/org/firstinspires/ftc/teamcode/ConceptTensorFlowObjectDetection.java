@@ -24,8 +24,8 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@TeleOp(name = "Concept: TensorFlow Object Detection", group = "")
-//@Disabled
+@TeleOp(name = "Concept: TensorFlow Object Detection", group = "TeleOp")
+@Disabled
 public class ConceptTensorFlowObjectDetection extends LinearOpMode {
     private static final String TAGMineralVision = "8492-ConceptTFOD";
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
