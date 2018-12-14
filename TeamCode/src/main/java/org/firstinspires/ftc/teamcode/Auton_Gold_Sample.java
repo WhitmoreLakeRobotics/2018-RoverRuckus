@@ -66,7 +66,6 @@ public class Auton_Gold_Sample extends OpMode {
     public void init_loop() {
         // initialize chassis
         RBTChassis.init_loop();
-
     }
 
     /*
@@ -97,7 +96,7 @@ public class Auton_Gold_Sample extends OpMode {
         }
 
 
-                if (currentStage == stage10_extened) {
+        if (currentStage == stage10_extened) {
             if (RBTChassis.scannerArms.getIsUp()) {
                 RBTChassis.hanger.cmd_MoveToTarget(Hanger.HANGERPOS_EXNTENDED);
                 currentStage = stage12_drive;
@@ -147,7 +146,7 @@ public class Auton_Gold_Sample extends OpMode {
 
 
                 if (RBTChassis.mineralVision.isGoldCenter()) {
-                   currentStage = stage18_intakeArmStart;
+                    currentStage = stage18_intakeArmStart;
                     RBTChassis.intakeArm.cmd_movePivotToStartPos();
                     RBTChassis.scannerArms.cmdMoveAllUp();
                 } else {
@@ -163,8 +162,8 @@ public class Auton_Gold_Sample extends OpMode {
             }
         }
 
-        if (currentStage == stage18_intakeArmStart){
-            if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Start)){
+        if (currentStage == stage18_intakeArmStart) {
+            if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Start)) {
                 currentStage = stage30_drive;
             }
         }
@@ -227,7 +226,7 @@ public class Auton_Gold_Sample extends OpMode {
         if (currentStage == stage85_drive2Crater) {
             if (RBTChassis.getcmdComplete()) {
                 // driving backwards
-                RBTChassis.cmdDrive(-AUTO_DRIVEPower_HI , 45, -60);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower_HI, 45, -60);
                 currentStage = stage99_stop;
             }
         }

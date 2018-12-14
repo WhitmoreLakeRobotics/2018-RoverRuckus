@@ -148,7 +148,7 @@ public class Auton_Silver_Sample extends OpMode {
 
 
                 if (RBTChassis.mineralVision.isGoldCenter()) {
-                   currentStage = stage18_intakeArmStart;
+                    currentStage = stage18_intakeArmStart;
                     RBTChassis.intakeArm.cmd_movePivotToStartPos();
                     RBTChassis.scannerArms.cmdMoveAllUp();
                 } else {
@@ -164,8 +164,8 @@ public class Auton_Silver_Sample extends OpMode {
             }
         }
 
-        if (currentStage == stage18_intakeArmStart){
-            if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Start)){
+        if (currentStage == stage18_intakeArmStart) {
+            if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Start)) {
                 currentStage = stage30_drive;
             }
         }
@@ -222,9 +222,6 @@ public class Auton_Silver_Sample extends OpMode {
         if (currentStage == stage85_drive2Depot) {
             if (RBTChassis.getcmdComplete()) {
                 RBTChassis.cmdDrive(AUTO_DRIVEPower, -123, 40);
-                if (RBTChassis.mineralVision.isGoldRight()) {
-                    RBTChassis.scannerArms.cmdMoveDownLeft();
-                }
                 currentStage = stage90_Empty;
             }
         }
