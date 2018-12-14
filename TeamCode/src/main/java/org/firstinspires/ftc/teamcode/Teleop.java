@@ -88,7 +88,7 @@ public class Teleop extends OpMode {
         Runtime.getRuntime();
         RBTChassis.start();
         RBTChassis.setMotorMode_RUN_WITHOUT_ENCODER();
-
+        RBTChassis.scannerArms.cmdMoveAllUp();
     }
 
     /*

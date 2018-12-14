@@ -142,6 +142,7 @@ public class ScannerArm extends OpMode {
     }
 
 
+
     public void cmd_moveStart() {
         ScannerArmState_desired = SCANNER_ARM_STATES.MOVING_START;
     }

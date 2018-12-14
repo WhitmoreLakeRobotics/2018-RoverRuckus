@@ -187,6 +187,7 @@ public class Auton_Gold_Sample extends OpMode {
 
         if (currentStage == stage40_empty) {
             if (RBTChassis.intakeArm.atPivotDestination(IntakeArmStates.IntakePivotDestinations.Start)) {
+                RBTChassis.scannerArms.cmdMoveAllUp();
                 RBTChassis.dumpBox.cmd_ServoAutoOut(1250);
                 currentStage = stage50_backup;
             }
@@ -194,23 +195,24 @@ public class Auton_Gold_Sample extends OpMode {
 
         if (currentStage == stage50_backup) {
             if (RBTChassis.dumpBox.getServoMode() == DumpBox.BoxModes.BoxModes_Stop) {
-                RBTChassis.intakeArm.cmd_movePivotToCarryPos();
+                RBTChassis.intakeArm.cmd_movePivotToDumpPos();
                 // driving backwards
-                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 32);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 0, 34.5);
                 currentStage = stage60_turn90;
             }
         }
 
         if (currentStage == stage60_turn90) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.cmdTurn(AUTO_TURNPower, -AUTO_TURNPower, 90);
+                RBTChassis.cmdTurn(AUTO_TURNPower, -AUTO_TURNPower, 95);
                 currentStage = stage70_drive2Side;
             }
         }
 
         if (currentStage == stage70_drive2Side) {
             if (RBTChassis.getcmdComplete()) {
-                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 90, -50);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower, 95, -50);
+                RBTChassis.scannerArms.cmdMoveStartLeft();
                 currentStage = stage80_turn2Crater;
             }
         }
@@ -226,7 +228,7 @@ public class Auton_Gold_Sample extends OpMode {
         if (currentStage == stage85_drive2Crater) {
             if (RBTChassis.getcmdComplete()) {
                 // driving backwards
-                RBTChassis.cmdDrive(-AUTO_DRIVEPower_HI, 45, -60);
+                RBTChassis.cmdDrive(-AUTO_DRIVEPower_HI, 45, -50);
                 currentStage = stage99_stop;
             }
         }

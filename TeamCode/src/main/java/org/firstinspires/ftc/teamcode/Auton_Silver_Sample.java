@@ -214,6 +214,7 @@ public class Auton_Silver_Sample extends OpMode {
                 if (RBTChassis.mineralVision.isGoldRight()) {
                     RBTChassis.scannerArms.cmdMoveDownLeft();
                 }
+                RBTChassis.scannerArms.cmdMoveStartRight();
                 currentStage = stage85_drive2Depot;
             }
         }

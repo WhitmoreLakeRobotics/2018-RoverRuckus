@@ -328,7 +328,7 @@ public class Hanger extends OpMode {
 
     public boolean isRetracted() {
         // Need to add the switch to this method
-        return ((hangerPosition_CURRENT < (HANGERPOS_RETRACTED + HANGERPOS_TOL)) ||
+        return ((hangerPosition_CURRENT < (HANGERPOS_RETRACTED + (int)(HANGERPOS_TOL * 1.00))) ||
                 (!HangTCH.getState()));
 
     }

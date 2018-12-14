@@ -21,11 +21,11 @@ public class ScannerArms extends OpMode {
 
     private double scanSvoRPos_start = .86;
     private double scanSvoRPos_up = .73;
-    private double scanSvoRPos_down = .27;
+    private double scanSvoRPos_down = .25;
 
     private double scanSvoLPos_start = .15;
     private double scanSvoLPos_up = .27;
-    private double scanSvoLPos_down = .74;
+    private double scanSvoLPos_down = .76;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -102,6 +102,9 @@ public class ScannerArms extends OpMode {
         ArmRight.cmd_moveDown();
     }
 
+    public void cmdMoveStartLeft() {ArmLeft.cmd_moveStart();}
+
+    public void cmdMoveStartRight() {ArmRight.cmd_moveStart();}
 
     public boolean getIsDown(){
         return (ArmLeft.getIsDown() && ArmRight.getIsDown());
