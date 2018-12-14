@@ -20,11 +20,11 @@ public class ScannerArms extends OpMode {
     private ScannerArm ArmLeft = new ScannerArm();
 
     private double scanSvoRPos_start = .86;
-    private double scanSvoRPos_up = .70;
+    private double scanSvoRPos_up = .73;
     private double scanSvoRPos_down = .27;
 
     private double scanSvoLPos_start = .15;
-    private double scanSvoLPos_up = .30;
+    private double scanSvoLPos_up = .27;
     private double scanSvoLPos_down = .74;
 
     /*

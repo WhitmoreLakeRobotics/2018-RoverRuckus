@@ -185,7 +185,7 @@ public class IntakeArmStates extends BaseHardware {
 
         switch (desiredDestination) {
             case Start:
-                if (inPosition_Tol(IntakePivotPos_Start, IntakePivotPosCurrent, IntakePivotPos_Tol)) {
+                if (inPosition_Tol(IntakePivotPos_Start, IntakePivotPosCurrent, (int)(IntakePivotPos_Tol* 3.0))) {
                     retValue = true;
                     currentPivotDestination = IntakePivotDestinations.Start;
                 } else if (IntakePivotPosCurrent < IntakePivotPos_Start) {
