@@ -22,7 +22,7 @@ public class IntakeArmStates extends BaseHardware {
     public static final int IntakePivotPos_BottomBrake = 1600;
     public static final int IntakePivotPos_Carry = 2500;
     public static final int IntakePivotPost_HangerInterferance = 2900;
-    public static final int IntakePivotPos_TopThrottle = 3300;
+    public static final int IntakePivotPos_TopThrottle = 3350;
     public static final int IntakePivotPos_Dump = 3670;
 
 
@@ -30,9 +30,9 @@ public class IntakeArmStates extends BaseHardware {
     public static final double IntakePivotPowerDown_slow = -.12;
     public static final double IntakePivotPowerDown_brake = -.07;
     public static final double IntakePivotPowerUp = .85;
-    public static final double IntakePivotPowerUp_slow = .40;
+    public static final double IntakePivotPowerUp_slow = .45;
     public static final double IntakePivotPowerInit = -0.30;
-    public static final double IntakePivotPowerUp_med = .50;
+    public static final double IntakePivotPowerUp_med = .55;
 
     public static final int IntakeReachPos_Tol = 70;
     public static final int IntakeReachPos_Retracted = 0;
